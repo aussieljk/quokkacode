@@ -8,7 +8,7 @@
 // trusted it, the way VS Code and Claude Code ask before running a
 // folder's code.
 //
-// Trust is kept per folder (the one holding `.threadbear/`) as the hashes
+// Trust is kept per folder (the one holding `.quokkacode/`) as the hashes
 // of the patch files you said yes to. A file whose content you haven't
 // trusted waits: "new" when nothing in that folder has been trusted yet,
 // "changed" when something has (a git pull brought a new version). A
@@ -24,8 +24,8 @@
 // counts: the worktree's .git file and the repo's record of it must point
 // at each other, so a folder can't claim to be a worktree of a trusted repo.
 //
-// Always trusted: ~/.threadbear/patches (yours, like ~/.zshrc) and
-// Threadbear's own checkout (the code that's already running you).
+// Always trusted: ~/.quokkacode/patches (yours, like ~/.zshrc) and
+// Quokka Code's own checkout (the code that's already running you).
 //
 // What's hashed is the patch file and every local file it imports, and
 // theirs in turn (relative or absolute specifiers: `./lib/ask.ts`), so a
@@ -57,7 +57,7 @@ import { looksRunnable, MAX_READ_BYTES, reachOf, reachOfCommand, Reads, type Fol
 
 export type TrustVerdict =
   // `files`: the local files its hash covered, real paths. Absent when the
-  // folder is trusted whatever it holds (home's, Threadbear's own), which
+  // folder is trusted whatever it holds (home's, Quokka Code's own), which
   // is how the loader knows not to hold its commands to automaticCommand.
   // `blocked`: scripts it names that run something patch trust can't
   // follow, with why; a command that runs by itself can't be one.
@@ -115,7 +115,7 @@ type TrustFile = { version: 1 | 2 | 3; folders: Record<string, string[]> };
 
 // In front of every patch hash, the helper-less ones too, so no version's
 // hash can match another's, nor one patch's text another's whole hash.
-const HASH_TAG = 'threadbear-patch-3';
+const HASH_TAG = 'quokkacode-patch-3';
 // Control characters (a newline, a NUL): no followed path may hold one.
 // eslint-disable-next-line no-control-regex
 const CONTROL = /[\u0000-\u001f\u007f]/;
@@ -144,14 +144,14 @@ export interface PatchTrustStore extends PatchGate {
   // bytes trusted before or another such edit's: one edit doesn't vouch
   // for files it didn't write, nor an Edit for the rest of a file that
   // wasn't trusted before it. Only files inside `folder` count, only
-  // patches in `folder`'s own `.threadbear/patches`, and only patches
+  // patches in `folder`'s own `.quokkacode/patches`, and only patches
   // already looked at are known as importing it.
   trustAgentWrite(file: string, sha256: string, base: string | null, folder: string): string[];
   // Whether `file` is part of a patch this has hashed (the patch file, a
   // helper, a script it names): an edit to it changes code that runs.
   covers(file: string): boolean;
   // Whether a patch folder's patches load whatever they hold, unhashed
-  // (Threadbear's own checkout): code-writes looks at those itself.
+  // (Quokka Code's own checkout): code-writes looks at those itself.
   loadsUnhashed(dir: string): boolean;
   // Whether `file` hashes to `hash` now, read afresh (no cache): checked
   // just before a trusted hook or setup script runs.
@@ -366,7 +366,7 @@ export class PatchTrust implements PatchTrustStore {
     // file would trust all of it (Gautam's scan, F21).
     if (base !== null && !this.isApproved(target, base)) return [];
     this.approve(target, sha256);
-    // And only the folder's own patches, from its own `.threadbear/`: in a
+    // And only the folder's own patches, from its own `.quokkacode/`: in a
     // thread in a parent folder (~, ~/dev), every repo under it is inside,
     // but their patches aren't this thread's.
     // By where its patches folder is, not the file: a patch that's a link
@@ -529,7 +529,7 @@ export function patchHash(file: string): PatchHash {
   if (!text) throw new Error(`can't read ${file}`);
   const own = sha256(text);
   const resolve = (dir: string, spec: string) => resolveHelper(dir, spec, reads);
-  // The folder holding `.threadbear/`: where its commands run (a thread's
+  // The folder holding `.quokkacode/`: where its commands run (a thread's
   // folder, or the worktree's root for setup), so `./setup.sh` is there.
   const folder = path.dirname(path.dirname(path.dirname(root)));
   const seen = new Set([root]);
@@ -854,9 +854,9 @@ export function namedPaths(src: string): string[] {
   return [...out];
 }
 
-// A command a patch makes Threadbear run by itself (a worktree's `setup`,
+// A command a patch makes Quokka Code run by itself (a worktree's `setup`,
 // a hook), held to what the hash can vouch for: one script, by a `./` or
-// `../` path from the folder holding `.threadbear/`, that's a file inside
+// `../` path from the folder holding `.quokkacode/`, that's a file inside
 // the repo and among the files the hash covered (`files`), then plain
 // words as arguments. Anything a shell would work out first (`cd x &&`,
 // `VAR=1`, `$(...)`, pipes, `;`, quotes, globs, `sh -c`, `bash x.sh`,
@@ -895,7 +895,7 @@ export function automaticCommand(command: string, folder: string, files: string[
     };
   }
   const quote = (w: string) => `'${w.replace(/'/g, `'\\''`)}'`;
-  // From the folder holding .threadbear/, which is where the follow
+  // From the folder holding .quokkacode/, which is where the follow
   // started: a hook in a thread in a subfolder ran from there, so the
   // script's own relative paths named files nothing had hashed.
   return { run: `cd ${quote(realpath(folder))} && ${[real, ...args].map(quote).join(' ')}` };
@@ -928,7 +928,7 @@ export function commandFiles(command: string, folder: string): { files: string[]
 // when it may. Those run by themselves, every few seconds, so they're held
 // as a hook's script is, short of the one-script rule (a live function's
 // command is worked out in code by design): followed from `folder` (the
-// one holding `.threadbear/`, where they run), it may reach only files the
+// one holding `.quokkacode/`, where they run), it may reach only files the
 // hash covered, no script patch trust can't follow (`blocked`), and
 // nothing it can't follow itself. They ran in the thread's folder, so a
 // relative script resolved to a file in a subfolder that nothing hashed,
@@ -998,10 +998,10 @@ export function fileSha(file: string): string | undefined {
   }
 }
 
-// A file in some `.threadbear/patches/` folder with a patch's extension.
+// A file in some `.quokkacode/patches/` folder with a patch's extension.
 export function isPatchFile(file: string): boolean {
   const dir = path.dirname(path.resolve(file));
-  return path.basename(dir) === 'patches' && path.basename(path.dirname(dir)) === '.threadbear' && ['.ts', '.js', '.mjs'].includes(path.extname(file));
+  return path.basename(dir) === 'patches' && path.basename(path.dirname(dir)) === '.quokkacode' && ['.ts', '.js', '.mjs'].includes(path.extname(file));
 }
 
 function isInside(dir: string, parent: string): boolean {
@@ -1010,7 +1010,7 @@ function isInside(dir: string, parent: string): boolean {
 }
 
 // The folder a patch file's trust is kept under: the one holding its
-// `.threadbear/`, or, in a git worktree, the same place in the main checkout.
+// `.quokkacode/`, or, in a git worktree, the same place in the main checkout.
 export function folderKey(file: string): string {
   return folderKeyOfDir(path.dirname(path.dirname(path.dirname(path.resolve(file)))));
 }
@@ -1039,7 +1039,7 @@ function realpath(p: string): string {
 // file (a worktree's) rather than a folder. The entry itself, not what it
 // points at: a `.git` that's a symlink (to a real worktree's .git file,
 // say) is no worktree, as git never makes one, and following it let any
-// folder from a zip pass as a worktree of Threadbear's own, always
+// folder from a zip pass as a worktree of Quokka Code's own, always
 // trusted checkout (Gautam's scan, 6 Nov).
 function worktreeTop(dir: string): string | undefined {
   for (let d = dir; ; d = path.dirname(d)) {

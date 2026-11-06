@@ -1,7 +1,7 @@
 {
   // threadbear.mikecann.app, the landing page. Not deployed yet: `npm run check` is a dry run,
   // `npm run deploy` puts it live (and makes the custom domain's DNS record on mikecann.app).
-  "name": "threadbear-site",
+  "name": "quokkacode-site",
   "main": "worker.mjs",
   "compatibility_date": "2026-10-28",
   // The site is ./dist, built by scripts/build.mjs. The Worker runs first for every request so

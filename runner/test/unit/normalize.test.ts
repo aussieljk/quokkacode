@@ -594,7 +594,7 @@ test('a thinking block signed as narration is the reply: assistant.text, not rea
   const outs = [
     frame([{ type: 'thinking', thinking: 'Wrap up now.', signature: THINKING_SIG }]),
     frame([{ type: 'thinking', thinking: 'Found the bug and fixed it.', signature: NARRATION_SIG }]),
-    frame([{ type: 'tool_use', id: 'tu1', name: 'mcp__threadbear__end_turn', input: { needs: 'nothing' } }]),
+    frame([{ type: 'tool_use', id: 'tu1', name: 'mcp__quokkacode__end_turn', input: { needs: 'nothing' } }]),
   ].flatMap((m) => n.handle(m));
   assertProtocol(outs);
   assert.deepEqual(
@@ -602,7 +602,7 @@ test('a thinking block signed as narration is the reply: assistant.text, not rea
     [
       ['reasoning', 'm1:0', 'Wrap up now.'],
       ['assistant.text', 'm1:1', 'Found the bug and fixed it.'],
-      ['tool.call', 'tu1', 'mcp__threadbear__end_turn'],
+      ['tool.call', 'tu1', 'mcp__quokkacode__end_turn'],
     ],
   );
   // What the API sends for a narration block is a summary of it.

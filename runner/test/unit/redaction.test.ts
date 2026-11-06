@@ -362,7 +362,7 @@ test("the DER header rule stays linear on long runs", () => {
   }
 });
 
-test("Threadbear's own tokens are redacted", () => {
+test("Quokka Code's own tokens are redacted", () => {
   const token = "tb_" + "ab12".repeat(16);
   const { text, redacted } = redactSecrets(`phone token ${token} saved`);
   assert.equal(redacted, true);

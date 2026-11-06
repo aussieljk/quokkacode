@@ -13,7 +13,7 @@ test('samples are finished threads with no CLI, the first needing you, in a fold
   const h = makeHarness();
   const folder = path.join(h.cfg.home, 'Welcome');
   h.runner.samples({ cwd: folder });
-  assert.equal(fs.readFileSync(path.join(folder, '.threadbear/patches/welcome.ts'), 'utf8'), WELCOME_PATCH);
+  assert.equal(fs.readFileSync(path.join(folder, '.quokkacode/patches/welcome.ts'), 'utf8'), WELCOME_PATCH);
   h.runner.samples({ cwd: folder, remove: true });
   const { threads } = h.runner.samples({ cwd: h.cfg.defaults.cwd });
   await tick();
@@ -37,11 +37,11 @@ test('asking again makes them afresh, with the patch back; remove deletes them, 
   const first = h.runner.samples({ cwd: folder }).threads.map((t) => t.id);
   h.runner.update({ threadId: first[2], archived: true });
   // A tour left unfinished, and the patch gone (or never trusted).
-  fs.rmSync(path.join(folder, '.threadbear'), { recursive: true });
+  fs.rmSync(path.join(folder, '.quokkacode'), { recursive: true });
   const again = h.runner.samples({ cwd: folder }).threads;
   assert.equal(again.length, 3);
   assert.ok(again.every((t) => !first.includes(t.id) && !t.archivedAt), 'fresh ones, none archived');
-  assert.ok(fs.existsSync(path.join(folder, '.threadbear/patches/welcome.ts')));
+  assert.ok(fs.existsSync(path.join(folder, '.quokkacode/patches/welcome.ts')));
   const real = h.runner.create({ text: 'A real one', accountId: 'claude-3' }).thread.id;
   assert.deepEqual(h.runner.samples({ cwd: folder, remove: true }).threads, []);
   assert.deepEqual(h.runner.list(['inbox', 'snoozed', 'archived']).map((t) => t.id), [real]);

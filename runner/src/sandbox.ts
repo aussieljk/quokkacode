@@ -6,7 +6,7 @@
 // machine. Everything else (the runner, its data and secrets, other repos)
 // isn't there, so an agent with full access can only touch its thread's
 // folder. The runner stays where it is: transcripts, pools, schedules and
-// Convex sync don't change, and the threadbear tools and hooks reach the CLI
+// Convex sync don't change, and the quokkacode tools and hooks reach the CLI
 // over the same stdin and stdout as always.
 //
 // A sandbox lasts as long as the CLI does. When a thread goes idle the

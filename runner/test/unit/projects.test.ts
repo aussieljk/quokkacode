@@ -8,7 +8,7 @@ import { Projects, drainProjectMethods, projectMethods, BRIEF_MAX, NOTES_LONG, t
 import { projectRouter, type PrimaryLink } from '../../src/handover.ts';
 import type { PocketCardInput, PocketCardSummary } from '../../src/sync.ts';
 import { Librarian, type LibrarianPocket, librarianMethods, saysNoFit, mainCheckout, SETTLE_MS, CATCH_UP_MS, CATCH_UP_MIN_CHARS, FIRST_MESSAGE_MS, SWEEP_MS } from '../../src/librarian.ts';
-import { buildThreadbearTools } from '../../src/threadbear-mcp.ts';
+import { buildQuokkaCodeTools } from '../../src/quokkacode-mcp.ts';
 import { FakeClock } from '../../src/clock.ts';
 import { nullLogger, type Logger } from '../../src/log.ts';
 import { ErrorCode, RpcError } from '../../src/protocol.ts';
@@ -260,7 +260,7 @@ test('a session hears about a project once: a live one at its next message, a fr
   h.runner.send(thread.id, 'carry on');
   await tick();
   const sent = h.adapter.last.sent.at(-1)!;
-  assert.match(sent.text, /^\[Threadbear project\] This thread is now part of the project "Poddle" \(p_[0-9a-f]+\)\. Goals: A podcast player for Mike State: Build 12 is in review/);
+  assert.match(sent.text, /^\[Quokka Code project\] This thread is now part of the project "Poddle" \(p_[0-9a-f]+\)\. Goals: A podcast player for Mike State: Build 12 is in review/);
   assert.match(sent.text, /\n\ncarry on$/);
   // Said once.
   await finish(thread.id);
@@ -285,9 +285,9 @@ test('a session hears about a project once: a live one at its next message, a fr
   await tick();
   assert.equal(h.adapter.last.opts.resume, false);
   const brief = h.adapter.last.opts.instructions!;
-  assert.match(brief, /^\[Threadbear projects\]/);
+  assert.match(brief, /^\[Quokka Code projects\]/);
   assert.match(brief, /## Poddle \(p_[0-9a-f]+\)\nFolders: ~\/dev\/app\nGoals: A podcast player for Mike\nState: Build 12 is in review/);
-  assert.doesNotMatch(h.adapter.last.sent.at(-1)!.text, /Threadbear project/);
+  assert.doesNotMatch(h.adapter.last.sent.at(-1)!.text, /QuokkaCode project/);
 });
 
 test('the brief stays short however many projects there are', () => {
@@ -306,7 +306,7 @@ test('the brief stays short however many projects there are', () => {
 
 test("a thread in a project gets its folders' patches, and their actions run in that folder", async () => {
   const { h, repo, projects, create } = setup();
-  const app = repo('dev/app', { '.threadbear/patches/tools.ts': `export default { actions: [{ title: "Where", run: "pwd" }] };` });
+  const app = repo('dev/app', { '.quokkacode/patches/tools.ts': `export default { actions: [{ title: "Where", run: "pwd" }] };` });
   const { thread } = create();
   await tick();
   await h.runner.patchesIdle();
@@ -502,7 +502,7 @@ test('agent tools: make, read, update, join and leave projects', async () => {
   const { h, repo, projects, create } = setup();
   const app = repo('dev/app');
   const { thread } = create();
-  const tools = buildThreadbearTools(h.runner, thread.id, Date.now, undefined, projects);
+  const tools = buildQuokkaCodeTools(h.runner, thread.id, Date.now, undefined, projects);
   const call = async (name: string, args: Record<string, unknown>) => {
     const t = tools.find((x) => x.name === name)!;
     const r = await t.handler(args as never, {} as never);
@@ -550,7 +550,7 @@ test('a thread finishing its turn on a draining runner changes projects on the n
   const methods = drainProjectMethods(primary);
   let link: Pick<PrimaryLink, 'call'> | undefined;
   const control = projectRouter(projects, () => link, { draining: () => true, holds: (id) => h.runner.has(id) });
-  const tools = buildThreadbearTools(h.runner, thread.id, Date.now, undefined, control);
+  const tools = buildQuokkaCodeTools(h.runner, thread.id, Date.now, undefined, control);
   const call = async (name: string, args: Record<string, unknown>) => {
     const t = tools.find((x) => x.name === name)!;
     const r = await t.handler(args as never, {} as never);
@@ -772,7 +772,7 @@ test('the librarian renames a project whose name has gone out of date, never one
   assert.equal(projects.record(mikes.id)?.title, 'Mikes name');
   // An agent's rename can still be tidied later; Mike's rename in the app
   // (projects.update) makes it his.
-  const tools = buildThreadbearTools(h.runner, thread.id, Date.now, undefined, projects);
+  const tools = buildQuokkaCodeTools(h.runner, thread.id, Date.now, undefined, projects);
   await tools.find((x) => x.name === 'update_project')!.handler({ project: p.id, title: 'BrowserBear' } as never, {} as never);
   assert.equal(projects.record(p.id)?.titleBy, 'agent');
   await tools.find((x) => x.name === 'update_project')!.handler({ project: other.id, title: 'Asked for', mikeAsked: true } as never, {} as never);
@@ -880,7 +880,7 @@ function heldModel(value: () => unknown) {
 }
 
 test('a thread deleted while the librarian waits on the model is dropped quietly', async () => {
-  // THREADBEAR-4: the look carried on and failed with "Thread not found".
+  // QUOKKACODE-4: the look carried on and failed with "Thread not found".
   const { log, lines } = keepingLogger();
   let p!: { id: string };
   const m = heldModel(() => ({ projects: [p.id], state: { [p.id]: 'Going' } }));
@@ -903,7 +903,7 @@ test('a thread deleted while the librarian waits on the model is dropped quietly
 });
 
 test('a thread a draining runner lets go mid-look is left to the new runner, quietly', async () => {
-  // THREADBEAR-4 as it really happened: the thread wasn't deleted, the old
+  // QUOKKACODE-4 as it really happened: the thread wasn't deleted, the old
   // runner had handed it over while its look waited on the model.
   const { log, lines } = keepingLogger();
   const m = heldModel(() => ({ projects: [], new: null }));
@@ -975,7 +975,7 @@ test('links: checked, titled from the host, added and retitled by url, merged, a
 test('agent tools set links: create, add, remove, and read_project shows them', async () => {
   const { h, projects, create } = setup();
   const { thread } = create();
-  const tools = buildThreadbearTools(h.runner, thread.id, Date.now, undefined, projects);
+  const tools = buildQuokkaCodeTools(h.runner, thread.id, Date.now, undefined, projects);
   const call = async (name: string, args: Record<string, unknown>) => {
     const r = await tools.find((x) => x.name === name)!.handler(args as never, {} as never);
     return { text: r.content.map((c: any) => c.text).join(''), error: Boolean(r.isError) };
@@ -1115,11 +1115,11 @@ test('a look sees what the thread had attached and messages from the phone', asy
 });
 
 // A note that won't fit says how to make room instead of only refusing
-// (Mike, 30 Oct: Threadbear's notes hit the cap).
+// (Mike, 30 Oct: Quokka Code's notes hit the cap).
 test('update_project says how to make room when the notes are full', async () => {
   const { h, projects, create } = setup();
   const { thread } = create();
-  const tools = buildThreadbearTools(h.runner, thread.id, Date.now, undefined, projects);
+  const tools = buildQuokkaCodeTools(h.runner, thread.id, Date.now, undefined, projects);
   const call = async (name: string, args: Record<string, unknown>) => {
     const t = tools.find((x) => x.name === name)!;
     const r = await t.handler(args as never, {} as never);

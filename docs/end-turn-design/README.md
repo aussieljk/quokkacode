@@ -36,7 +36,7 @@ The eval that tested the wording on real models is in
 
 Three throwaway tasks (a bug fix with a related older thread, a question
 with nothing to change, a fix that ends on a missing API key), a stand-in
-`threadbear` server with the draft end_turn, reply-first refused as the
+`quokkacode` server with the draft end_turn, reply-first refused as the
 runner does. Opus 5.5 twice and Haiku 5.5 once per task per option in the
 last round, after two rounds that fixed the wording and the rig.
 

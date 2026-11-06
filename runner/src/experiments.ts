@@ -4,7 +4,7 @@
 // switch are taken out and the feature just runs (AGENTS.md, "Experiments"),
 // rather than its default flipping and the switch staying.
 //
-// Since the repo went public (5 Nov 2026) other people run Threadbear, so
+// Since the repo went public (5 Nov 2026) other people run Quokka Code, so
 // Mike asked on 6 Nov that features he's still trying out land here
 // rather than straight on. Each one names the schedule that asks him,
 // a few days after it lands, whether to turn it on for everyone, so

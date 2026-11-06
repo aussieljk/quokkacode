@@ -46,7 +46,7 @@ export function cliEnv(account: Account, base: NodeJS.ProcessEnv = process.env):
   for (const k of INHERITED_SESSION_VARS) delete env[k];
   if (account.id === 'claude-main') delete env.CLAUDE_CONFIG_DIR;
   else env.CLAUDE_CONFIG_DIR = account.configDir;
-  env.CLAUDE_AGENT_SDK_CLIENT_APP = `threadbear-runner/${RUNNER_VERSION}`;
+  env.CLAUDE_AGENT_SDK_CLIENT_APP = `quokkacode-runner/${RUNNER_VERSION}`;
   return env;
 }
 
@@ -111,7 +111,7 @@ export type ClaudeAdapterDeps = {
   registry: ProcessRegistry;
   log: Logger;
   queryFn?: typeof sdkQuery;
-  // In-process MCP servers for a thread's session (the threadbear tools).
+  // In-process MCP servers for a thread's session (the quokkacode tools).
   mcpServersFor?: (threadId: string) => Record<string, McpServerConfig>;
   // Tools that ask Mike even in a thread with full access.
   alwaysAsk?: Set<string>;
@@ -341,7 +341,7 @@ class ClaudeSession implements AgentSession {
   private stderrTail: string[] = [];
   private seenTools = new Set<string>();
   private toolWaiters = new Map<string, (() => void)[]>();
-  // Whether this session has the threadbear server's end_turn, and whether
+  // Whether this session has the quokkacode server's end_turn, and whether
   // the turn now ending called it (a taken call, from the PostToolUse hook).
   private hasEndTurn = false;
   private endTurnTaken = false;
@@ -494,7 +494,7 @@ class ClaudeSession implements AgentSession {
   }
 
   private onEndTurn(input: HookInput): Record<string, never> {
-    // A sub-agent's call never reaches the thread (threadbear-mcp.ts).
+    // A sub-agent's call never reaches the thread (quokkacode-mcp.ts).
     if (!(input as { agent_id?: string }).agent_id) this.endTurnTaken = true;
     return {};
   }
@@ -657,7 +657,7 @@ class ClaudeSession implements AgentSession {
     if (plan) this.sink.output({ kind: 'planProposed', itemId: o.toolUseID, text: typeof input.plan === 'string' ? input.plan : '' });
     // Approved outside Full access, whatever the hook saw.
     if (EDIT_TOOLS.has(name)) this.noteWriteMode(o.toolUseID, this.mode);
-    // An edit that writes code Threadbear runs: asked about every time, and
+    // An edit that writes code Quokka Code runs: asked about every time, and
     // the card says why (code-writes.ts).
     const target = EDIT_TOOLS.has(name) ? this.editTarget(input) : undefined;
     const code = this.codeWrites.has(o.toolUseID) || (target !== undefined && this.runsAsCode(target));

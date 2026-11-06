@@ -1,5 +1,5 @@
-// The context budget: what every Threadbear thread's agent is handed
-// before it reads a word from the user (the threadbear tools' names,
+// The context budget: what every Quokka Code thread's agent is handed
+// before it reads a word from the user (the quokkacode tools' names,
 // descriptions and argument schemas, and the standing instructions), in
 // bytes, checked against context-budget.json. Any change, up or down,
 // fails until the file is updated, so growth shows up in the diff as a
@@ -13,7 +13,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { buildThreadbearTools, guidePath, serverInstructions, type ThreadControl } from '../../src/threadbear-mcp.ts';
+import { buildQuokkaCodeTools, guidePath, serverInstructions, type ThreadControl } from '../../src/quokkacode-mcp.ts';
 import { z } from 'zod';
 import { NAMESPACE_DESCRIPTION, toolGuidance, type ToolDefinition } from '../../src/adapters/codex/tools.ts';
 import { worktreeInstructions } from '../../src/worktrees.ts';
@@ -41,7 +41,7 @@ function stub<T extends object>(): T {
   return new Proxy({}, { get: () => () => undefined }) as T;
 }
 function tools(provider: 'claude' | 'codex', oneReply: boolean): ToolDefinition[] {
-  return buildThreadbearTools(stub<ThreadControl>(), SELF, () => 0, stub(), stub(), stub(), {
+  return buildQuokkaCodeTools(stub<ThreadControl>(), SELF, () => 0, stub(), stub(), stub(), {
     provider,
     oneReply: () => oneReply,
     bulletReplies: () => true,

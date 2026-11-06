@@ -72,13 +72,13 @@ export const DEFAULT_CODEX_TIMINGS: CodexTimings = {
 export type NormalizerFactory = (ctx: NormalizerContext, o: { threadId: string }) => CodexNormalizerLike;
 
 export type CodexAdapterDeps = {
-  // What the next process starts (E's codexBinary(): Threadbear's own copy,
+  // What the next process starts (E's codexBinary(): Quokka Code's own copy,
   // codexPath, or the fallback npm copy). Called on every spawn.
   codexBinary: () => string;
   codexArgs?: string[];
   registry: ProcessRegistry;
   log: Logger;
-  // The threadbear tools for a thread, given to new threads as dynamic tools.
+  // The quokkacode tools for a thread, given to new threads as dynamic tools.
   toolsFor?: (threadId: string) => ToolDefinition[];
   // Section B's CodexNormalizer unless a test passes its own.
   normalizer?: NormalizerFactory;
@@ -274,7 +274,7 @@ export function codexModelChoices(rows: unknown[]): ModelChoice[] {
   return out;
 }
 
-// Threadbear's two permission modes in Codex's terms (step4-plan.md,
+// Quokka Code's two permission modes in Codex's terms (step4-plan.md,
 // "Permission modes"). approvalsReviewer is always sent: another account's
 // config.toml could route approvals to Codex's auto-reviewer instead.
 export function threadPolicy(mode: PermissionMode): Pick<ThreadStartParams, 'approvalPolicy' | 'approvalsReviewer' | 'sandbox'> {
@@ -294,7 +294,7 @@ export function threadConfig(threadId: string): Record<string, unknown> {
   return {
     // Adds to config.toml's own [shell_environment_policy.set] rather than
     // replacing it (spike 3), so the commands Codex runs know their thread.
-    'shell_environment_policy.set.THREADBEAR_THREAD_ID': threadId,
+    'shell_environment_policy.set.QUOKKACODE_THREAD_ID': threadId,
     'tools.update_plan.enabled': true,
     mcp_optional_startup_grace_ms: 10000,
     // Without it every thread notes "Under-development features enabled:
@@ -745,7 +745,7 @@ export class CodexSession implements AgentSession {
       if (method === 'item/started') this.turn?.openCommands.add(item.id);
       else this.turn?.openCommands.delete(item.id);
     } else if (item.type === 'fileChange' && method === 'item/started' && Array.isArray(item.changes)) {
-      // A rename's new name too: a file moved to .threadbear/patches is
+      // A rename's new name too: a file moved to .quokkacode/patches is
       // written there (code-writes.ts).
       this.itemPaths.set(item.id, item.changes.flatMap((c) => [c?.path, c?.kind?.move_path]).filter((x): x is string => typeof x === 'string' && x !== ''));
       if (this.itemPaths.size > 200) this.itemPaths.delete(this.itemPaths.keys().next().value!);

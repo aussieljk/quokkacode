@@ -35,7 +35,7 @@ p { margin-top: 24px; font-size: 24px; line-height: 32px; color: #46413a; }
 .mac { position: absolute; left: 580px; top: 72px; width: 900px; filter: drop-shadow(0 24px 40px rgba(40,30,15,.18)); }
 </style></head><body>
 <div class="copy">
-  <div class="brand"><img src="${data("public/img/icon-192.png", "image/png")}">Threadbear</div>
+  <div class="brand"><img src="${data("public/img/icon-192.png", "image/png")}">Quokka Code</div>
   <h1>The agent app you can patch yourself</h1>
   <p>A Mac app for your Claude Code and Codex threads, and all of its source.</p>
 </div>

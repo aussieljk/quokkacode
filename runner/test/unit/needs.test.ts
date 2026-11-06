@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import type { PersistedEvent } from '../../src/protocol.ts';
 import { offersToTakeItBack, TRY_IT_FIRST, archiveFromTool, snoozeFromTool, bylineFromTool, endedThisTurn, CODEX_END_TURN_DESCRIPTION, CODEX_ONE_REPLY_DESCRIPTION, END_TURN_DESCRIPTION, END_TURN_FULL_NAME, endTurnDescription, needsFromText, needsFromTool, ONE_REPLY_DESCRIPTION, replyWithoutRepeat, splitReplySection, summaryFromTool, summaryMarkdown, turnReply } from '../../src/needs.ts';
 import { END_TURN_TOOL } from '../../src/needs.ts';
-import { SERVER_NAME } from '../../src/threadbear-mcp.ts';
+import { SERVER_NAME } from '../../src/quokkacode-mcp.ts';
 import { ClaudeNormalizer, fileContext } from '../../src/adapters/claude/normalize.ts';
 
 test('end_turn input: nothing, you with asks, and junk falls back', () => {
@@ -310,7 +310,7 @@ test('turnReply: a reply the CLI sent as a narration block counts; a thought bef
     n.sent();
     const frame = (id: string, content: unknown[]) => ({ type: 'assistant', message: { id, content }, parent_tool_use_id: null });
     const evs = [
-      frame('m1', [{ type: 'tool_use', id: 'c1', name: 'mcp__threadbear__create_thread', input: {} }]),
+      frame('m1', [{ type: 'tool_use', id: 'c1', name: 'mcp__quokkacode__create_thread', input: {} }]),
       { type: 'user', message: { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'c1', content: 'Started thread 3fee4428' }] }, parent_tool_use_id: null },
       frame('m2', [{ type: 'thinking', thinking: 'Wrap up.', signature: sig('thinking') }]),
       frame('m2', [{ type: 'thinking', thinking: "I've started a thread to fix the refusals.", signature: sig(kind) }]),
@@ -332,14 +332,14 @@ test('turnReply: a reply in words after a narration block is not narration-only;
   assert.deepEqual(turnReply(log(user(), started, text('Step 1: ...', 'b'), narrated('a'), call('e1', END))), { landed: true, replied: true });
   // Words before work, then only narration since: narration-only.
   assert.deepEqual(turnReply(log(user(), started, text('Checking.', 'b'), call('b1', 'Bash'), result('b1'), narrated('a'), call('e1', END))), { landed: true, replied: true, narrationOnly: true });
-  // A status line, then Threadbear's own read tools, then the answer as
+  // A status line, then Quokka Code's own read tools, then the answer as
   // narration (29 Oct 2026): the status line isn't the reply.
-  const read = 'mcp__threadbear__read_thread';
+  const read = 'mcp__quokkacode__read_thread';
   assert.deepEqual(turnReply(log(user(), started, text('Looking into it.', 'b'), call('r1', read), result('r1'), narrated('a'), call('e1', END))), { landed: true, replied: true, narrationOnly: true });
   // The same with ToolSearch loading end_turn between them.
   assert.deepEqual(turnReply(log(user(), started, text("I'll lay out three designs.", 'b'), call('t1', 'ToolSearch'), result('t1'), narrated('a'), call('e1', END))), { landed: true, replied: true, narrationOnly: true });
   // Words, then a pin, then end_turn: the words are the reply.
-  assert.deepEqual(turnReply(log(user(), started, text('Step 1: ...', 'b'), call('p1', 'mcp__threadbear__pin'), result('p1'), call('e1', END))), { landed: true, replied: true });
+  assert.deepEqual(turnReply(log(user(), started, text('Step 1: ...', 'b'), call('p1', 'mcp__quokkacode__pin'), result('p1'), call('e1', END))), { landed: true, replied: true });
 });
 
 test("end_turn's description asks for the words naming a link's target to be that link", () => {

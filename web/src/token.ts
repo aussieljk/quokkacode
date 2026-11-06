@@ -3,7 +3,7 @@
 // as the iPhone app's does.
 import { useSyncExternalStore } from 'react';
 
-const KEY = 'threadbear.token';
+const KEY = 'quokkacode.token';
 const listeners = new Set<() => void>();
 
 export function takeTokenFromHash(): void {

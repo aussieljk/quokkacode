@@ -10,7 +10,7 @@ import { atomicWriteFileSync, readJsonSync } from './fsutil.ts';
 // "A dialog on a Mac's screen").
 //
 // macOS asks about a protected folder or a removable drive in the name of
-// Threadbear Runner, for anything under it, an agent's `find ~/Downloads` or
+// QuokkaCode Runner, for anything under it, an agent's `find ~/Downloads` or
 // a tool that goes looking on a drive. Once a prompt is up it stays up, even
 // after whatever asked has gone (tried on Tinker Desk, 1 Nov 2026). And it
 // holds up more than its asker: on 31 Oct 2026 a prompt waiting on Bruce's
@@ -180,7 +180,7 @@ export function noticeTitle(machine: string): string {
 }
 
 export function dialogText(machine: string, minutes: number): string {
-  return `A macOS dialog has been waiting on ${machine}'s screen for ${minutes} minutes. If it's a privacy prompt, everything else that needs the same folder or drive can be held up until someone answers it, and it stays up even if what asked has gone. Open Screen Sharing to ${machine} and answer it. To stop these prompts on that Mac, give Threadbear Runner Full Disk Access in System Settings > Privacy & Security.`;
+  return `A macOS dialog has been waiting on ${machine}'s screen for ${minutes} minutes. If it's a privacy prompt, everything else that needs the same folder or drive can be held up until someone answers it, and it stays up even if what asked has gone. Open Screen Sharing to ${machine} and answer it. To stop these prompts on that Mac, give QuokkaCode Runner Full Disk Access in System Settings > Privacy & Security.`;
 }
 
 export function goneText(machine: string): string {
@@ -188,11 +188,11 @@ export function goneText(machine: string): string {
 }
 
 export function accessText(machine: string): string {
-  return `Threadbear Runner doesn't have Full Disk Access on ${machine}, and nobody's likely to be at its screen. When an agent there touches Desktop, Documents, Downloads or a removable drive, macOS waits for someone to answer a prompt, and that can hold up other apps using the same drive. In System Settings > Privacy & Security > Full Disk Access on ${machine}, turn on Threadbear Runner. Agents there can then read everything your account can.`;
+  return `QuokkaCode Runner doesn't have Full Disk Access on ${machine}, and nobody's likely to be at its screen. When an agent there touches Desktop, Documents, Downloads or a removable drive, macOS waits for someone to answer a prompt, and that can hold up other apps using the same drive. In System Settings > Privacy & Security > Full Disk Access on ${machine}, turn on QuokkaCode Runner. Agents there can then read everything your account can.`;
 }
 
 export function accessGrantedText(machine: string): string {
-  return `Threadbear Runner has Full Disk Access on ${machine} now, so folder prompts won't hold up its agents.`;
+  return `QuokkaCode Runner has Full Disk Access on ${machine} now, so folder prompts won't hold up its agents.`;
 }
 
 // Whether a file opens. Undefined when it isn't there, so can't say.
@@ -238,7 +238,7 @@ export function realProbe(home: string = os.homedir()): ScreenProbe {
       return canOpen(path.join(home, 'Library', 'Application Support', 'com.apple.TCC', 'TCC.db'));
     },
     hasApp() {
-      return ['/Applications', path.join(home, 'Applications')].some((dir) => fs.existsSync(path.join(dir, 'Threadbear.app')));
+      return ['/Applications', path.join(home, 'Applications')].some((dir) => fs.existsSync(path.join(dir, 'QuokkaCode.app')));
     },
   };
 }

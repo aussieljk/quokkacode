@@ -9,9 +9,9 @@ import { hasLineBreak, replaceLinks } from './linear-text.ts';
 export type Needs = { needs: NeedsWho; asks?: Ask[]; next?: string[] };
 
 export const END_TURN_TOOL = 'end_turn';
-// As the CLIs name it: under threadbear-mcp.ts's SERVER_NAME, which lives
+// As the CLIs name it: under quokkacode-mcp.ts's SERVER_NAME, which lives
 // here too so the adapters needn't import the server.
-export const END_TURN_FULL_NAME = `mcp__threadbear__${END_TURN_TOOL}`;
+export const END_TURN_FULL_NAME = `mcp__quokkacode__${END_TURN_TOOL}`;
 
 // Big enough for any real list; an agent that sends more is rambling.
 const MAX_ASKS = 10;
@@ -373,7 +373,7 @@ function askFrom(item: string): Ask {
 // session keeps the system prompt it started with, but sees every tool's
 // description afresh.
 const END_TURN_WHAT =
-  'Ends the turn: says what it did (summary) and whether the user has to do anything (asks), so Threadbear can put the thread in Needs you or leave it as done. ';
+  'Ends the turn: says what it did (summary) and whether the user has to do anything (asks), so Quokka Code can put the thread in Needs you or leave it as done. ';
 
 // Mike, 29 Oct 2026, after Codex desktop: the least context to load when
 // he comes back to a thread, then what's next, with links back into the
@@ -423,7 +423,7 @@ const NEXT_ROW =
   'Each is a row on the done card that the user reads hours later, with this thread forgotten and nothing else to go on, and ticking it sends it to you as their own message. ' +
   'So write it in their voice, as an instruction: which app or thing it\'s about and what they\'d see change or get, in words they\'d use, with the reason in the same line if it isn\'t obvious. ' +
   'No names from the code or your working (a class, a file, a tool, a nickname for something); describe what it does instead. ' +
-  '8 to 15 words: "Stop the Threadbear transcript jumping when a long reply arrives", not "Fix the ScrollAnchor drift". ';
+  '8 to 15 words: "Stop the Quokka Code transcript jumping when a long reply arrives", not "Fix the ScrollAnchor drift". ';
 
 // Hibernating itself, in every form's description (snoozeFromTool).
 const END_TURN_SNOOZE =
@@ -510,7 +510,7 @@ export const END_TURN_DESCRIPTION =
   'Call it once, as the very last thing in every turn, and write nothing after it. ' +
   END_TURN_SUMMARY_IS_THE_REPLY +
   END_TURN_SUMMARY_LINKS +
-  "With a summary, you needn't write a message first when the bullets are the whole answer. When the user asked for something to read (details, a list, steps, a draft, an explanation), write it as your message before you call end_turn: a bullet like \"Put together the details you need\" points at nothing unless the details are in a message. Without one, it is refused until the turn has a reply: ordinary text from you after your last tool result (Threadbear's own tools aside), so the user gets a complete answer in the conversation. " +
+  "With a summary, you needn't write a message first when the bullets are the whole answer. When the user asked for something to read (details, a list, steps, a draft, an explanation), write it as your message before you call end_turn: a bullet like \"Put together the details you need\" points at nothing unless the details are in a message. Without one, it is refused until the turn has a reply: ordinary text from you after your last tool result (Quokka Code's own tools aside), so the user gets a complete answer in the conversation. " +
   END_TURN_ASKS;
 
 // Codex's: its final answer ends the turn, so nothing can be called after
@@ -535,7 +535,7 @@ const MESSAGE_END_TURN_DESCRIPTION =
   'Call it once, as the very last thing in every turn, and write nothing after it. ' +
   END_TURN_SUMMARY_IS_THE_PREVIEW +
   END_TURN_SUMMARY_LINKS +
-  "It is refused until the turn has that message: ordinary text from you after your last tool result (Threadbear's own tools aside). " +
+  "It is refused until the turn has that message: ordinary text from you after your last tool result (Quokka Code's own tools aside). " +
   END_TURN_ASKS;
 
 const CODEX_MESSAGE_END_TURN_DESCRIPTION =
@@ -571,7 +571,7 @@ const ONE_REPLY_REPLY =
   'When you\'re asking something, include the full draft to approve or the options to choose from in the reply. The question itself, and what each answer would do, are in the card under the reply, so don\'t repeat them. ' +
   'Never write a "What I need from you" section, a "Nothing needed from you" line or a list of follow-ups in the reply: asks and next are those. ';
 
-// Only what the fields' own descriptions don't say (threadbear-mcp.ts):
+// Only what the fields' own descriptions don't say (quokkacode-mcp.ts):
 // each field's rules sat in both until 4 Nov 2026, and every thread read
 // them twice (runner/context-budget.json). Checked in the end_turn eval
 // (~/dev/me/misc/end-turn-eval/v3, "trim") before landing.
@@ -645,7 +645,7 @@ export function endTurnIsOneReply(result: { ok: boolean; text: string }): boolea
 
 // What a Claude end_turn that fits neither form hears. Says the shape in
 // words, as the agent can't look it up: a session keeps the definition it
-// first loaded, and ToolSearch shows that one too (threadbear-mcp.ts, endTurn).
+// first loaded, and ToolSearch shows that one too (quokkacode-mcp.ts, endTurn).
 // An agent on 1 Nov 2026 got a bare zod error and had to read the source
 // (thread 1b770c6a).
 export function endTurnMisfit(problem: string, oneReply: boolean): string {
@@ -664,7 +664,7 @@ export function endTurnWantsReply(result: { ok: boolean; text: string }): boolea
 // the reply; one that took end_turn and wrote nothing after it is asked
 // for its reply once.
 export const ONE_REPLY_END_TURN_NUDGE =
-  'This turn ended without end_turn, so Threadbear has no card for it. ' +
+  'This turn ended without end_turn, so Quokka Code has no card for it. ' +
   'Call end_turn now (load it with ToolSearch first if you need to), with needs and any asks or next follow-ups from what you just wrote. ' +
   "Your message above is the reply: don't write it again.";
 export const ONE_REPLY_WRITE_NUDGE =
@@ -804,7 +804,7 @@ export function endTurnOwesReply(result: { text: string }): boolean {
 }
 
 // With bullet replies off, a turn whose message came as a narration block
-// is asked for it again even with bullets (threadbear-mcp.ts). The message
+// is asked for it again even with bullets (quokkacode-mcp.ts). The message
 // lands under them, so any length of it is kept, as the app shows it
 // whatever its length (TranscriptReducer, reply(of:)).
 export function endTurnAsksForMessage(result: { text: string }): boolean {
@@ -834,7 +834,7 @@ export function endTurnTaken(result: { ok: boolean; text: string }): boolean {
 // cdfccbc3). The message goes in the events before the CLI gets it, so the
 // agent can't have seen one that isn't there yet. One that came while the call
 // ran counts too, as the agent called it without having read that message.
-export function takenEndTurn(events: PersistedEvent[], serverName = 'threadbear'): Record<string, unknown> | undefined {
+export function takenEndTurn(events: PersistedEvent[], serverName = 'quokkacode'): Record<string, unknown> | undefined {
   const endTurn = `mcp__${serverName}__${END_TURN_TOOL}`;
   let start = 0;
   for (let i = events.length - 1; i >= 0; i--) {
@@ -856,7 +856,7 @@ export function takenEndTurn(events: PersistedEvent[], serverName = 'threadbear'
   return taken;
 }
 
-export function endedThisTurn(events: PersistedEvent[], serverName = 'threadbear'): boolean {
+export function endedThisTurn(events: PersistedEvent[], serverName = 'quokkacode'): boolean {
   return takenEndTurn(events, serverName) !== undefined;
 }
 
@@ -865,7 +865,7 @@ export function endedThisTurn(events: PersistedEvent[], serverName = 'threadbear
 // stands, so it asks for the call alone: a fresh message would sit under
 // the real answer as the reply.
 export const END_TURN_NUDGE =
-  'This turn ended without end_turn, so Threadbear has no summary or card for it. ' +
+  'This turn ended without end_turn, so Quokka Code has no summary or card for it. ' +
   'Call end_turn now (load it with ToolSearch first if you need to), with the summary, needs, and any asks or next follow-ups from what you just wrote. ' +
   "Your message above is the reply: don't write it again, and write nothing after end_turn.";
 
@@ -906,7 +906,7 @@ export type TurnReply = {
   // is there, so is everything the agent said before it.
   landed: boolean;
   // The agent's own assistant.text after its last tool result from a tool
-  // outside the threadbear server, and after the last message from Mike in
+  // outside the quokkacode server, and after the last message from Mike in
   // the turn. The thread's own tools (pin, update_project, an earlier
   // refused end_turn) say nothing he has to read, so a message, then pin,
   // then end_turn is a turn that replied.
@@ -925,7 +925,7 @@ export type TurnReply = {
 // since the reply).
 const PLUMBING_TOOLS = new Set(['ToolSearch']);
 
-export function turnReply(events: PersistedEvent[], serverName = 'threadbear'): TurnReply {
+export function turnReply(events: PersistedEvent[], serverName = 'quokkacode'): TurnReply {
   const ownPrefix = `mcp__${serverName}__`;
   const endTurn = `${ownPrefix}${END_TURN_TOOL}`;
   let start = 0;

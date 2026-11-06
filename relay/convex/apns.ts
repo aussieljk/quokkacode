@@ -47,8 +47,8 @@ export const send = internalAction({
     const cfg = apnsConfig();
     if (!cfg) return { status: 0, reason: 'relay not configured' };
     const aps = a.encrypted
-      ? { alert: { title: 'Threadbear', body: 'A thread needs you' }, sound: 'default', 'mutable-content': 1, 'thread-id': a.threadId }
-      : { alert: { title: a.title ?? 'Threadbear', body: a.body ?? 'A thread needs you' }, sound: 'default', 'thread-id': a.threadId };
+      ? { alert: { title: 'QuokkaCode', body: 'A thread needs you' }, sound: 'default', 'mutable-content': 1, 'thread-id': a.threadId }
+      : { alert: { title: a.title ?? 'QuokkaCode', body: a.body ?? 'A thread needs you' }, sound: 'default', 'thread-id': a.threadId };
     const payload = JSON.stringify({ aps, threadId: a.threadId, ...(a.encrypted ? { e: a.encrypted } : {}) });
     const host = a.environment === 'production' ? 'https://api.push.apple.com' : 'https://api.sandbox.push.apple.com';
     const session = http2.connect(host);

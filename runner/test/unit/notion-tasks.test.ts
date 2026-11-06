@@ -5,7 +5,7 @@ import path from 'node:path';
 import { makeHarness, tmpDir } from '../helpers/fakes.ts';
 import { READS_AT_ONCE, TaskBoards, cleanTitle, findGatewayClient, findSource, gatewayCaller, parseRpc, readSchema, readRows, readTasks, type CallTool } from '../../src/notion-tasks.ts';
 import { Projects, checkNotion, projectMethods } from '../../src/projects.ts';
-import { buildThreadbearTools } from '../../src/threadbear-mcp.ts';
+import { buildQuokkaCodeTools } from '../../src/quokkacode-mcp.ts';
 import { FakeClock } from '../../src/clock.ts';
 import { nullLogger } from '../../src/log.ts';
 import { RpcError } from '../../src/protocol.ts';
@@ -244,7 +244,7 @@ test("the gateway client comes from the main login's connectors entry; runner.js
   const cj = path.join(dir, 'claude.json');
   fs.writeFileSync(cj, JSON.stringify({ mcpServers: { connectors: { type: 'http', url: 'https://bruce:8443/mcp', headersHelper: '/x/headers.sh claude-main' } } }));
   assert.deepEqual(findGatewayClient(undefined, cj), { mcpUrl: 'https://bruce:8443/mcp', headersHelper: '/x/headers.sh claude-main' });
-  assert.deepEqual(findGatewayClient({ headersHelper: '/y/h.sh threadbear' }, cj), { mcpUrl: 'https://bruce:8443/mcp', headersHelper: '/y/h.sh threadbear' });
+  assert.deepEqual(findGatewayClient({ headersHelper: '/y/h.sh quokkacode' }, cj), { mcpUrl: 'https://bruce:8443/mcp', headersHelper: '/y/h.sh quokkacode' });
   assert.equal(findGatewayClient({ enabled: false }, cj), undefined);
   assert.equal(findGatewayClient(undefined, path.join(dir, 'none.json')), undefined);
 });
@@ -278,7 +278,7 @@ test("a project with a Notion page sends its board; read_project lists the open 
   // The agent's view.
   const t = (await h.runner.create({ text: 'hi', cwd: home, accountId: 'claude-3' })).thread;
   projects.changeMembership(t.id, { add: [p.id], by: 'agent' });
-  const tools = buildThreadbearTools(h.runner, t.id, Date.now, undefined, projects);
+  const tools = buildQuokkaCodeTools(h.runner, t.id, Date.now, undefined, projects);
   const read = tools.find((x) => x.name === 'read_project')!;
   const out = ((await read.handler({ project: p.id } as never, {} as never)) as { content: { text: string }[] }).content[0]!.text;
   assert.match(out, /Tasks \(Notion board https:\/\/app\.notion\.com\/p\/94471028e3bb4e2a810d117d5b8f19fd\):/);

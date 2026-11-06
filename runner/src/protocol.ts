@@ -83,9 +83,9 @@ export type CliUpdateState = 'waiting' | 'running' | 'succeeded' | 'unchanged' |
 export type CliStatus = {
   provider: Provider;
   path: string; // the binary new sessions start
-  // Codex: Threadbear's own copies; Claude: its own installer; 'none' when
+  // Codex: Quokka Code's own copies; Claude: its own installer; 'none' when
   // codexPath is set by hand and never updated.
-  managedBy: 'threadbear' | 'cli' | 'none';
+  managedBy: 'quokkacode' | 'cli' | 'none';
   installedVersion?: string;
   latestVersion?: string;
   status: 'current' | 'behind' | 'held' | 'unknown' | 'missing';
@@ -136,7 +136,7 @@ export type RunnerDefaults = {
 export type ThreadStatus = 'idle' | 'starting' | 'running' | 'waiting' | 'error' | 'stopped';
 
 // Who archived a thread, and how Mike said it went (Who archived a thread).
-export type ArchivedBy = 'mike' | 'agent' | 'threadbear';
+export type ArchivedBy = 'mike' | 'agent' | 'quokkacode';
 export type ArchiveVerdict = 'worked' | 'didntWork' | 'notNeeded';
 export const ARCHIVE_VERDICTS: readonly ArchiveVerdict[] = ['worked', 'didntWork', 'notNeeded'];
 
@@ -306,7 +306,7 @@ export type Project = {
 };
 
 // A project's task board, read from the Notion database on its page.
-// Notion is where it's changed; Threadbear only shows it.
+// Notion is where it's changed; Quokka Code only shows it.
 export type ProjectTasks = {
   url: string; // the database (or page) to open in Notion
   columns: TaskColumn[]; // the Status options, in Notion's order
@@ -329,7 +329,7 @@ export type ProjectTask = {
   who: string[];
   due?: string; // ISO date
   dueEnd?: string;
-  thread?: string; // a Threadbear thread id (or prefix) working on it
+  thread?: string; // a Quokka Code thread id (or prefix) working on it
 };
 
 // A place Mike goes for a project: its live site, admin page, dashboard,
@@ -420,7 +420,7 @@ export type Action = {
   prompt?: string; // kind "prompt"
   url?: string; // kind "url": an http or https page
   patch: string;
-  folder?: string; // where the command runs (a project patch's: the folder holding its .threadbear/); absent: the thread's folder
+  folder?: string; // where the command runs (a project patch's: the folder holding its .quokkacode/); absent: the thread's folder
   projectId?: string; // the project whose folder gave it
   note?: string;
   icon?: string; // an SF Symbol for the chip: the action's own, else its patch's
@@ -808,7 +808,7 @@ export type Schedule = {
 
 // Who sent a message when it wasn't a person or a client: the runner by
 // itself (the resume after a restart), or a schedule (schedules.ts).
-// How a message one thread's agent sends another starts (threadbear-mcp.ts).
+// How a message one thread's agent sends another starts (quokkacode-mcp.ts).
 // The app parses it into a card; the runner knows it isn't from Mike.
 export const AGENT_MESSAGE_PREFIX = '[Sent by the agent in the thread ';
 // How the `then` of a thread's own move_thread starts: the agent's note to

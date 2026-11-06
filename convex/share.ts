@@ -172,7 +172,7 @@ export const view = query({
 // What a link to a shared thread unfurls as in Slack, X or iMessage (the
 // /s/ route in http.ts puts it in the page's meta tags): its title, the
 // start of its last reply, and its first picture. Null for a link that
-// isn't shared, which then unfurls as plain Threadbear.
+// isn't shared, which then unfurls as plain Quokka Code.
 export const preview = internalQuery({
   args: { slug: v.string() },
   returns: v.union(v.null(), v.object({ title: v.string(), description: v.string(), image: v.optional(v.string()) })),

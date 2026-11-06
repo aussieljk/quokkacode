@@ -1,7 +1,7 @@
 # Website refresh (2026-11-03)
 
 The website had fallen behind the Mac and iPhone apps (a honey accent, a
-timestamp under every message, raw tool lines like `threadbear: end_turn`,
+timestamp under every message, raw tool lines like `quokkacode: end_turn`,
 no folded turns or cards). Mike expects it to be used mostly for sharing,
 so three directions were mocked up around who opens it:
 

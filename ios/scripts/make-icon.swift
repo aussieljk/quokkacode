@@ -1,6 +1,6 @@
 // Makes the iPhone icon from the mascot image, the same bear as the Mac's.
 //
-//   swift ios/scripts/make-icon.swift docs/threadbear-design/mascot-a.png ios/Threadbear/Assets.xcassets/AppIcon.appiconset/icon-1024.png
+//   swift ios/scripts/make-icon.swift docs/quokkacode-design/mascot-a.png ios/QuokkaCode/Assets.xcassets/AppIcon.appiconset/icon-1024.png
 //
 // The mascot is a rounded tile on a dark square. iOS wants a full-bleed,
 // opaque square and rounds the corners itself, so this finds the tile (as

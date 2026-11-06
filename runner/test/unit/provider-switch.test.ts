@@ -43,7 +43,7 @@ test('a switch mid-turn says the turn carries on, and the next message stops it 
   const cl = h.adapter.last;
   assert.equal(cl.opts.resume, false);
   const first = cl.sent[0].text;
-  assert.match(first, /^\[Threadbear handoff\] This conversation moved from the .+ login to .+, so this is a fresh session\. The thread so far:/);
+  assert.match(first, /^\[Quokka Code handoff\] This conversation moved from the .+ login to .+, so this is a fresh session\. The thread so far:/);
   assert.match(first, /User: build the sign-in button/);
   assert.match(first, /Tool: swift test --filter SignIn\n  failed: error: no such module Foo/);
   assert.match(first, /Assistant: Working on the button/);
@@ -62,7 +62,7 @@ test('a switch mid-turn with no message after lets the turn finish; the next one
   assert.equal(c.interrupts, 0);
   h.runner.send(thread.id, 'next');
   await tick();
-  assert.match(h.adapter.last.sent[0].text, /^\[Threadbear handoff\][\s\S]*next$/);
+  assert.match(h.adapter.last.sent[0].text, /^\[Quokka Code handoff\][\s\S]*next$/);
 });
 
 test("a queued message (a schedule's) waits for the turn rather than stopping it", async () => {

@@ -14,7 +14,7 @@ import { inBackground } from './background.ts';
 
 // What a thread's record keeps about its worktree.
 export type WorktreeRecord = {
-  repo: string; // the repo's name: the main checkout's folder name ("threadbear")
+  repo: string; // the repo's name: the main checkout's folder name ("quokkacode")
   mainCheckout: string; // the checkout with main checked out, where it lands
   path: string; // the worktree's root
   branch: string; // "thread/<id8>"
@@ -196,10 +196,10 @@ async function makeWorktreeNow(opts: { cwd: string; threadId: string; patch: Wor
 // everything git doesn't track except the kept folders, and checks out its
 // branch there, so its first build only recompiles what changed.
 
-const SPARE = 'threadbear spare';
+const SPARE = 'quokkacode spare';
 
 // How many spares a repo keeps. Each holds its build caches (a gigabyte or
-// so for Threadbear's), so past this an archived thread's worktree is
+// so for Quokka Code's), so past this an archived thread's worktree is
 // removed as before.
 export const MAX_SPARES = 6;
 
@@ -269,7 +269,7 @@ export async function land(t: LandTarget, opts: LandOptions = {}): Promise<numbe
   // CLI processes, so waiting for that queue cannot stale another landing.
   let release: () => Promise<void>;
   try {
-    release = await lockLanding(path.resolve(t.path, common, 'threadbear-land.lock'), opts.out ?? console.log);
+    release = await lockLanding(path.resolve(t.path, common, 'quokkacode-land.lock'), opts.out ?? console.log);
   } catch (e) {
     (opts.err ?? console.error)(`Couldn't lock the repo for landing: ${(e as Error).message}`);
     return 1;
@@ -534,7 +534,7 @@ export async function cleanUpWorktree(w: WorktreeRecord, stillOurs: () => boolea
     const merged = await git(w.mainCheckout, ['merge-base', '--is-ancestor', w.branch, MAIN]);
     if (!merged.ok) return { removed: false, reason: `${w.branch} has commits that aren't on ${MAIN}` };
   }
-  // A record can outlive its worktree without hearing (THREADBEAR-16: a
+  // A record can outlive its worktree without hearing (QUOKKACODE-16: a
   // handover saved it while the cleanup ran), and slot folders are reused.
   // So the folder is only touched if it's still this branch's checkout:
   // otherwise it may be another thread's, and --force would take its work.

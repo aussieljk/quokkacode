@@ -70,7 +70,7 @@ export class AppRestarts {
       if (w.fromTree === build.tree) kept.push(w);
       else if (runner.has(w.threadId)) now.push(w);
       // Finishing a turn on the old runner after a handover: told when it
-      // comes across (THREADBEAR-5).
+      // comes across (QUOKKACODE-5).
       else if (away?.(w.threadId)) kept.push({ ...w, due: build });
       else log.info('dropped an app restart watch for a thread that has gone', { threadId: w.threadId });
     }
@@ -101,11 +101,11 @@ export class AppRestarts {
         : !(age < MAX_AGE_MS)
           ? 'the request is more than a day old'
           : undefined;
-      let note = `Threadbear app restarted: ${w.fromShort ?? 'an earlier build'} to ${build.short}`;
+      let note = `Quokka Code app restarted: ${w.fromShort ?? 'an earlier build'} to ${build.short}`;
       if (why) note += `\n\nNot carrying on by itself: ${why}.`;
       runner.note(w.threadId, note);
       if (why) return;
-      const head = `The Threadbear app has restarted onto ${build.short} (${build.commit}), as you asked to hear.`;
+      const head = `The Quokka Code app has restarted onto ${build.short} (${build.commit}), as you asked to hear.`;
       runner.send(w.threadId, w.text ? `${head}\n\n${w.text}` : `${head} Check your change in the running app.`, [], { origin: 'runner' });
       log.info('told a thread the app restarted', { threadId: w.threadId, build: build.short });
     } catch (e) {

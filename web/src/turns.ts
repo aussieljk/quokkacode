@@ -1,7 +1,7 @@
 // A thread as the Mac and the iPhone show it once its turns are over: the
 // message that started a turn, one "Worked for 2m 13s" line holding the
 // work, then the reply. A port of the iPhone's Turns.fold
-// (ios/ThreadbearKit/Sources/ThreadbearKit/Turns.swift); keep the two
+// (ios/QuokkaCodeKit/Sources/QuokkaCodeKit/Turns.swift); keep the two
 // picking the same reply. Tests: node --test web/src/turns.test.ts
 
 export type TurnMessage = {
@@ -113,12 +113,12 @@ export function replyIndexes(body: TurnMessage[]): number[] {
   return last >= 0 ? [last] : [];
 }
 
-// A step of work: a tool call outside Threadbear's own tools and
+// A step of work: a tool call outside Quokka Code's own tools and
 // ToolSearch, or a message sent into the turn.
 function isStep(m: TurnMessage): boolean {
   if (m.role === 'user') return true;
   if (m.role === 'assistant') return false;
-  return !(m.text.startsWith('threadbear: ') || m.text.startsWith('Find tools: '));
+  return !(m.text.startsWith('quokkacode: ') || m.text.startsWith('Find tools: '));
 }
 
 function lastIndex<T>(xs: T[], f: (x: T) => boolean): number {

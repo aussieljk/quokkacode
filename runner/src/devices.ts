@@ -22,7 +22,7 @@ export function siteOf(url: string | undefined): string | undefined {
   return url.replace(/\/+$/, '').replace('.convex.cloud', '.convex.site');
 }
 
-// What the iPhone app scans (ios/ThreadbearKit Pairing.swift): the
+// What the iPhone app scans (ios/QuokkaCodeKit Pairing.swift): the
 // deployment and the token in a threadbear://pair link, and a
 // `key=<runnerId>:<public key>` for each runner whose secret-box key the
 // phone may seal to. The phone takes runner keys only from here, as they
@@ -98,7 +98,7 @@ function defaultName(kind: DeviceKind): string {
 }
 
 function offMessage(sync: ConvexSync): string {
-  return `Your threads aren't mirrored to Convex (${sync.offReason() ?? 'sync is off'}), so there's nothing for a phone or browser to read. Run ./threadbear setup.`;
+  return `Your threads aren't mirrored to Convex (${sync.offReason() ?? 'sync is off'}), so there's nothing for a phone or browser to read. Run ./quokkacode setup.`;
 }
 
 function bad(message: string): RpcError {

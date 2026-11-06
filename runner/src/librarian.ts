@@ -497,7 +497,7 @@ export class Librarian {
     // librarian for a handover, let the thread go to the new runner, or
     // the thread may have been deleted. Nothing to say or apply then: the
     // new runner's librarian has the job (changed() saves the one in
-    // flight), and a deleted thread needs nothing (THREADBEAR-4).
+    // flight), and a deleted thread needs nothing (QUOKKACODE-4).
     if (this.stopped || !this.host.threadRecords().some((t) => t.id === rec.id)) {
       this.log.info('librarian dropped a look at a thread that has gone', { threadId: rec.id, stopped: this.stopped });
       return;
@@ -991,7 +991,7 @@ export class Librarian {
   // ------------------------------------------------------------- notes
 
   // Agents add to a project's notes as they go, and they grew into a log
-  // of everything that landed until Threadbear's hit the cap and a note was
+  // of everything that landed until Quokka Code's hit the cap and a note was
   // refused (Mike, 30 Oct). Past NOTES_LONG the librarian rewrites them as
   // decisions, gotchas and what's owed, keeping the old ones on disk.
   private notesSoon(): void {
@@ -1308,11 +1308,11 @@ export function pocketChanges(
   return out;
 }
 
-export const SYSTEM = `You are the librarian in Threadbear, an app where the user runs AI coding agents in threads. ${userLine()}You keep their projects: groupings above folders that carry goals, state and notes from thread to thread. A project is a body of work they'll come back to (an app, a library, a video, a house job, an ongoing chore), never a single task. One project can span several repos, and a thread can be in several projects.
+export const SYSTEM = `You are the librarian in Quokka Code, an app where the user runs AI coding agents in threads. ${userLine()}You keep their projects: groupings above folders that carry goals, state and notes from thread to thread. A project is a body of work they'll come back to (an app, a library, a video, a house job, an ongoing chore), never a single task. One project can span several repos, and a thread can be in several projects.
 
 Given the project list and one thread, decide which projects the thread belongs in, and say why in a few plain words the user will see beside each project. A thread belongs in a project when it's about that project: building, fixing, planning, ideas, research or questions for it. A thread whose folder is a project's repo almost always belongs in that project. Prefer existing projects. Make a new one when the thread is about a body of work that fits none of them (its own repo is a strong sign); a one-off question, a quick chore or a throwaway test belongs in none. Never put a thread back in one it says never to.
 
-Most threads in a catch-all folder belong in no project: errands, personal admin, bookings, one-off questions. Put a thread in a project only when its own messages are about that project's work and you can say what it does there. A project having a folder inside the same catch-all folder isn't enough, and nor is the thread using a tool that is one of the projects (a browser tool, Threadbear itself) or starting a thread to fix one. When nothing clearly fits, projects is [] and new is null: an empty answer is right far more often than a guess.
+Most threads in a catch-all folder belong in no project: errands, personal admin, bookings, one-off questions. Put a thread in a project only when its own messages are about that project's work and you can say what it does there. A project having a folder inside the same catch-all folder isn't enough, and nor is the thread using a tool that is one of the projects (a browser tool, Quokka Code itself) or starting a thread to fix one. When nothing clearly fits, projects is [] and new is null: an empty answer is right far more often than a guess.
 
 Reply with JSON only, no prose and no code fence:
 {"projects": ["<ids of existing projects the thread belongs in, or []>"],
@@ -1348,7 +1348,7 @@ The Pocket is a deck of short cards on the user's phone, to read at a counter wh
 
 The thread bullets are for the user glancing at the thread later: concrete, in their plain words, each under ten words, no full stops. The last one says who's waiting on whom ("Waiting on you to pick a design", "Fixing the last failing test").`;
 
-const NOTES_SYSTEM = `You tidy a project's notes in Threadbear, the user's app for running AI coding agents in threads. ${userLine()}Agents add to a project's notes as they work, and these have grown into a log. Rewrite them as short markdown notes that a later agent reads before working on the project.
+const NOTES_SYSTEM = `You tidy a project's notes in Quokka Code, the user's app for running AI coding agents in threads. ${userLine()}Agents add to a project's notes as they work, and these have grown into a log. Rewrite them as short markdown notes that a later agent reads before working on the project.
 
 Keep: the user's decisions and why, facts and gotchas the code doesn't make obvious (deployment names, commands, where things live, what breaks and how to tell), and what's still owed or waiting on someone, with its date.
 Drop: what was built or landed (git and the docs record that), commit hashes, test runs and checks that passed, and anything a later note replaced or that has since been done.
@@ -1368,7 +1368,7 @@ function attached(images?: number): string {
   return images ? ` (with ${images === 1 ? 'an image' : `${images} images`} you can't see)` : '';
 }
 
-const SYMBOL_SYSTEM = `You pick an icon for a project in Threadbear, an app for running AI coding agents. Given the project and a list of SF Symbol names, reply with the one name from the list that best shows what the project is about, and nothing else.`;
+const SYMBOL_SYSTEM = `You pick an icon for a project in Quokka Code, an app for running AI coding agents. Given the project and a list of SF Symbol names, reply with the one name from the list that best shows what the project is about, and nothing else.`;
 
 function parseAnswer(text: string): Answer | undefined {
   const t = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '');

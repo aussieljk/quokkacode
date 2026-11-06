@@ -33,7 +33,7 @@ export type ConvexKeysOptions = {
 // The runner's own Convex CLI (its `convex` dependency, run by its own
 // node), never the project's: a project on an older convex package lacks
 // `deployment token` and `run --inline-query` (1.32 printed its help
-// instead, THREADBEAR-6), and npx would need it installed. It still runs in
+// instead, QUOKKACODE-6), and npx would need it installed. It still runs in
 // the project's folder, so it finds the project's convex.json and env files.
 const convexPackage = createRequire(import.meta.url).resolve('convex/package.json');
 const convexBin = path.join(path.dirname(convexPackage), JSON.parse(fs.readFileSync(convexPackage, 'utf8')).bin.convex);
@@ -230,7 +230,7 @@ export class ConvexKeys {
     if (oldName) await this.run(`${CONVEX_CLI} deployment token delete ${oldName} --deployment ${deployment}`, folder);
     // Names are unique on a deployment, so each key gets its own; the host
     // says which Mac's runner made it, in the deployment's settings.
-    const name = `threadbear-panel-${this.shortHost}-${crypto.randomBytes(3).toString('hex')}`;
+    const name = `quokkacode-panel-${this.shortHost}-${crypto.randomBytes(3).toString('hex')}`;
     // --save-env writes the key to a file rather than printing it, so it's
     // never in the command's output (which an error message quotes).
     const scratch = path.join(this.dir, `.new-${deployment}-${crypto.randomBytes(4).toString('hex')}.env`);

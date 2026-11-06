@@ -139,7 +139,7 @@ final class DockWindows: NSObject, NSWindowDelegate {
     // MARK: NSWindowDelegate
 
     /// The red button: closes the panel, as its × would, or puts back one
-    /// the app always keeps (Threadbear's thread). The sync closes the window.
+    /// the app always keeps (Quokka Code's thread). The sync closes the window.
     func windowShouldClose(_ sender: NSWindow) -> Bool {
         guard let panel = (sender as? DockPanelWindow)?.panel else { return true }
         if content?.closable(panel) ?? true { controller.close(panel) } else { controller.putBack(panel) }

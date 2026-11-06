@@ -1,4 +1,4 @@
-// The relay keeps as little as it can: one row per Threadbear install (an
+// The relay keeps as little as it can: one row per Quokka Code install (an
 // id, the hash of its key, when it was made and last seen, the app version
 // it says it is) and a count of notifications per day. Never a name, a
 // thread, a message or a device token. docs/push-relay.md.

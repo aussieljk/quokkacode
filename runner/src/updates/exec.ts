@@ -27,7 +27,7 @@ export const defaultExec: Exec = (command, args, opts = {}) =>
   });
 
 export const defaultFetchText: FetchText = async (url, timeoutMs) => {
-  const res = await fetch(url, { signal: AbortSignal.timeout(timeoutMs), headers: { 'user-agent': 'threadbear-runner' } });
+  const res = await fetch(url, { signal: AbortSignal.timeout(timeoutMs), headers: { 'user-agent': 'quokkacode-runner' } });
   if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`);
   return await res.text();
 };

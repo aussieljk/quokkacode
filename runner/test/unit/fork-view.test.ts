@@ -1,5 +1,5 @@
 // What someone else's copy of this repo shows from its own patches
-// (.threadbear/patches): every chip and panel a thread in their fork gets.
+// (.quokkacode/patches): every chip and panel a thread in their fork gets.
 // Wayne opened a thread in his fork on 6 Nov and found a Sentry chip
 // pointing at Mike's Sentry, which he couldn't open and wasn't meant to see.
 //
@@ -32,8 +32,8 @@ const MIKES = [/mikec\.sentry\.io/, /appstoreconnect\.apple\.com/, /~\/dev\/me\/
 
 test("a fork's own patches show nothing of Mike's", async () => {
   const home = tmpDir();
-  const copy = path.join(home, 'dev', 'threadbear');
-  fs.cpSync(path.join(REPO, '.threadbear'), path.join(copy, '.threadbear'), { recursive: true });
+  const copy = path.join(home, 'dev', 'quokkacode');
+  fs.cpSync(path.join(REPO, '.quokkacode'), path.join(copy, '.quokkacode'), { recursive: true });
   const base = await loadPatchSet(copy, home);
   assert.deepEqual(base.patches.filter((p) => p.error).map((p) => `${p.id}: ${p.error}`), []);
   // Commands run in the real checkout, for git, but with the stranger's home.

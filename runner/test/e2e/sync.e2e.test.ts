@@ -1,6 +1,6 @@
 // The Convex mirror against a real deployment: the repo's local one, named
 // in .env.e2e at the repo root (gitignored; `npx convex deployment create
-// mikec:threadbear:local --select` writes .env.local, which is then copied
+// mikec:quokkacode:local --select` writes .env.local, which is then copied
 // to .env.e2e so the Sydney dev deployment can stay selected for everyday
 // work). Every convex command here passes `--env-file .env.e2e`, so
 // nothing touches the Sydney project. Starts `npx convex dev` for the local
@@ -88,22 +88,22 @@ describe('convex mirror e2e', { skip: LOCAL ? false : 'no local Convex deploymen
     fs.mkdirSync(path.join(home, 'fake-main'), { recursive: true });
     fs.writeFileSync(path.join(home, 'fake-main.json'), JSON.stringify({ oauthAccount: { emailAddress: 'e2e@example.com' } }));
     const env = { ...process.env };
-    delete env.THREADBEAR_SYNC; // check.sh sets it off for every other test
+    delete env.QUOKKACODE_SYNC; // check.sh sets it off for every other test
     runner = spawn(process.execPath, ['src/main.ts'], {
       cwd: RUNNER_DIR,
       env: {
         ...env,
-        THREADBEAR_HOME: home,
-        THREADBEAR_PORT: '0',
-        THREADBEAR_LOG: path.join(home, 'runner.log'),
-        THREADBEAR_CLAUDE_PATH: '/nonexistent/claude',
-        THREADBEAR_ACCOUNTS_DIR: path.join(home, 'no-accounts'),
-        THREADBEAR_CLAUDE_MAIN_DIR: path.join(home, 'fake-main'),
-        THREADBEAR_CLAUDE_MAIN_JSON: path.join(home, 'fake-main.json'),
-        THREADBEAR_CODEX_MAIN_DIR: path.join(home, 'no-codex-main'),
-        THREADBEAR_TOKEN_STATS_LIMITS: path.join(home, 'no-limits.json'),
-        THREADBEAR_CLI_UPDATES: 'off', THREADBEAR_TOKEN_TALLY: 'off',
-        THREADBEAR_SYNC_URL: CONVEX_URL,
+        QUOKKACODE_HOME: home,
+        QUOKKACODE_PORT: '0',
+        QUOKKACODE_LOG: path.join(home, 'runner.log'),
+        QUOKKACODE_CLAUDE_PATH: '/nonexistent/claude',
+        QUOKKACODE_ACCOUNTS_DIR: path.join(home, 'no-accounts'),
+        QUOKKACODE_CLAUDE_MAIN_DIR: path.join(home, 'fake-main'),
+        QUOKKACODE_CLAUDE_MAIN_JSON: path.join(home, 'fake-main.json'),
+        QUOKKACODE_CODEX_MAIN_DIR: path.join(home, 'no-codex-main'),
+        QUOKKACODE_TOKEN_STATS_LIMITS: path.join(home, 'no-limits.json'),
+        QUOKKACODE_CLI_UPDATES: 'off', QUOKKACODE_TOKEN_TALLY: 'off',
+        QUOKKACODE_SYNC_URL: CONVEX_URL,
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     });

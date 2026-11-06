@@ -1,7 +1,7 @@
-# Threadbear: Mike's own agent app
+# Quokka Code: Mike's own agent app
 
 Working name. It's a thread app with only the things Mike uses and nothing
-more, hence threadbear. Easy to rename while it's young.
+more, hence quokkacode. Easy to rename while it's young.
 
 ## Why
 
@@ -40,12 +40,12 @@ The order Mike agreed on 26 Oct, and what became of each step:
 - **Step 5: Convex and the phone** (`docs/convex-backend.md`): thread
   summaries, recent messages, approvals, projects and schedules mirrored to
   Convex, phone commands, push when a thread needs Mike. Done 28 Oct, and
-  bigger than planned: Threadbear got its own iPhone app (1.0 in App
+  bigger than planned: Quokka Code got its own iPhone app (1.0 in App
   Review) and a website with sharing, rather than a Threads tab in Quick
   Ask.
 - **Step 6: a second runner, then cloud sandboxes.** Not started. The plan
   said Tinker Desk; on 29 Oct Mike moved it to Bruce, keeping Tinker Desk
-  for testing clean Threadbear installs. Cloud sandboxes were only ever this
+  for testing clean Quokka Code installs. Cloud sandboxes were only ever this
   line; nothing is designed.
 
 Much was added outside this order: schedules, hibernate, projects and the
@@ -82,23 +82,23 @@ the gap is the Mac app, which talks to one runner on this Mac.
 
 ## Runner details
 
-- Data dir `~/Library/Application Support/Threadbear/`:
+- Data dir `~/Library/Application Support/QuokkaCode/`:
   `runner.json` (port, defaults), `secrets/runner-token` (0600, random),
   `threads/<threadId>/thread.json` (summary, atomic writes),
   `threads/<threadId>/events.ndjson` (append-only persisted events),
   `threads/<threadId>/media/` (images), `threads/<threadId>/blobs/` (tool
   output over 64 KB), `inbox/` (images the app drops before sending),
-  logs in `~/Library/Logs/threadbear-runner.log`.
+  logs in `~/Library/Logs/quokkacode-runner.log`.
 - Listens on `127.0.0.1:8797`, WebSocket path `/rpc`, authenticated with the
   token in the secrets file by a challenge both sides answer, so the token
   itself never goes over the socket (docs/protocol.md, "Auth").
-- launchd LaunchAgent `com.mikerosoft.threadbear.runner`, KeepAlive, with the
+- launchd LaunchAgent `com.lucasknight.quokkacode.runner`, KeepAlive, with the
   Node path pinned in the plist (`~/.nvm/versions/node/v24.22.1/bin/node`
-  today; make it configurable). Its program is `~/Applications/Threadbear
+  today; make it configurable). Its program is `~/Applications/QuokkaCode
   Runner.app`, a small signed app (`runner/launcher/`) that runs `node
   launch.mjs` as its child: macOS attributes privacy prompts (Desktop,
   Documents, Dropbox, ...) to the LaunchAgent's program and everything under
-  it, so they say "Threadbear Runner" rather than "node", and the grants
+  it, so they say "Quokka Code Runner" rather than "node", and the grants
   stay with the app when Node updates (28 Oct 2026). Don't use
   `node:sqlite` (it truncates text at NUL on Node 24); plain files are
   enough.
@@ -111,7 +111,7 @@ the gap is the Mac app, which talks to one runner on this Mac.
   - One `query()` per live thread in streaming-input mode (an async queue).
   - `pathToClaudeCodeExecutable` = `~/.local/bin/claude`, the shared native
     install (SDK sessions never update it: only the terminal UI,
-    `claude update` and `claude install` do, so step 4 adds Threadbear's own
+    `claude update` and `claude install` do, so step 4 adds Quokka Code's own
     update checks); `env` = `{...process.env, CLAUDE_CONFIG_DIR}` for
     non-main accounts (and with `CLAUDE_CONFIG_DIR` removed for `claude-main`).
   - `cwd` per thread; `settingSources: ['user','project','local']`;
@@ -141,14 +141,14 @@ the gap is the Mac app, which talks to one runner on this Mac.
 
 ## App details
 
-- SwiftPM package in `app/`: `ThreadbearCore` (no AppKit/SwiftUI: protocol
+- SwiftPM package in `app/`: `QuokkaCodeCore` (no AppKit/SwiftUI: protocol
   models, WebSocket JSON-RPC client, event reducer that turns events into
-  transcript rows, markdown block splitter, diff builder), `Threadbear`
-  (executable: SwiftUI + AppKit), `ThreadbearCoreTests` (XCTest). swift-tools
+  transcript rows, markdown block splitter, diff builder), `Quokka Code`
+  (executable: SwiftUI + AppKit), `QuokkaCodeCoreTests` (XCTest). swift-tools
   6.2, macOS 26. Copy Token Stats' `build-app.sh`, `restart.sh`, `kill.sh`,
   `install.sh` and launcher pattern
   (`~/dev/me/mikerosoft-tools/token-stats`); bundle id
-  `com.mikerosoft.threadbear`; sign with the first "Apple Development"
+  `com.lucasknight.quokkacode`; sign with the first "Apple Development"
   identity, falling back to ad hoc, with a stable designated requirement.
 - **Window:** a dock of panels (BearDock, `dock/`; was a `NavigationSplitView`
   until 28 Oct 2026): the sidebar, the thread and the pane sections, each
@@ -227,7 +227,7 @@ asleep the app gets no frames and the fling waits forever.
 
 ## Trial
 
-Done: by 29 Oct Mike was running his threads in Threadbear. The original
+Done: by 29 Oct Mike was running his threads in Quokka Code. The original
 test was to use it next to T3 for a week and stop if the transcript wasn't
 nicer than T3's, since the shared memory and the Connectors gateway were
 worth having anyway.

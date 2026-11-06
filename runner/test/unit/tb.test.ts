@@ -23,7 +23,7 @@ async function serve() {
 
 function tb(h: { home: string }, url: string, args: string[], env: Record<string, string> = {}) {
   let out = '';
-  const p = spawn(process.execPath, [TB, ...args], { env: { ...process.env, THREADBEAR_HOME: h.home, THREADBEAR_URL: url, ...env }, stdio: ['ignore', 'pipe', 'pipe'] });
+  const p = spawn(process.execPath, [TB, ...args], { env: { ...process.env, QUOKKACODE_HOME: h.home, QUOKKACODE_URL: url, ...env }, stdio: ['ignore', 'pipe', 'pipe'] });
   p.stdout.on('data', (d) => (out += d));
   p.stderr.on('data', (d) => (out += d));
   const exited = new Promise<number | null>((r) => p.once('exit', (code) => r(code)));
@@ -79,14 +79,14 @@ test('tb send --wait shows the new message and leaves the thread unread', async 
   }
 });
 
-test('inside a thread, tb will not delete, interrupt, snooze or archive that thread, as the threadbear tools will not', async () => {
+test('inside a thread, tb will not delete, interrupt, snooze or archive that thread, as the quokkacode tools will not', async () => {
   const { h, server, url } = await serve();
   const self = h.runner.create({ text: 'me', accountId: 'claude-3' }).thread;
   h.adapter.last.init();
   const other = h.runner.create({ text: 'other', accountId: 'claude-3' }).thread;
   h.adapter.last.init();
   h.adapter.last.result();
-  const inThread = { THREADBEAR_THREAD_ID: self.id };
+  const inThread = { QUOKKACODE_THREAD_ID: self.id };
   try {
     for (const args of [['delete', self.id.slice(0, 8)], ['interrupt', self.id], ['snooze', self.id, '1h'], ['archive', self.id]]) {
       const t = tb(h, url, args, inThread);
@@ -121,11 +121,11 @@ test('tb finds a runner on port 0 through runner.json, as the CLIs of a dev or s
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'tb-port-'));
   try {
     fs.writeFileSync(path.join(home, 'runner.json'), JSON.stringify({ port: 4242 }));
-    const env = { THREADBEAR_HOME: home, THREADBEAR_PORT: '0' };
+    const env = { QUOKKACODE_HOME: home, QUOKKACODE_PORT: '0' };
     assert.equal(runnerUrl(loadConfig(env), env), 'ws://127.0.0.1:4242/rpc');
-    const fixed = { THREADBEAR_HOME: home, THREADBEAR_PORT: '5151' };
+    const fixed = { QUOKKACODE_HOME: home, QUOKKACODE_PORT: '5151' };
     assert.equal(runnerUrl(loadConfig(fixed), fixed), 'ws://127.0.0.1:5151/rpc');
-    const url = { ...env, THREADBEAR_URL: 'ws://127.0.0.1:1/rpc' };
+    const url = { ...env, QUOKKACODE_URL: 'ws://127.0.0.1:1/rpc' };
     assert.equal(runnerUrl(loadConfig(url), url), 'ws://127.0.0.1:1/rpc');
   } finally {
     fs.rmSync(home, { recursive: true, force: true });

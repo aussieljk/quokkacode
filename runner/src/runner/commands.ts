@@ -129,7 +129,7 @@ export const commandsPart = {
     return true;
   },
 
-  // The picker's list for a thread (threads.commands): Threadbear's own,
+  // The picker's list for a thread (threads.commands): Quokka Code's own,
   // then the CLI's for the thread's folder, skills included.
   async threadCommands(this: Runner, threadId: string): Promise<{ commands: SlashCommand[] }> {
     const st = this.mustGet(threadId);

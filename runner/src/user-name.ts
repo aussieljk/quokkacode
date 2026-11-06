@@ -1,6 +1,6 @@
 // Who the person reading the threads is, for the instructions and prompts
 // the runner gives models. Everything an agent reads says "the user", as
-// Threadbear runs on other people's Macs too, and this one line gives the
+// Quokka Code runs on other people's Macs too, and this one line gives the
 // agent their name. It's the first word of the account's full name
 // ("Mike Cann" -> "Mike"); left out when there isn't one.
 import { execFileSync } from 'node:child_process';

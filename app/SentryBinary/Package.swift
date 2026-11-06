@@ -1,6 +1,6 @@
 // swift-tools-version: 6.0
 // Sentry's static framework on its own, for the Mac app (app/Package.swift)
-// and the iPhone app (ios/Threadbear.xcodeproj). sentry-cocoa's own package
+// and the iPhone app (ios/QuokkaCode.xcodeproj). sentry-cocoa's own package
 // declares eight prebuilt frameworks and SwiftPM downloads and unpacks every
 // one, 3.2 GB in each checkout's .build; this is the one the apps link
 // (about 360 MB, every Apple platform). It's under app/ so that a version

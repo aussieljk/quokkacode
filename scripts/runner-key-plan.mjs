@@ -14,7 +14,7 @@
 //   copy  write the deployment's RUNNER_KEY into secrets/convex-key (the first Mac)
 //   set   set RUNNER_KEY to the local key, or a new one (a deployment with none)
 //   joined  this Mac has a runner key: leave it, and RUNNER_KEY, alone
-// Whether this Mac joined another Mac's Threadbear: setup's --existing, or
+// Whether this Mac joined another Mac's Quokka Code: setup's --existing, or
 // a runner key already in secrets/convex-key (setup run again there without
 // the flag). A joining Mac gets no Convex login, deploy key or backend
 // deploy from setup, and never the main key: its key comes from the first

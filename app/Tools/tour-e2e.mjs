@@ -98,7 +98,7 @@ async function main() {
 
   // The first-run tour (no Skip), as a new Mac gets it.
   let t = parseTour(run({ cmd: 'tour', do: 'start' }));
-  check('starts on Welcome', t.title === 'Welcome to Threadbear', t.raw);
+  check('starts on Welcome', t.title === 'Welcome to QuokkaCode', t.raw);
   shot('welcome');
   const d0 = await until('samples made', () => {
     const d = dump();
@@ -189,7 +189,7 @@ async function main() {
 
   // Again, from Help: fresh samples, and the patch still trusted.
   t = parseTour(run({ cmd: 'tour', do: 'start', skippable: true }));
-  check('Help runs it again', t.title === 'Welcome to Threadbear', t.raw);
+  check('Help runs it again', t.title === 'Welcome to QuokkaCode', t.raw);
   await until('fresh samples the second time', () => sampleTitles.every((title) => sampleId(dump(), title)));
   run({ cmd: 'select', id: sampleId(dump(), 'Fix the flaky login test') });
   await until('Roll a die is there the second time', () => dump().actions.find((a) => a.title === 'Roll a die'));

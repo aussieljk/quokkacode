@@ -9,7 +9,7 @@
 //
 // Off unless runner.json has a `sync.url` and secrets/convex-key holds the
 // key the deployment's RUNNER_KEY was set to (`npx convex env set`).
-// THREADBEAR_SYNC=off turns it off whatever runner.json says, which
+// QUOKKACODE_SYNC=off turns it off whatever runner.json says, which
 // check.sh sets so no test runner ever writes to the real project.
 import { START_CARD } from './cross-runner.ts';
 import { asPushFailing, pushFailingText, type PushFailing } from './push-failing.ts';
@@ -1384,7 +1384,7 @@ export class ConvexSync {
     return (await this.backend('mutation', 'sync:revokeToken', { key: this.deps.key, id })) === true;
   }
 
-  // The `pocket` tool (threadbear-mcp.ts). Straight to the backend: the cards
+  // The `pocket` tool (quokkacode-mcp.ts). Straight to the backend: the cards
   // live there, for the phone, and aren't kept on any runner.
   async savePocketCard(card: PocketCardInput): Promise<'added' | 'replaced'> {
     this.mustBeOn();
@@ -1430,7 +1430,7 @@ export class ConvexSync {
   }
 
   private mustBeOn(): void {
-    if (this.off) throw new Error(`Your threads aren't mirrored to Convex (${this.off}), so there's nothing for a phone or browser to read. Run ./threadbear setup.`);
+    if (this.off) throw new Error(`Your threads aren't mirrored to Convex (${this.off}), so there's nothing for a phone or browser to read. Run ./quokkacode setup.`);
   }
 
   // A backend from before API 5 has none of the token functions: the

@@ -23,8 +23,8 @@ MAIN="$(git -C "$ROOT" worktree list --porcelain | awk '
 ')"
 [ -n "$MAIN" ] || { echo "No checkout of this repo has main checked out." >&2; exit 1; }
 THREADS="$(dirname "$MAIN")/$(basename "$MAIN")-threads"
-SPARE="threadbear spare"
-# The patch's worktree.keep (.threadbear/patches/checks.ts).
+SPARE="quokkacode spare"
+# The patch's worktree.keep (.quokkacode/patches/checks.ts).
 KEEP=(-e /app/.build -e /dock/.build)
 
 if [ "${1:-}" = "--give-back" ]; then
@@ -45,7 +45,7 @@ fi
 
 claimed=""
 for dir in $(git -C "$MAIN" worktree list --porcelain | awk -v RS= -v d="$THREADS/" '
-  /\nlocked threadbear spare/ { sub(/^worktree /, ""); sub(/\n.*/, ""); if (index($0, d) == 1) print }'); do
+  /\nlocked quokkacode spare/ { sub(/^worktree /, ""); sub(/\n.*/, ""); if (index($0, d) == 1) print }'); do
   if git -C "$MAIN" worktree unlock "$dir" 2>/dev/null; then
     claimed="$dir"
     break

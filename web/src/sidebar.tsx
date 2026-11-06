@@ -19,9 +19,9 @@ export type Row = NonNullable<ReturnType<typeof useQuery<typeof api.phone.thread
 
 export const busy = (r: { status: string }) => r.status === 'running' || r.status === 'starting';
 
-const FOLDED_KEY = 'threadbear.foldedSections';
-const ORDER_KEY = 'threadbear.inboxOrder';
-const WIDTH_KEY = 'threadbear.sidebarWidth';
+const FOLDED_KEY = 'quokkacode.foldedSections';
+const ORDER_KEY = 'quokkacode.inboxOrder';
+const WIDTH_KEY = 'quokkacode.sidebarWidth';
 
 const ORDERS: { order: InboxOrder; label: string; icon: ReactNode }[] = [
   { order: 'needsYou', label: 'Needs you first', icon: <Icon.Hand /> },

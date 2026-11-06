@@ -1,0 +1,501 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BB0000000000000000000301 /* QuokkaCodeKit in Frameworks */ = {isa = PBXBuildFile; productRef = BB0000000000000000000401 /* QuokkaCodeKit */; };
+		BB0000000000000000000303 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = BB0000000000000000000402 /* Sentry */; };
+		BB0000000000000000000304 /* whisper in Frameworks */ = {isa = PBXBuildFile; productRef = BB0000000000000000000403 /* whisper */; };
+		BB0000000000000000000302 /* NotificationService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000103 /* NotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BB0000000000000000000D01 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BB0000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BB0000000000000000000702;
+			remoteInfo = NotificationService;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BB0000000000000000000804 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				BB0000000000000000000302 /* NotificationService.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		BB0000000000000000000101 /* QuokkaCode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuokkaCode.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB0000000000000000000102 /* QuokkaCodeKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = QuokkaCodeKit; path = QuokkaCodeKit; sourceTree = "<group>"; };
+		BB0000000000000000000114 /* QuokkaCode.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuokkaCode.entitlements; sourceTree = "<group>"; };
+		BB0000000000000000000103 /* NotificationService.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationService.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB0000000000000000000115 /* NotificationService.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationService.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		BB0000000000000000000602 /* Exceptions for "QuokkaCode" folder in "QuokkaCode" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = BB0000000000000000000701 /* QuokkaCode */;
+		};
+		BB0000000000000000000604 /* Exceptions for "NotificationService" folder in "NotificationService" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = BB0000000000000000000702 /* NotificationService */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		BB0000000000000000000601 /* QuokkaCode */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				BB0000000000000000000602 /* Exceptions for "QuokkaCode" folder in "QuokkaCode" target */,
+			);
+			path = Quokka Code;
+			sourceTree = "<group>";
+		};
+		BB0000000000000000000603 /* NotificationService */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				BB0000000000000000000604 /* Exceptions for "NotificationService" folder in "NotificationService" target */,
+			);
+			path = NotificationService;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BB0000000000000000000802 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB0000000000000000000301 /* QuokkaCodeKit in Frameworks */,
+				BB0000000000000000000303 /* Sentry in Frameworks */,
+				BB0000000000000000000304 /* whisper in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB0000000000000000000806 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BB0000000000000000000501 = {
+			isa = PBXGroup;
+			children = (
+				BB0000000000000000000601 /* QuokkaCode */,
+				BB0000000000000000000603 /* NotificationService */,
+				BB0000000000000000000504 /* Config */,
+				BB0000000000000000000102 /* QuokkaCodeKit */,
+				BB0000000000000000000502 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BB0000000000000000000502 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BB0000000000000000000101 /* QuokkaCode.app */,
+				BB0000000000000000000103 /* NotificationService.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BB0000000000000000000504 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				BB0000000000000000000114 /* QuokkaCode.entitlements */,
+				BB0000000000000000000115 /* NotificationService.entitlements */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BB0000000000000000000701 /* QuokkaCode */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB0000000000000000000A02 /* Build configuration list for PBXNativeTarget "QuokkaCode" */;
+			buildPhases = (
+				BB0000000000000000000801 /* Sources */,
+				BB0000000000000000000802 /* Frameworks */,
+				BB0000000000000000000803 /* Resources */,
+				BB0000000000000000000804 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BB0000000000000000000E01 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				BB0000000000000000000601 /* QuokkaCode */,
+			);
+			name = Quokka Code;
+			packageProductDependencies = (
+				BB0000000000000000000401 /* QuokkaCodeKit */,
+				BB0000000000000000000402 /* Sentry */,
+				BB0000000000000000000403 /* whisper */,
+			);
+			productName = Quokka Code;
+			productReference = BB0000000000000000000101 /* QuokkaCode.app */;
+			productType = "com.apple.product-type.application";
+		};
+		BB0000000000000000000702 /* NotificationService */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB0000000000000000000A03 /* Build configuration list for PBXNativeTarget "NotificationService" */;
+			buildPhases = (
+				BB0000000000000000000805 /* Sources */,
+				BB0000000000000000000806 /* Frameworks */,
+				BB0000000000000000000807 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				BB0000000000000000000603 /* NotificationService */,
+			);
+			name = NotificationService;
+			productName = NotificationService;
+			productReference = BB0000000000000000000103 /* NotificationService.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BB0000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2710;
+				LastUpgradeCheck = 2710;
+				TargetAttributes = {
+					BB0000000000000000000701 = {
+						CreatedOnToolsVersion = 27.1;
+					};
+					BB0000000000000000000702 = {
+						CreatedOnToolsVersion = 27.1;
+					};
+				};
+			};
+			buildConfigurationList = BB0000000000000000000A01 /* Build configuration list for PBXProject "QuokkaCode" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = BB0000000000000000000501;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				BB0000000000000000000201 /* XCLocalSwiftPackageReference "QuokkaCodeKit" */,
+				BB0000000000000000000202 /* XCLocalSwiftPackageReference "../app/SentryBinary" */,
+				BB0000000000000000000203 /* XCLocalSwiftPackageReference "WhisperBinary" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = BB0000000000000000000502 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BB0000000000000000000701 /* QuokkaCode */,
+				BB0000000000000000000702 /* NotificationService */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BB0000000000000000000803 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB0000000000000000000807 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BB0000000000000000000801 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB0000000000000000000805 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BB0000000000000000000E01 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BB0000000000000000000702 /* NotificationService */;
+			targetProxy = BB0000000000000000000D01 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		BB0000000000000000000B01 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 4DTAZSZL6B;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0.3;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		BB0000000000000000000B02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 4DTAZSZL6B;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0.3;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		BB0000000000000000000C01 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Config/QuokkaCode.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4DTAZSZL6B;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = QuokkaCode/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Quokka Code;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Quokka Code uses the camera to scan the pairing code on your Mac, and to take photos you send to a thread.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Quokka Code checks whether you're near a place on one of your Pocket cards, to bring that card to the front. Only the phone and Apple's map search see your location.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Quokka Code listens after you tap Dictate on a new thread, press the button to Ask, or tap the mic in an Ask thread, to hear what you say.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Quokka Code turns what you say into text for a new thread or your question to Ask, on the phone where it can.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.mikecann.threadbear;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				QUOKKACODE_APS_ENVIRONMENT = development;
+			};
+			name = Debug;
+		};
+		BB0000000000000000000C02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Config/QuokkaCode.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4DTAZSZL6B;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = QuokkaCode/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Quokka Code;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Quokka Code uses the camera to scan the pairing code on your Mac, and to take photos you send to a thread.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Quokka Code checks whether you're near a place on one of your Pocket cards, to bring that card to the front. Only the phone and Apple's map search see your location.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Quokka Code listens after you tap Dictate on a new thread, press the button to Ask, or tap the mic in an Ask thread, to hear what you say.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Quokka Code turns what you say into text for a new thread or your question to Ask, on the phone where it can.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.mikecann.threadbear;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				QUOKKACODE_APS_ENVIRONMENT = production;
+			};
+			name = Release;
+		};
+		BB0000000000000000000C03 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/NotificationService.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4DTAZSZL6B;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NotificationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @executable_path/../../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.mikecann.threadbear.NotificationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		BB0000000000000000000C04 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/NotificationService.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4DTAZSZL6B;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NotificationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @executable_path/../../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.mikecann.threadbear.NotificationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BB0000000000000000000A01 /* Build configuration list for PBXProject "QuokkaCode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB0000000000000000000B01 /* Debug */,
+				BB0000000000000000000B02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BB0000000000000000000A02 /* Build configuration list for PBXNativeTarget "QuokkaCode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB0000000000000000000C01 /* Debug */,
+				BB0000000000000000000C02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BB0000000000000000000A03 /* Build configuration list for PBXNativeTarget "NotificationService" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB0000000000000000000C03 /* Debug */,
+				BB0000000000000000000C04 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		BB0000000000000000000201 /* XCLocalSwiftPackageReference "QuokkaCodeKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = QuokkaCodeKit;
+		};
+		BB0000000000000000000202 /* XCLocalSwiftPackageReference "../app/SentryBinary" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../app/SentryBinary;
+		};
+		BB0000000000000000000203 /* XCLocalSwiftPackageReference "WhisperBinary" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = WhisperBinary;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		BB0000000000000000000401 /* QuokkaCodeKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = QuokkaCodeKit;
+		};
+		BB0000000000000000000402 /* Sentry */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Sentry;
+		};
+		BB0000000000000000000403 /* whisper */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = whisper;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = BB0000000000000000000001 /* Project object */;
+}

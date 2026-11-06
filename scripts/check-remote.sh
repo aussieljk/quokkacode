@@ -1,7 +1,7 @@
 #!/bin/bash
 # Runs ./check.sh on another Mac, so test suites and the app's test windows
 # don't load the Mac you're working on. check.sh calls this itself when a
-# check host is set (THREADBEAR_CHECK_HOST, or "checkHost" in runner.json);
+# check host is set (QUOKKACODE_CHECK_HOST, or "checkHost" in runner.json);
 # you don't run it by hand.
 #
 #   scripts/check-remote.sh <ssh host>[,<ssh host>...] [check.sh options]
@@ -9,22 +9,22 @@
 # With several hosts (Mike's are Tinker Desk and the cloud box), each run
 # goes to the first one that's free and can run it, or waits for the first
 # that can. A Linux host only takes what needs no Mac: a --quick run that
-# doesn't touch ios/ (ThreadbearKit's tests are Swift), with no --shots.
+# doesn't touch ios/ (QuokkaCodeKit's tests are Swift), with no --shots.
 # Mike asked on 6 Nov, when nine threads' checks queued at once.
 #
 # Mike asked on 6 Nov 2026, after three threads' unit suites, a swift test
 # and three debug apps took his M5 to a load of 75 and a test's window came
 # up over his browser. The host he picked (Tinker Desk) is also where he
-# tries clean installs of Threadbear, so a run leaves nothing behind that
+# tries clean installs of Quokka Code, so a run leaves nothing behind that
 # looks like an install: no runner, no data dir, no checkout. Each run
 # copies this checkout's files (tracked and untracked, as check.sh sees
-# them) into ~/.cache/threadbear-check/runs/<id> there, runs check.sh on
+# them) into ~/.cache/quokkacode-check/runs/<id> there, runs check.sh on
 # it, and deletes it. What's kept there between runs is only what makes
 # the next run quick: node_modules per lockfile, the Swift build folders,
 # and a mirror of each checkout that sends to it (mirror/<key>), so a run
 # sends only what changed since that checkout's last, compressed: a whole
 # copy is 17 MB, and on a congested link (6 Nov) that took minutes. Each
-# run's copy is made from the mirror there. Delete ~/.cache/threadbear-check
+# run's copy is made from the mirror there. Delete ~/.cache/quokkacode-check
 # to take it all away.
 #
 # One run at a time on the host (lockf); a second waits and says so. The
@@ -37,7 +37,7 @@
 # Exit 255: no host that can run it could be reached (check.sh then runs here).
 set -uo pipefail
 
-BASE_REL=".cache/threadbear-check"
+BASE_REL=".cache/quokkacode-check"
 
 # ---- On the check host: scripts/check-remote.sh --on-host <id> [options]
 if [ "${1:-}" = "--on-host" ]; then
@@ -63,7 +63,7 @@ if [ "${1:-}" = "--on-host" ]; then
   # Mac to fetch, and everything else goes.
   keep_logs() {
     cd "$base" || return
-    for d in "$TMPDIR"/threadbear-check.*; do
+    for d in "$TMPDIR"/quokkacode-check.*; do
       [ -d "$d" ] && mkdir -p "$base/kept-$id" && mv "$d" "$base/kept-$id/"
     done
     rm -rf "$src" "$TMPDIR"
@@ -97,7 +97,7 @@ if [ "${1:-}" = "--on-host" ]; then
     ls -td "$base/deps/$name-"* 2>/dev/null | tail -n +4 | xargs rm -rf
   done
   # The Swift build folders, kept between runs.
-  for dir in app dock ios/ThreadbearKit; do
+  for dir in app dock ios/QuokkaCodeKit; do
     [ -d "$src/$dir" ] || continue
     name="$(printf '%s' "$dir" | tr -c 'a-zA-Z0-9' '-')"
     mkdir -p "$base/build/$name"
@@ -106,7 +106,7 @@ if [ "${1:-}" = "--on-host" ]; then
   done
 
   cd "$src" || exit 1
-  THREADBEAR_CHECK_CHANGED_FILE="$src/.check-changed" THREADBEAR_NODE="$NODE" ./check.sh --local "$@"
+  QUOKKACODE_CHECK_CHANGED_FILE="$src/.check-changed" QUOKKACODE_NODE="$NODE" ./check.sh --local "$@"
   exit $?
 fi
 
@@ -228,10 +228,10 @@ trap drop_copylock EXIT
 # over a slow uplink a first copy took 22 minutes (6 Nov), and one thread's
 # app check copied, lost, deleted and copied again. After a slow copy it
 # waits in line on that host; after a quick one it chooses again, reusing
-# the copy if that's the same host. THREADBEAR_CHECK_STAY_SECS is for the
+# the copy if that's the same host. QUOKKACODE_CHECK_STAY_SECS is for the
 # tests.
 copied_host="" copy_secs=0
-stay_secs="${THREADBEAR_CHECK_STAY_SECS:-60}"
+stay_secs="${QUOKKACODE_CHECK_STAY_SECS:-60}"
 while :; do
   if [ -n "$copied_host" ] && [ "$copy_secs" -ge "$stay_secs" ]; then
     # HOST, HOST_OS and remote_base are still the copy's.
@@ -282,7 +282,7 @@ while :; do
     fi
     drop_copylock
     copied_host="$HOST" copy_secs=$((SECONDS - start))
-    echo "Checking on $HOST (copied in ${copy_secs}s; THREADBEAR_CHECK_HOST= ./check.sh --local runs here)"
+    echo "Checking on $HOST (copied in ${copy_secs}s; QUOKKACODE_CHECK_HOST= ./check.sh --local runs here)"
   fi
 
   ARGS=(${BASE_ARGS[@]+"${BASE_ARGS[@]}"})
@@ -314,8 +314,8 @@ while :; do
 
   # A failed step's log path is on the host: its logs come back here, and the
   # path in the output is changed to match.
-  local_logs="$(mktemp -d "${TMPDIR:-/tmp}/threadbear-check-remote.XXXXXX")"
-  "${SSH[@]}" "$HOST" "$remote_cmd" 2>&1 | sed -u "s#$remote_base/tmp-$id/threadbear-check\.[A-Za-z0-9]*#$local_logs#g"
+  local_logs="$(mktemp -d "${TMPDIR:-/tmp}/quokkacode-check-remote.XXXXXX")"
+  "${SSH[@]}" "$HOST" "$remote_cmd" 2>&1 | sed -u "s#$remote_base/tmp-$id/quokkacode-check\.[A-Za-z0-9]*#$local_logs#g"
   code=${PIPESTATUS[0]}
   if [ "$now" = 1 ] && [ "$code" = 75 ]; then
     # Never started. Its copy stays for the next go (above).
@@ -336,7 +336,7 @@ fi
 
 # find, not a glob: the host's login shell may be zsh, which complains
 # out loud when a glob matches nothing.
-kept="$("${SSH[@]}" "$HOST" "find '$remote_base/kept-$id' -maxdepth 1 -name 'threadbear-check.*' 2>/dev/null | head -1")"
+kept="$("${SSH[@]}" "$HOST" "find '$remote_base/kept-$id' -maxdepth 1 -name 'quokkacode-check.*' 2>/dev/null | head -1")"
 if [ -n "$kept" ]; then
   rsync -a -e "${SSH[*]}" "$HOST:$kept/" "$local_logs/" >/dev/null
 fi

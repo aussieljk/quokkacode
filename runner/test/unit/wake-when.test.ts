@@ -155,7 +155,7 @@ test('a plain snooze clears the words, and a restart mid-answer brings the threa
 });
 
 // end_turn's snooze: a thread hibernates itself once its turn is over.
-const END_TURN = 'mcp__threadbear__end_turn';
+const END_TURN = 'mcp__quokkacode__end_turn';
 function turnWithSnooze(h: ReturnType<typeof makeHarness>, threadId: string, input: Record<string, unknown>, outcome: 'completed' | 'interrupted' = 'completed') {
   h.runner.send(threadId, 'hibernate this until the parts arrive');
   const s = h.adapter.last;

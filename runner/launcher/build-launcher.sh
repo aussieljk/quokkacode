@@ -1,8 +1,8 @@
 #!/bin/bash
-# Builds "Threadbear Runner.app", the small app the runner's LaunchAgent
+# Builds "QuokkaCode Runner.app", the small app the runner's LaunchAgent
 # runs (main.swift says why there is one), and puts it at the path given.
 #
-#   launcher/build-launcher.sh <path/to/Threadbear Runner.app>   build it
+#   launcher/build-launcher.sh <path/to/QuokkaCode Runner.app>   build it
 #   launcher/build-launcher.sh --check <path>  exit 0 if the app there was
 #                                              built from these sources
 #                                              (says why not otherwise)
@@ -12,7 +12,7 @@
 # changed or the app is missing, so the app is rebuilt rarely. Its
 # signature is what macOS ties privacy grants to, so it is signed the way
 # app/build-app.sh signs the Mac app: with the first Apple Development
-# identity (THREADBEAR_SIGN_IDENTITY to pick one), or ad hoc with the
+# identity (QUOKKACODE_SIGN_IDENTITY to pick one), or ad hoc with the
 # designated requirement pinned to the bundle id, so that a rebuild keeps
 # the same identity either way.
 #
@@ -22,11 +22,11 @@
 set -euo pipefail
 
 # THREADBARE_* was the old name for these variables: each stands in for its new name.
-for v in $(compgen -e | grep '^THREADBARE_' || true); do n="THREADBEAR_${v#THREADBARE_}"; [ -n "${!n+x}" ] || export "$n=${!v}"; done
+for v in $(compgen -e | grep '^THREADBARE_' || true); do n="QUOKKACODE_${v#THREADBARE_}"; [ -n "${!n+x}" ] || export "$n=${!v}"; done
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-APP_NAME="Threadbear Runner"
-BUNDLE_ID="com.mikerosoft.threadbear.runner"
-ICON_SOURCE="$HERE/../../app/icons/threadbear.png"
+APP_NAME="QuokkaCode Runner"
+BUNDLE_ID="com.lucasknight.quokkacode.runner"
+ICON_SOURCE="$HERE/../../app/icons/quokkacode.png"
 
 # Everything that goes into the app: a change to any of these means a
 # rebuild. The icon isn't in it on purpose (a new icon isn't worth
@@ -70,18 +70,18 @@ mkdir -p "$STAGE_DIR/Contents/MacOS" "$STAGE_DIR/Contents/Resources"
 
 echo "Building $APP_NAME.app..."
 # One file, so swiftc on its own: no package, no .build folder.
-swiftc -O -module-name ThreadbearRunner -o "$STAGE_DIR/Contents/MacOS/$APP_NAME" "$HERE/main.swift"
+swiftc -O -module-name QuokkaCodeRunner -o "$STAGE_DIR/Contents/MacOS/$APP_NAME" "$HERE/main.swift"
 cp "$HERE/Info.plist" "$STAGE_DIR/Contents/Info.plist"
 
 if [ -f "$ICON_SOURCE" ]; then
-  ICONSET="$(mktemp -d)/threadbear.iconset"
+  ICONSET="$(mktemp -d)/quokkacode.iconset"
   mkdir -p "$ICONSET"
   for size in 16 32 128 256 512; do
     sips -z "$size" "$size" "$ICON_SOURCE" --out "$ICONSET/icon_${size}x${size}.png" >/dev/null
     double=$((size * 2))
     sips -z "$double" "$double" "$ICON_SOURCE" --out "$ICONSET/icon_${size}x${size}@2x.png" >/dev/null
   done
-  iconutil -c icns "$ICONSET" -o "$STAGE_DIR/Contents/Resources/threadbear.icns"
+  iconutil -c icns "$ICONSET" -o "$STAGE_DIR/Contents/Resources/quokkacode.icns"
   rm -rf "$(dirname "$ICONSET")"
 fi
 
@@ -94,15 +94,15 @@ printf '{\n  "sources": "%s",\n  "commit": "%s",\n  "builtAt": "%s"\n}\n' \
 # job (errSecInternalComponent), and this one never needs a prompt.
 SIGN_KEYCHAIN_ARGS=()
 LOCAL_SIGN_KEYCHAIN="$HOME/Library/Keychains/quokkacode-signing.keychain-db"
-if [ -z "${THREADBEAR_SIGN_IDENTITY:-}" ] && [ -f "$LOCAL_SIGN_KEYCHAIN" ]; then
+if [ -z "${QUOKKACODE_SIGN_IDENTITY:-}" ] && [ -f "$LOCAL_SIGN_KEYCHAIN" ]; then
   security unlock-keychain -p "" "$LOCAL_SIGN_KEYCHAIN" 2>/dev/null || true
   LOCAL_SIGN_HASH="$(security find-certificate -c "Quokka Code Local Signing" -Z "$LOCAL_SIGN_KEYCHAIN" 2>/dev/null | sed -n 's/^SHA-1 hash: //p' | head -n 1)"
   if [ -n "$LOCAL_SIGN_HASH" ]; then
-    THREADBEAR_SIGN_IDENTITY="$LOCAL_SIGN_HASH"
+    QUOKKACODE_SIGN_IDENTITY="$LOCAL_SIGN_HASH"
     SIGN_KEYCHAIN_ARGS=(--keychain "$LOCAL_SIGN_KEYCHAIN")
   fi
 fi
-SIGN_IDENTITY="${THREADBEAR_SIGN_IDENTITY:-$({
+SIGN_IDENTITY="${QUOKKACODE_SIGN_IDENTITY:-$({
   security find-identity -v -p codesigning 2>/dev/null \
     | sed -n 's/.*"\(Apple Development:[^"]*\)".*/\1/p' \
     | head -n 1

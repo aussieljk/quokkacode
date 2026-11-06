@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds Threadbear.app and links the `threadbear` launcher.
+# Builds QuokkaCode.app and links the `quokkacode` launcher.
 # Re-run after moving the clone so the launcher symlink points at its new home.
 set -euo pipefail
 
@@ -9,7 +9,7 @@ TARGET_DIR="${1:-$HOME/.local/bin}"
 case "${1:-}" in
   -h|--help)
     echo "Usage: install.sh [target_bin_dir]"
-    echo "Builds Threadbear.app into ~/Applications and links threadbear (default: ~/.local/bin)."
+    echo "Builds QuokkaCode.app into ~/Applications and links quokkacode (default: ~/.local/bin)."
     exit 0
     ;;
   -*)
@@ -29,7 +29,7 @@ for dependency in swift python3; do
   fi
 done
 
-DESTINATION="$TARGET_DIR/threadbear"
+DESTINATION="$TARGET_DIR/quokkacode"
 # An existing symlink can be updated, but don't replace someone's own command.
 if [[ -e "$DESTINATION" && ! -L "$DESTINATION" ]]; then
   echo "ERROR: $DESTINATION already exists and is not a symlink." >&2
@@ -42,9 +42,9 @@ fi
 
 bash "$SCRIPT_DIR/setup_mac.sh"
 mkdir -p "$TARGET_DIR"
-chmod +x "$SCRIPT_DIR/threadbear"
-ln -sfn "$SCRIPT_DIR/threadbear" "$DESTINATION"
-echo "Linked $DESTINATION -> $SCRIPT_DIR/threadbear"
+chmod +x "$SCRIPT_DIR/quokkacode"
+ln -sfn "$SCRIPT_DIR/quokkacode" "$DESTINATION"
+echo "Linked $DESTINATION -> $SCRIPT_DIR/quokkacode"
 
 case ":$PATH:" in
   *":$TARGET_DIR:"*) ;;

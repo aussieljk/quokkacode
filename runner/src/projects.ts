@@ -2,7 +2,7 @@
 // project can have several folders, a thread can be in several projects,
 // and each keeps goals, state and notes that carry forward from thread to
 // thread. Nobody has to make them: the librarian (librarian.ts) and the
-// agents (threadbear-mcp.ts) do, and Mike can fix anything by hand.
+// agents (quokkacode-mcp.ts) do, and Mike can fix anything by hand.
 //
 // The projects themselves are kept in projects.json in the data dir; which
 // projects a thread is in is kept on the thread's record (store.ts), so it
@@ -99,7 +99,7 @@ const SHORT_MAX = 2000; // goals and state
 const NOTES_MAX = 50_000;
 // Past this, the librarian rewrites the notes shorter (librarian.ts,
 // keepNotes). Agents appended a changelog of everything that landed until
-// Threadbear's hit NOTES_MAX and a note was refused (Mike, 30 Oct); git
+// Quokka Code's hit NOTES_MAX and a note was refused (Mike, 30 Oct); git
 // and the docs already say what landed, and read_project hands an agent
 // all of it.
 export const NOTES_LONG = 12_000;
@@ -274,9 +274,9 @@ export class Projects {
     const share = Math.floor(BRIEF_MAX / projects.length);
     const blocks = projects.map((p) => this.briefBlock(p, share));
     return (
-      '[Threadbear projects] This thread is part of the projects below. A project outlasts any one thread: ' +
+      '[Quokka Code projects] This thread is part of the projects below. A project outlasts any one thread: ' +
       'when you learn something that should carry on (a decision, where things are up to, what is next, a gotcha), ' +
-      'update it with the threadbear tool update_project. read_project has each one\'s notes.\n\n' +
+      'update it with the quokkacode tool update_project. read_project has each one\'s notes.\n\n' +
       blocks.join('\n\n')
     );
   }
@@ -313,7 +313,7 @@ export class Projects {
 
   // A line for the agent when its thread joins a project mid-session.
   joinedLine(p: ProjectRecord): string {
-    const bits = [`[Threadbear project] This thread is now part of the project "${p.title}" (${p.id}).`];
+    const bits = [`[Quokka Code project] This thread is now part of the project "${p.title}" (${p.id}).`];
     if (p.goals) bits.push(`Goals: ${clip(p.goals, 300)}`);
     if (p.state) bits.push(`State: ${clip(p.state, 300)}`);
     bits.push('read_project has its notes; update_project keeps it current.');

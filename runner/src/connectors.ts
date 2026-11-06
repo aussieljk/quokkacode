@@ -315,7 +315,7 @@ export const GATEWAY_TOOL_PREFIX = 'mcp__connectors__';
 export type SignInSignal = { source: 'claude.ai'; problem: SignInProblem } | { source: 'gateway'; ids: string[] };
 
 export function signInSignal(toolName: string, ok: boolean, text: string, gateway?: string): SignInSignal | undefined {
-  if (!toolName.startsWith('mcp__') || toolName.startsWith('mcp__threadbear__')) return undefined;
+  if (!toolName.startsWith('mcp__') || toolName.startsWith('mcp__quokkacode__')) return undefined;
   if (toolName.startsWith(GATEWAY_TOOL_PREFIX)) {
     const origin = gateway ? gatewayBase(gateway) : undefined;
     const [prefix, ...rest] = toolName.slice(GATEWAY_TOOL_PREFIX.length).split('__');
@@ -398,7 +398,7 @@ export function uncovered(problems: SignInProblem[], asks: AskLike[] | undefined
 // The nudge: what needs signing in and where, and what to do about it.
 export function signInNudge(problems: SignInProblem[]): string {
   const lines = problems.map((p) => {
-    const where = p.source === 'claude.ai' ? `on claude.ai, for this thread's login: ${p.url}` : p.url ? `in the Connectors gateway: ${p.url}` : "in the Connectors gateway (Threadbear's Connectors panel has the button)";
+    const where = p.source === 'claude.ai' ? `on claude.ai, for this thread's login: ${p.url}` : p.url ? `in the Connectors gateway: ${p.url}` : "in the Connectors gateway (Quokka Code's Connectors panel has the button)";
     return `- ${p.service} needs signing in again, ${where}`;
   });
   return (

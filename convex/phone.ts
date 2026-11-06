@@ -56,7 +56,7 @@ function stripThread(doc: Doc<'threads'>): PhoneThread {
 }
 
 // apiVersion is the backend's (version.ts), so the app can say "update
-// Threadbear on your Mac" when it's talking to a backend older than it needs.
+// Quokka Code on your Mac" when it's talking to a backend older than it needs.
 export const me = query({
   args: { token: v.string() },
   returns: v.object({ name: v.string(), expiresAt: v.string(), apiVersion: v.number() }),

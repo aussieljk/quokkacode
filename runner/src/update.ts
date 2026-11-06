@@ -618,7 +618,7 @@ export function launcherSourcesHash(dir: string): string | undefined {
 // Releases never change any of it, and the runner can't reinstall the
 // launchd job it runs in, so this is said (tb status, the app's Updates
 // panel) for Mike to run install-runner.sh. The app is the one
-// install-runner.sh put in the plist (THREADBEAR_RUNNER_APP), else the
+// install-runner.sh put in the plist (QUOKKACODE_RUNNER_APP), else the
 // process that started launch.mjs, for a plist written before that
 // variable; a supervised runner with neither still runs node as the
 // program.
@@ -633,10 +633,10 @@ export function launchAgentBehind(
   if (launcherDiffers(path.join(mainRunner, 'launch.mjs'), path.join(home, 'runner', 'launch.mjs'))) why.push('launch.mjs has changed on main.');
   const onMain = launcherSourcesHash(path.join(mainRunner, 'launcher'));
   // Linux has no launcher app (systemd runs node; install-runner.sh).
-  if (onMain && env.THREADBEAR_SUPERVISED === '1' && platform === 'darwin') {
-    const app = env.THREADBEAR_RUNNER_APP || findApp();
+  if (onMain && env.QUOKKACODE_SUPERVISED === '1' && platform === 'darwin') {
+    const app = env.QUOKKACODE_RUNNER_APP || findApp();
     if (!app) {
-      why.push('The LaunchAgent still runs node, not Threadbear Runner.app, so privacy prompts say "node".');
+      why.push('The LaunchAgent still runs node, not QuokkaCode Runner.app, so privacy prompts say "node".');
     } else {
       let built: unknown;
       try {
@@ -644,7 +644,7 @@ export function launchAgentBehind(
       } catch {
         // missing or unreadable: rebuilt by the same command
       }
-      if (built !== onMain) why.push('Threadbear Runner.app was built from older launcher sources than main\'s.');
+      if (built !== onMain) why.push('QuokkaCode Runner.app was built from older launcher sources than main\'s.');
     }
   }
   return why.length ? why.join(' ') : undefined;
@@ -660,9 +660,9 @@ export function launcherAppAbove(): string | undefined {
   return appOfExecutable(ps('comm', grandparent));
 }
 
-// "<x>.app/Contents/MacOS/Threadbear Runner" to "<x>.app", else undefined.
+// "<x>.app/Contents/MacOS/QuokkaCode Runner" to "<x>.app", else undefined.
 export function appOfExecutable(exe: string): string | undefined {
-  const m = /^(\/.+\.app)\/Contents\/MacOS\/Threadbear Runner$/.exec(exe);
+  const m = /^(\/.+\.app)\/Contents\/MacOS\/QuokkaCode Runner$/.exec(exe);
   return m ? m[1] : undefined;
 }
 

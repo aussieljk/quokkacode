@@ -69,7 +69,7 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
     console.log(fs.readFileSync(new URL(import.meta.url), 'utf8').split('\n').filter((l) => l.startsWith('//')).map((l) => l.slice(3)).join('\n'));
     process.exit(0);
   }
-  const home = process.env.THREADBEAR_HOME ?? path.join(os.homedir(), 'Library', 'Application Support', 'Threadbear');
+  const home = process.env.QUOKKACODE_HOME ?? path.join(os.homedir(), 'Library', 'Application Support', 'QuokkaCode');
   const url = JSON.parse(fs.readFileSync(path.join(home, 'runner.json'), 'utf8')).sync?.url;
   const key = fs.readFileSync(path.join(home, 'secrets', 'convex-key'), 'utf8').trim();
   if (!url || !key) {

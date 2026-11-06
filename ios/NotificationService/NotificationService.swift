@@ -6,7 +6,7 @@ import UserNotifications
 /// Opens notifications that came through the push relay (docs/push-relay.md).
 /// The relay forwards them with a stand-in "A thread needs you" and the real
 /// title and text sealed in `e`, with a key only this phone and its own
-/// Threadbear backend have. Anything that can't be opened shows as it came.
+/// Quokka Code backend have. Anything that can't be opened shows as it came.
 final class NotificationService: UNNotificationServiceExtension {
     override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
         guard let content = request.content.mutableCopy() as? UNMutableNotificationContent else {
@@ -22,7 +22,7 @@ final class NotificationService: UNNotificationServiceExtension {
     }
 }
 
-/// The same as ThreadbearKit's PushSeal, copied so the extension doesn't
+/// The same as QuokkaCodeKit's PushSeal, copied so the extension doesn't
 /// load the Convex client (extensions have a small memory budget).
 enum PushSeal {
     static func open(_ sealed: String, key: Data) -> (title: String, body: String)? {
@@ -36,7 +36,7 @@ enum PushSeal {
 }
 
 /// Reads the key the app keeps in the keychain under the shared App Group
-/// (ThreadbearKit's PushKeyStore writes it).
+/// (QuokkaCodeKit's PushKeyStore writes it).
 enum PushKeyReader {
     static func key() -> Data? {
         let query: [String: Any] = [

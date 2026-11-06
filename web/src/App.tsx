@@ -49,9 +49,9 @@ function SignIn({ expired }: { expired?: boolean }) {
   return (
     <main className="signin">
       <img src="/icon.png" alt="" width={72} height={72} />
-      <h1>Threadbear</h1>
+      <h1>Quokka Code</h1>
       <p>{expired ? 'This browser’s sign-in has expired or been revoked.' : 'This browser isn’t signed in yet.'}</p>
-      <p>On the Mac, open Threadbear, then Settings › Phone &amp; browser › Open signed in.</p>
+      <p>On the Mac, open Quokka Code, then Settings › Phone &amp; browser › Open signed in.</p>
       <p className="muted small">
         It opens this site in your browser, signed in. From a terminal instead, in the repo: <code>npm run web:sign-in</code> (add <code>-- --qr</code> for a code to scan on another device).
       </p>
@@ -181,9 +181,9 @@ function ThreadView({ token, threadId }: { token: string; threadId: string }) {
   }, [t, token, threadId, update]);
 
   useEffect(() => {
-    if (t) document.title = `${t.title || 'Untitled'} · Threadbear`;
+    if (t) document.title = `${t.title || 'Untitled'} · Quokka Code`;
     return () => {
-      document.title = 'Threadbear';
+      document.title = 'Quokka Code';
     };
   }, [t?.title]);
 
@@ -499,7 +499,7 @@ function ApprovalCard({ token, threadId, approval, onSent }: { token: string; th
       <section className="card">
         <h2>{approval.label}</h2>
         <p>{approval.reason}</p>
-        <p className="desc">Answer this in Threadbear on your Mac or iPhone.</p>
+        <p className="desc">Answer this in Quokka Code on your Mac or iPhone.</p>
         <div className="ask-links">
           <button className="btn" onClick={async () => onSent(await secret({ token, threadId, approvalId: approval.approvalId, decline: true }))}>
             Decline
@@ -561,5 +561,5 @@ function ApprovalCard({ token, threadId, approval, onSent }: { token: string; th
 // ------------------------------------------------------------ bits
 
 function originLabel(origin: string): string {
-  return origin === 'schedule' ? 'Scheduled' : origin === 'runner' ? 'From Threadbear' : origin === 'agent' ? 'From another thread' : origin;
+  return origin === 'schedule' ? 'Scheduled' : origin === 'runner' ? 'From Quokka Code' : origin === 'agent' ? 'From another thread' : origin;
 }

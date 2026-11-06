@@ -232,7 +232,7 @@ test('commands whose output is withheld', () => {
     'cat ~/.ssh/id_ed25519',
     'cat AuthKey_ABC.p8',
     'base64 < key.pem',
-    'cat "$HOME/Library/Application Support/Threadbear/secrets/convex-key"',
+    'cat "$HOME/Library/Application Support/QuokkaCode/secrets/convex-key"',
     'cat ~/.aws/credentials',
     'head -1 ~/.npmrc',
     'cat ~/.netrc',
@@ -278,7 +278,7 @@ test('ordinary commands are not withheld', () => {
 });
 
 test('files whose contents are withheld', () => {
-  for (const f of ['/app/.env', '/app/.env.local', '/app/web/.env.production', '/k/AuthKey_ABC.p8', '/k/server.pem', '/k/tls.key', '~/.ssh/id_rsa', '/h/.npmrc', '/h/.aws/credentials', '/h/.aws/config', '/h/.kube/config', '/h/.docker/config.json', '/h/.config/gh/hosts.yml', '/x/credentials.json', '/x/service-account-prod.json', '/x/client_secret_123.json', '/Threadbear/secrets/convex-key']) {
+  for (const f of ['/app/.env', '/app/.env.local', '/app/web/.env.production', '/k/AuthKey_ABC.p8', '/k/server.pem', '/k/tls.key', '~/.ssh/id_rsa', '/h/.npmrc', '/h/.aws/credentials', '/h/.aws/config', '/h/.kube/config', '/h/.docker/config.json', '/h/.config/gh/hosts.yml', '/x/credentials.json', '/x/service-account-prod.json', '/x/client_secret_123.json', '/QuokkaCode/secrets/convex-key']) {
     assert.ok(read(f), `should withhold: ${f}`);
   }
   for (const f of ['/app/src/main.ts', '/app/.env.example', '/app/.env.template', '/app/README.md', '/h/.ssh/id_rsa.pub', '/app/src/secrets.ts', '/app/docs/keys.md', '/app/keyboard.ts', '/app/credentials.ts', '/a/screenshot.png']) {

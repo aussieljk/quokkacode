@@ -53,9 +53,9 @@ export class FolderCache {
 
   // What's at a path: a folder, a file, something else, or nothing.
   // Answered from the parent's listing where there is one, so checking
-  // for convex/, package.json and .threadbear/ in a folder is one listing.
+  // for convex/, package.json and .quokkacode/ in a folder is one listing.
   kind(p: string): EntryKind | undefined {
-    // A folder with no .threadbear has no .threadbear/patches either: no
+    // A folder with no .quokkacode has no .quokkacode/patches either: no
     // need to try listing a folder already known not to be there.
     if (this.knownNotAFolder(path.dirname(p))) return undefined;
     const parent = this.listing(path.dirname(p));

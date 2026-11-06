@@ -51,7 +51,7 @@ test('planCommand: Claude runs its own; Codex gets the app-server ones, the runn
   assert.deepEqual(planCommand('codex', parseCommand('/init')!, new Set(['init'])), { kind: 'cli' });
 });
 
-test('commandList puts Threadbear\'s own first and hides Claude\'s terminal-only ones', () => {
+test('commandList puts QuokkaCode\'s own first and hides Claude\'s terminal-only ones', () => {
   const claude = commandList('claude', [
     { name: 'compact', source: 'cli' },
     { name: 'model', source: 'cli' },
@@ -197,7 +197,7 @@ test('/status on Codex says the model, effort and context', async () => {
   assert.match(notes(h, thread.id).at(-1)!, /Context: 50k of 200k tokens \(25%\)/);
 });
 
-test('/rewind on Claude says how Threadbear does it, without a CLI turn', async () => {
+test('/rewind on Claude says how Quokka Code does it, without a CLI turn', async () => {
   const h = harness();
   const { thread } = h.runner.create({ text: 'hi', accountId: 'claude-main' });
   const s = h.adapter.last;

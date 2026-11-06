@@ -117,7 +117,7 @@ test('with sync off, list says why and pair and revoke refuse with the reason', 
   const list = (await methods['devices.list']({})) as { devices: unknown[]; reason?: string };
   assert.deepEqual(list.devices, []);
   assert.equal(list.reason, 'no secrets/convex-key');
-  await assert.rejects(methods['devices.pair']({ kind: 'phone' }) as Promise<unknown>, (e: RpcError) => e.code === -32000 && /convex-key/.test(e.message) && /threadbear setup/.test(e.message));
+  await assert.rejects(methods['devices.pair']({ kind: 'phone' }) as Promise<unknown>, (e: RpcError) => e.code === -32000 && /convex-key/.test(e.message) && /quokkacode setup/.test(e.message));
   await assert.rejects(methods['devices.revoke']({ deviceId: 'x' }) as Promise<unknown>, (e: RpcError) => e.code === -32000);
   assert.equal(calls.length, 0);
 });

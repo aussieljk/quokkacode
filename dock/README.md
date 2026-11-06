@@ -1,6 +1,6 @@
 # BearDock
 
-Dockable, rearrangeable panels for Threadbear, in a package of their own with
+Dockable, rearrangeable panels for Quokka Code, in a package of their own with
 a demo app, so dragging and docking can feel right before it goes into the
 real window.
 
@@ -60,7 +60,7 @@ something else).
   panel, or puts back one the app always keeps. The layout keeps them in
   `floating`, with each window's frame, so they open again next launch.
   `DockOptions.windowContent` gives a window what the app's main window gives
-  its views (Threadbear's model in the environment).
+  its views (Quokka Code's model in the environment).
 - **Titles can be hidden** per panel: right-click a title or tab, Hide
   Title. The panel then has no bar while it's on its own (the demo's Threads
   starts that way); a thin strip along its top shows a grab handle on hover,

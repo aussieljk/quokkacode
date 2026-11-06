@@ -1,6 +1,6 @@
 #!/bin/bash
-# Installs the Threadbear runner as a launchd LaunchAgent
-# (com.mikerosoft.threadbear.runner) that starts at login and is restarted
+# Installs the Quokka Code runner as a launchd LaunchAgent
+# (com.lucasknight.quokkacode.runner) that starts at login and is restarted
 # if it ever exits. On Linux it's a systemd user service of the same name
 # instead (~/.config/systemd/user/<label>.service), with no Runner.app:
 # everything below about the plist goes for the unit file there.
@@ -14,9 +14,9 @@
 # <home>/runner/current points at. The first release is built here; after
 # that, ship changes with scripts/deploy-runner.sh.
 #
-# The plist's program is a small app, ~/Applications/Threadbear Runner.app
+# The plist's program is a small app, ~/Applications/QuokkaCode Runner.app
 # (launcher/main.swift says why: macOS names the LaunchAgent's program in
-# its privacy prompts, so this way they say "Threadbear Runner", not
+# its privacy prompts, so this way they say "QuokkaCode Runner", not
 # "node"), which runs `node launch.mjs` as its child. It is built here when
 # it's missing or launcher/ changed, and otherwise left alone, so its
 # signature, and the privacy grants tied to it, survive runner releases and
@@ -37,44 +37,44 @@
 #   --force        replace the running copy even if threads are busy
 #   --allow-branch install from a HEAD that isn't main's tip (its launch.mjs
 #                  and release)
-#   --home DIR     data dir (default ~/Library/Application Support/Threadbear)
-#   --label LABEL  launchd label (default com.mikerosoft.threadbear.runner)
+#   --home DIR     data dir (default ~/Library/Application Support/QuokkaCode)
+#   --label LABEL  launchd label (default com.lucasknight.quokkacode.runner)
 #   --port N       port to listen on (default: the one in runner.json, else
 #                  8797). A sandbox next to the real runner needs its own
 #                  --home and --label; its port defaults to 0, a free one.
 #   --node PATH    Node 24 binary to pin in the plist
-#                  (default: $THREADBEAR_NODE, else ~/.nvm/versions/node/v24.22.1/bin/node)
-#   --runner-app DIR  where Threadbear Runner.app goes (default:
-#                  $THREADBEAR_RUNNER_APP_DIR, else ~/Applications/Threadbear
-#                  Runner.app, or <home>/runner/Threadbear Runner.app for a
+#                  (default: $QUOKKACODE_NODE, else ~/.nvm/versions/node/v24.22.1/bin/node)
+#   --runner-app DIR  where QuokkaCode Runner.app goes (default:
+#                  $QUOKKACODE_RUNNER_APP_DIR, else ~/Applications/QuokkaCode
+#                  Runner.app, or <home>/runner/QuokkaCode Runner.app for a
 #                  sandbox)
 #   --path PATH    PATH for the runner and the agents it starts
 #                  (default: your login shell's PATH, captured now)
 #
-# THREADBEAR_LAUNCHCTL and THREADBEAR_LAUNCH_AGENTS_DIR replace launchctl
+# QUOKKACODE_LAUNCHCTL and QUOKKACODE_LAUNCH_AGENTS_DIR replace launchctl
 # and ~/Library/LaunchAgents (the tests use both); on Linux,
-# THREADBEAR_SYSTEMCTL and THREADBEAR_SYSTEMD_UNITS_DIR replace systemctl
+# QUOKKACODE_SYSTEMCTL and QUOKKACODE_SYSTEMD_UNITS_DIR replace systemctl
 # and ~/.config/systemd/user.
 set -euo pipefail
 
 # THREADBARE_* was the old name for these variables: each stands in for its new name.
-for v in $(compgen -e | grep '^THREADBARE_' || true); do n="THREADBEAR_${v#THREADBARE_}"; [ -n "${!n+x}" ] || export "$n=${!v}"; done
-DEFAULT_LABEL="com.mikerosoft.threadbear.runner"
-DEFAULT_HOME="$HOME/Library/Application Support/Threadbear"
+for v in $(compgen -e | grep '^THREADBARE_' || true); do n="QUOKKACODE_${v#THREADBARE_}"; [ -n "${!n+x}" ] || export "$n=${!v}"; done
+DEFAULT_LABEL="com.lucasknight.quokkacode.runner"
+DEFAULT_HOME="$HOME/Library/Application Support/QuokkaCode"
 RUNNER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-NODE="${THREADBEAR_NODE:-$HOME/.nvm/versions/node/v24.22.1/bin/node}"
-LAUNCHCTL="${THREADBEAR_LAUNCHCTL:-launchctl}"
-AGENTS_DIR="${THREADBEAR_LAUNCH_AGENTS_DIR:-$HOME/Library/LaunchAgents}"
+NODE="${QUOKKACODE_NODE:-$HOME/.nvm/versions/node/v24.22.1/bin/node}"
+LAUNCHCTL="${QUOKKACODE_LAUNCHCTL:-launchctl}"
+AGENTS_DIR="${QUOKKACODE_LAUNCH_AGENTS_DIR:-$HOME/Library/LaunchAgents}"
 # A runner on Linux (INSTALL.md, "A runner on Linux"): systemd keeps it up.
 LINUX=0
 [ "$(uname -s)" = Linux ] && LINUX=1
-SYSTEMCTL="${THREADBEAR_SYSTEMCTL:-systemctl}"
-if [ "$LINUX" = 1 ]; then AGENTS_DIR="${THREADBEAR_SYSTEMD_UNITS_DIR:-$HOME/.config/systemd/user}"; fi
+SYSTEMCTL="${QUOKKACODE_SYSTEMCTL:-systemctl}"
+if [ "$LINUX" = 1 ]; then AGENTS_DIR="${QUOKKACODE_SYSTEMD_UNITS_DIR:-$HOME/.config/systemd/user}"; fi
 LABEL="$DEFAULT_LABEL"
 DATA_HOME="$DEFAULT_HOME"
 PORT=""
 AGENT_PATH=""
-RUNNER_APP="${THREADBEAR_RUNNER_APP_DIR:-}"
+RUNNER_APP="${QUOKKACODE_RUNNER_APP_DIR:-}"
 FROM_SOURCE=0
 FORCE=0
 ALLOW_BRANCH=0
@@ -126,17 +126,17 @@ fi
 if [ "$SANDBOX" = 1 ]; then
   [ -n "$PORT" ] || PORT=0
   LOG="$DATA_HOME/runner.log"
-  [ -n "$RUNNER_APP" ] || RUNNER_APP="$DATA_HOME/runner/Threadbear Runner.app"
+  [ -n "$RUNNER_APP" ] || RUNNER_APP="$DATA_HOME/runner/QuokkaCode Runner.app"
 else
-  LOG="$HOME/Library/Logs/threadbear-runner.log"
-  [ -n "$RUNNER_APP" ] || RUNNER_APP="$HOME/Applications/Threadbear Runner.app"
+  LOG="$HOME/Library/Logs/quokkacode-runner.log"
+  [ -n "$RUNNER_APP" ] || RUNNER_APP="$HOME/Applications/QuokkaCode Runner.app"
 fi
 case "$RUNNER_APP" in /*) ;; *) RUNNER_APP="$PWD/$RUNNER_APP" ;; esac
 RUNNER_APP="${RUNNER_APP%/}"
 # The plist's program: the app's executable, given node and the program
 # to run as its arguments (it spawns them, so launchd's job, the process
 # macOS asks about, is the app).
-LAUNCHER="$RUNNER_APP/Contents/MacOS/Threadbear Runner"
+LAUNCHER="$RUNNER_APP/Contents/MacOS/QuokkaCode Runner"
 BUILD_LAUNCHER="$RUNNER_DIR/launcher/build-launcher.sh"
 PLIST="$AGENTS_DIR/$LABEL.plist"
 DOMAIN="gui/$(id -u)"
@@ -174,16 +174,16 @@ is_ancestor() {
 # Reinstalling or removing the runner a thread runs on ends that thread's
 # turn, so an agent hands it to Mike instead. That's decided by the process
 # tree (which works under any runner, and whatever an agent exported) and
-# by THREADBEAR_RUNNER_HOME, which the runner sets and nothing tells an
-# agent to change. THREADBEAR_HOME is the one agents point at dev runners,
+# by QUOKKACODE_RUNNER_HOME, which the runner sets and nothing tells an
+# agent to change. QUOKKACODE_HOME is the one agents point at dev runners,
 # so it can't be trusted for this. The real runner is refused from any
 # thread at all.
 if [ "$MODE" != "print" ]; then
   IN_THREAD=0
   PID="$(runner_pid "$DATA_HOME" || true)"
   if [ -n "$PID" ] && is_ancestor "$PID"; then IN_THREAD=1; fi
-  if [ -n "${THREADBEAR_THREAD_ID:-}" ]; then
-    if [ "$SANDBOX" = 0 ] || same_dir "${THREADBEAR_RUNNER_HOME:-${THREADBEAR_HOME:-${THREADBEAR_DATA_DIR:-$DEFAULT_HOME}}}" "$DATA_HOME"; then IN_THREAD=1; fi
+  if [ -n "${QUOKKACODE_THREAD_ID:-}" ]; then
+    if [ "$SANDBOX" = 0 ] || same_dir "${QUOKKACODE_RUNNER_HOME:-${QUOKKACODE_HOME:-${QUOKKACODE_DATA_DIR:-$DEFAULT_HOME}}}" "$DATA_HOME"; then IN_THREAD=1; fi
   fi
   if [ "$IN_THREAD" = 1 ]; then
     echo "This would stop the runner this thread runs on and end this turn. Ask the user to run it from a terminal:" >&2
@@ -192,10 +192,10 @@ if [ "$MODE" != "print" ]; then
     exit 1
   fi
 fi
-# deploy-runner.sh takes its data dir from THREADBEAR_HOME; this script
+# deploy-runner.sh takes its data dir from QUOKKACODE_HOME; this script
 # doesn't, so someone counting on it would reinstall the real runner.
-if [ "$HOME_GIVEN" = 0 ] && [ -n "${THREADBEAR_HOME:-}" ] && ! same_dir "$THREADBEAR_HOME" "$DEFAULT_HOME"; then
-  echo "THREADBEAR_HOME is $THREADBEAR_HOME, but install-runner.sh only goes by --home (default $DEFAULT_HOME). Pass --home." >&2
+if [ "$HOME_GIVEN" = 0 ] && [ -n "${QUOKKACODE_HOME:-}" ] && ! same_dir "$QUOKKACODE_HOME" "$DEFAULT_HOME"; then
+  echo "QUOKKACODE_HOME is $QUOKKACODE_HOME, but install-runner.sh only goes by --home (default $DEFAULT_HOME). Pass --home." >&2
   exit 1
 fi
 
@@ -224,7 +224,7 @@ if [ "$MODE" = "uninstall" ]; then
     exit 1
   fi
   if [ "$FORCE" = 0 ] && svc_loaded && [ -x "$NODE" ] \
-    && ! THREADBEAR_NODE="$NODE" bash "$RUNNER_DIR/scripts/deploy-runner.sh" --home "$DATA_HOME" --label "$LABEL" --check-idle; then
+    && ! QUOKKACODE_NODE="$NODE" bash "$RUNNER_DIR/scripts/deploy-runner.sh" --home "$DATA_HOME" --label "$LABEL" --check-idle; then
     echo "Not removing $LABEL while threads are busy: they'd be cut short. Run it again once they finish, or add --force." >&2
     exit 1
   fi
@@ -234,7 +234,7 @@ if [ "$MODE" = "uninstall" ]; then
   echo "Removed $LABEL. The data in $DATA_HOME (releases included) is untouched."
   # The app stays too: the privacy grants macOS gave it belong to it, and a
   # reinstall picks it up as it is.
-  [ "$LINUX" = 1 ] || [ ! -d "$RUNNER_APP" ] || echo "$RUNNER_APP stays; delete it yourself if you're done with Threadbear."
+  [ "$LINUX" = 1 ] || [ ! -d "$RUNNER_APP" ] || echo "$RUNNER_APP stays; delete it yourself if you're done with Quokka Code."
   exit 0
 fi
 
@@ -297,13 +297,13 @@ plist() {
 	<dict>
 $(env_entry PATH "$AGENT_PATH")
 $(env_entry LANG en_US.UTF-8)
-$(env_entry THREADBEAR_RUNNER_APP "$RUNNER_APP")
+$(env_entry QUOKKACODE_RUNNER_APP "$RUNNER_APP")
 EOF
   if [ "$SANDBOX" = 1 ]; then
-    env_entry THREADBEAR_HOME "$DATA_HOME"
-    env_entry THREADBEAR_LOG "$LOG"
+    env_entry QUOKKACODE_HOME "$DATA_HOME"
+    env_entry QUOKKACODE_LOG "$LOG"
   fi
-  [ -z "$PORT" ] || env_entry THREADBEAR_PORT "$PORT"
+  [ -z "$PORT" ] || env_entry QUOKKACODE_PORT "$PORT"
   cat <<EOF
 	</dict>
 	<key>RunAtLoad</key>
@@ -337,10 +337,10 @@ unit_quote() {
 }
 unit() {
   cat <<EOF
-# Threadbear runner, written by runner/scripts/install-runner.sh. Reinstall
+# Quokka Code runner, written by runner/scripts/install-runner.sh. Reinstall
 # rather than edit: the next install writes it again.
 [Unit]
-Description=Threadbear runner ($LABEL)
+Description=QuokkaCode runner ($LABEL)
 After=network-online.target
 Wants=network-online.target
 
@@ -352,10 +352,10 @@ Environment=$(unit_quote "PATH=$AGENT_PATH")
 Environment="LANG=C.UTF-8"
 EOF
   if [ "$SANDBOX" = 1 ]; then
-    echo "Environment=$(unit_quote "THREADBEAR_HOME=$DATA_HOME")"
-    echo "Environment=$(unit_quote "THREADBEAR_LOG=$LOG")"
+    echo "Environment=$(unit_quote "QUOKKACODE_HOME=$DATA_HOME")"
+    echo "Environment=$(unit_quote "QUOKKACODE_LOG=$LOG")"
   fi
-  [ -z "$PORT" ] || echo "Environment=$(unit_quote "THREADBEAR_PORT=$PORT")"
+  [ -z "$PORT" ] || echo "Environment=$(unit_quote "QUOKKACODE_PORT=$PORT")"
   cat <<EOF
 Restart=always
 RestartSec=5
@@ -381,7 +381,7 @@ fi
 
 # deploy-runner.sh, on the Node the plist pins.
 deploy() {
-  THREADBEAR_NODE="$NODE" bash "$RUNNER_DIR/scripts/deploy-runner.sh" --home "$DATA_HOME" --label "$LABEL" "$@"
+  QUOKKACODE_NODE="$NODE" bash "$RUNNER_DIR/scripts/deploy-runner.sh" --home "$DATA_HOME" --label "$LABEL" "$@"
 }
 
 # Loads $PLIST and starts it. Straight after a bootout, bootstrap can fail
@@ -479,7 +479,7 @@ rm -f "$PREV" "$PREV_LAUNCH"
 # changed since (its signature is what privacy grants are tied to, so the
 # fewer rebuilds the better; a rebuild signs it the same way regardless).
 # build-launcher.sh leaves the old app next to the new one as
-# .Threadbear Runner.app.old, so a failed install can put it back.
+# .QuokkaCode Runner.app.old, so a failed install can put it back.
 OLD_APP="$(dirname "$RUNNER_APP")/.$(basename "$RUNNER_APP").old"
 APP_BUILT=0
 [ "$LINUX" = 1 ] || rm -rf "$OLD_APP"
@@ -491,7 +491,7 @@ elif why="$(bash "$BUILD_LAUNCHER" --check "$RUNNER_APP")"; then
 else
   echo "$why"
   if ! bash "$BUILD_LAUNCHER" "$RUNNER_APP"; then
-    echo "Threadbear Runner.app didn't build, so nothing was changed." >&2
+    echo "QuokkaCode Runner.app didn't build, so nothing was changed." >&2
     exit 1
   fi
   APP_BUILT=1
@@ -645,8 +645,8 @@ echo "Restart it with: launchctl kickstart -k $DOMAIN/$LABEL"
 # (docs/setup-and-updates.md, "A Mac nobody sits at"). Whether the runner has it
 # can't be asked from here, as this shell isn't the runner; tb status says.
 echo
-echo "If nobody sits at this Mac, give Threadbear Runner Full Disk Access:"
+echo "If nobody sits at this Mac, give QuokkaCode Runner Full Disk Access:"
 echo "  System Settings > Privacy & Security > Full Disk Access, then add $RUNNER_APP"
-if [ "$SANDBOX" = 0 ] && [ ! -d "/Applications/Threadbear.app" ] && [ ! -d "$HOME/Applications/Threadbear.app" ]; then
+if [ "$SANDBOX" = 0 ] && [ ! -d "/Applications/QuokkaCode.app" ] && [ ! -d "$HOME/Applications/QuokkaCode.app" ]; then
   open "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_AllFiles" 2>/dev/null || true
 fi

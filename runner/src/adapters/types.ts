@@ -45,7 +45,7 @@ export type StartSessionOptions = {
   // the CLI's rule syntax ("Bash(npm test)", "Write"). Applied on start so
   // they outlast an idle release.
   allowRules?: string[];
-  // Added to the CLI's environment (THREADBEAR_THREAD_ID and friends), so
+  // Added to the CLI's environment (QUOKKACODE_THREAD_ID and friends), so
   // the commands it runs know which thread they belong to.
   env?: Record<string, string>;
   // Said to the agent on top of the CLI's own system prompt: the thread's
@@ -57,7 +57,7 @@ export type StartSessionOptions = {
   // local settings and gets these instead: the same settings without the
   // parts that run anything.
   untrustedProjectSettings?: Record<string, unknown>;
-  // Whether an edit of this file (absolute) changes code Threadbear runs
+  // Whether an edit of this file (absolute) changes code Quokka Code runs
   // by itself: a patch, what a hashed patch covers, Claude settings and
   // what they name (code-writes.ts). Outside Full access such an edit
   // always asks, with no "Always allow". The adapter checks the names in

@@ -8,7 +8,7 @@
 // There used to be OpenRouter too, with a key, a daily budget and a spend
 // to show. Mike dropped it (29 Oct 2026): every feature is Haiku or Opus,
 // which his subscription runs anyway, and a key was one more thing for
-// anyone setting Threadbear up.
+// anyone setting Quokka Code up.
 import path from 'node:path';
 import type { Clock } from '../clock.ts';
 import type { Logger } from '../log.ts';

@@ -13,7 +13,7 @@ import { connectRpc } from './rpc-client.mjs';
 import { Fail, smokeTimedOut, step, unitTests } from './deploy-steps.mjs';
 // THREADBARE_* was the old name for these variables (config.ts, adoptOldNames).
 for (const [k, v] of Object.entries(process.env)) {
-  const name = k.startsWith('THREADBARE_') ? 'THREADBEAR_' + k.slice(11) : undefined;
+  const name = k.startsWith('THREADBARE_') ? 'QUOKKACODE_' + k.slice(11) : undefined;
   if (name && process.env[name] === undefined) process.env[name] = v;
 }
 
@@ -48,9 +48,9 @@ Options:
                     (inside a thread, where there's a default)
   --rollback        go back to the previous release instead of building one
   --list            show the releases and which one is running
-  --home DIR        data dir (default $THREADBEAR_HOME, else
-                    ~/Library/Application Support/Threadbear)
-  --label LABEL     launchd label (default com.mikerosoft.threadbear.runner)
+  --home DIR        data dir (default $QUOKKACODE_HOME, else
+                    ~/Library/Application Support/QuokkaCode)
+  --label LABEL     launchd label (default com.lucasknight.quokkacode.runner)
   --dry-run         say what would happen and change nothing
 
 For install-runner.sh:
@@ -64,8 +64,8 @@ For install-runner.sh:
   --check-branch    exit 1 if HEAD isn't main's tip
 `;
 
-const DEFAULT_LABEL = 'com.mikerosoft.threadbear.runner';
-const DEFAULT_HOME = path.join(os.homedir(), 'Library', 'Application Support', 'Threadbear');
+const DEFAULT_LABEL = 'com.lucasknight.quokkacode.runner';
+const DEFAULT_HOME = path.join(os.homedir(), 'Library', 'Application Support', 'QuokkaCode');
 // On Linux the data dir keeps its macOS name, so every path in the docs and
 // scripts is the same; systemd takes launchd's place (install-runner.sh).
 const LINUX = process.platform === 'linux';
@@ -76,7 +76,7 @@ const HEALTH_MS = 30_000;
 // How long a release that came up has to stay up before the deploy says so
 // (less once it's marked good). One that died 8 s after it started
 // listening used to pass the health check, and launch.mjs rolled it back
-// after the deploy had reported success. THREADBEAR_DEPLOY_SETTLE_MS
+// after the deploy had reported success. QUOKKACODE_DEPLOY_SETTLE_MS
 // shortens it for tests.
 const SETTLE_MS = 20_000;
 const ID_RE = /^\d{8}T\d{6}Z-[0-9a-f]+(-dirty)?$/;
@@ -159,17 +159,17 @@ function tail(file, lines = 40) {
 }
 
 // The pinned Node first on PATH (npm's shebang finds it there), and no
-// THREADBEAR_* variables: inside a thread they name the live runner, and
+// QUOKKACODE_* variables: inside a thread they name the live runner, and
 // tests or a smoke-test runner must never pick that up.
 function cleanEnv(extra = {}) {
   const env = {};
-  for (const [k, v] of Object.entries(process.env)) if (!k.startsWith('THREADBEAR_')) env[k] = v;
+  for (const [k, v] of Object.entries(process.env)) if (!k.startsWith('QUOKKACODE_')) env[k] = v;
   env.PATH = `${path.dirname(process.execPath)}:${process.env.PATH ?? ''}`;
   return { ...env, ...extra };
 }
 
 function setup(v) {
-  const home = path.resolve(expandHome(v.home ?? process.env.THREADBEAR_HOME ?? process.env.THREADBEAR_DATA_DIR ?? DEFAULT_HOME));
+  const home = path.resolve(expandHome(v.home ?? process.env.QUOKKACODE_HOME ?? process.env.QUOKKACODE_DATA_DIR ?? DEFAULT_HOME));
   const isDefaultHome = sameDir(home, DEFAULT_HOME);
   // The same rule as install-runner.sh: the default label goes with the
   // default data dir and nothing else, or restarting a sandbox would
@@ -183,11 +183,11 @@ function setup(v) {
   const label = v.label ?? DEFAULT_LABEL;
   // Which thread to carry on afterwards: only one of the runner being
   // deployed to. The runner names its own data dir in
-  // THREADBEAR_RUNNER_HOME, which, unlike THREADBEAR_HOME, nothing tells an
+  // QUOKKACODE_RUNNER_HOME, which, unlike QUOKKACODE_HOME, nothing tells an
   // agent to change.
   const env = process.env;
-  const threadHome = env.THREADBEAR_RUNNER_HOME || env.THREADBEAR_HOME || env.THREADBEAR_DATA_DIR || DEFAULT_HOME;
-  const threadId = env.THREADBEAR_THREAD_ID && sameDir(threadHome, home) ? env.THREADBEAR_THREAD_ID : null;
+  const threadHome = env.QUOKKACODE_RUNNER_HOME || env.QUOKKACODE_HOME || env.QUOKKACODE_DATA_DIR || DEFAULT_HOME;
+  const threadId = env.QUOKKACODE_THREAD_ID && sameDir(threadHome, home) ? env.QUOKKACODE_THREAD_ID : null;
   // Whether stopping that runner would stop this script: true in one of its
   // threads, and also under a runner too old to say which thread (or with
   // the variables overridden), which only the process tree shows.
@@ -208,13 +208,13 @@ function setup(v) {
     linux: LINUX,
     unit: `${label}.service`,
     plist: LINUX
-      ? path.join(env.THREADBEAR_SYSTEMD_UNITS_DIR || path.join(os.homedir(), '.config', 'systemd', 'user'), `${label}.service`)
-      : path.join(env.THREADBEAR_LAUNCH_AGENTS_DIR || path.join(os.homedir(), 'Library', 'LaunchAgents'), `${label}.plist`),
-    log: isDefaultHome ? path.join(os.homedir(), 'Library', 'Logs', 'threadbear-runner.log') : path.join(home, 'runner.log'),
+      ? path.join(env.QUOKKACODE_SYSTEMD_UNITS_DIR || path.join(os.homedir(), '.config', 'systemd', 'user'), `${label}.service`)
+      : path.join(env.QUOKKACODE_LAUNCH_AGENTS_DIR || path.join(os.homedir(), 'Library', 'LaunchAgents'), `${label}.plist`),
+    log: isDefaultHome ? path.join(os.homedir(), 'Library', 'Logs', 'quokkacode-runner.log') : path.join(home, 'runner.log'),
     threadId,
     inThread: Boolean(threadId) || underRunner,
-    launchctl: env.THREADBEAR_LAUNCHCTL || 'launchctl',
-    systemctl: env.THREADBEAR_SYSTEMCTL || 'systemctl',
+    launchctl: env.QUOKKACODE_LAUNCHCTL || 'launchctl',
+    systemctl: env.QUOKKACODE_SYSTEMCTL || 'systemctl',
     npm: path.join(path.dirname(process.execPath), 'npm'),
     runnerDir: path.resolve(import.meta.dirname, '..'),
   };
@@ -769,7 +769,7 @@ function build(c, id, g, dirty) {
 async function smoke(c, id) {
   process.stdout.write('Smoke test... ');
   const root = path.join(c.releases, id);
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'threadbear-smoke-'));
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'quokkacode-smoke-'));
   const home = path.join(tmp, 'home');
   const out = path.join(tmp, 'output.log');
   const fd = fs.openSync(out, 'a');
@@ -778,18 +778,18 @@ async function smoke(c, id) {
     detached: true, // its own process group, so it can be stopped whole
     stdio: ['ignore', fd, fd],
     env: cleanEnv({
-      THREADBEAR_HOME: home,
-      THREADBEAR_PORT: '0',
-      THREADBEAR_LOG: path.join(tmp, 'runner.log'),
-      THREADBEAR_CLAUDE_PATH: path.join(tmp, 'no-claude'),
-      THREADBEAR_ACCOUNTS_DIR: path.join(tmp, 'no-accounts'),
-      THREADBEAR_CLAUDE_MAIN_DIR: path.join(tmp, 'no-main'),
-      THREADBEAR_CLAUDE_MAIN_JSON: path.join(tmp, 'no-main.json'),
+      QUOKKACODE_HOME: home,
+      QUOKKACODE_PORT: '0',
+      QUOKKACODE_LOG: path.join(tmp, 'runner.log'),
+      QUOKKACODE_CLAUDE_PATH: path.join(tmp, 'no-claude'),
+      QUOKKACODE_ACCOUNTS_DIR: path.join(tmp, 'no-accounts'),
+      QUOKKACODE_CLAUDE_MAIN_DIR: path.join(tmp, 'no-main'),
+      QUOKKACODE_CLAUDE_MAIN_JSON: path.join(tmp, 'no-main.json'),
       // Nor the real ~/.codex (its model probe would start a codex) or
       // Token Stats' limits.json, and never a CLI install.
-      THREADBEAR_CODEX_MAIN_DIR: path.join(tmp, 'no-codex-main'),
-      THREADBEAR_TOKEN_STATS_LIMITS: path.join(tmp, 'no-limits.json'),
-      THREADBEAR_CLI_UPDATES: 'off',
+      QUOKKACODE_CODEX_MAIN_DIR: path.join(tmp, 'no-codex-main'),
+      QUOKKACODE_TOKEN_STATS_LIMITS: path.join(tmp, 'no-limits.json'),
+      QUOKKACODE_CLI_UPDATES: 'off',
     }),
   });
   fs.closeSync(fd);
@@ -846,12 +846,12 @@ function restartCommand(c) {
 
 // The tb that goes with this checkout, written out in full in what the
 // script prints: a bare `tb` isn't on PATH in every shell. For a sandbox it
-// carries the data dir: a bare tb follows THREADBEAR_HOME, which in a
+// carries the data dir: a bare tb follows QUOKKACODE_HOME, which in a
 // thread names the live runner, and `restart --cancel` there would withdraw
 // someone else's deploy.
 function tbCommand(c) {
   const tb = shq(path.join(c.runnerDir, 'bin', 'tb'));
-  return c.isDefaultHome ? tb : `THREADBEAR_HOME=${shq(c.home)} ${tb}`;
+  return c.isDefaultHome ? tb : `QUOKKACODE_HOME=${shq(c.home)} ${tb}`;
 }
 
 // --now stops every turn and background job on the runner. Cutting other
@@ -1046,7 +1046,7 @@ async function restartAndCheck(c, v, id, before, waitMs) {
 // with how long it lasted. A runner that's there but slow to answer is busy,
 // not gone.
 async function settle(c, id, pid) {
-  const env = Number(process.env.THREADBEAR_DEPLOY_SETTLE_MS);
+  const env = Number(process.env.QUOKKACODE_DEPLOY_SETTLE_MS);
   const ms = Number.isFinite(env) && env >= 0 ? env : SETTLE_MS;
   const start = Date.now();
   process.stdout.write('Checking it stays up... ');
@@ -1444,7 +1444,7 @@ async function main(argv) {
   }
   if (v.now) await refuseNowWhileBusy(c, v);
   if (v.resume !== undefined && !c.threadId) {
-    throw new Fail('--resume picks up the thread it runs in, so it only works inside a Threadbear thread of this runner (THREADBEAR_THREAD_ID).');
+    throw new Fail('--resume picks up the thread it runs in, so it only works inside a Quokka Code thread of this runner (QUOKKACODE_THREAD_ID).');
   }
   const waitMs = parseDuration(v.wait ?? '30m');
   if (v.rollback) return rollback(c, v, waitMs);

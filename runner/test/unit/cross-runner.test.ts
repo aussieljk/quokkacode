@@ -85,7 +85,7 @@ test('on the main Mac: another runner by name starts there straight away; this o
 
 test('on a runner key: it files the request, shows the card, and believes only the backend', async () => {
   const f = fake({ owner: false, self: { id: 'cloud1', name: 'Hetzner Cloud' } });
-  const said = f.cross.start('cloud-thread', { runner: 'main', text: 'Open both apps.', cwd: '~/dev/me/threadbear', permissionMode: 'full' });
+  const said = f.cross.start('cloud-thread', { runner: 'main', text: 'Open both apps.', cwd: '~/dev/me/quokkacode', permissionMode: 'full' });
   await new Promise((r) => setImmediate(r));
   assert.match(f.log[0]!, /^file [0-9a-f-]{36} cloud-thread main$/);
   assert.equal(f.input()!.text, 'Open both apps.');
@@ -160,7 +160,7 @@ test("the first line the main Mac writes can't be broken out of by the asking ru
 
 test('answering on the main Mac: starts exactly what was filed, with a header saying where it came from, then marks it and answers', async () => {
   const f = fake({ owner: true });
-  f.rows.set('req-1', { docId: 'doc1', requestId: 'req-1', runnerId: 'cloud1', runnerName: 'Hetzner Cloud', threadId: 'cloud-thread', target: 'main', text: 'Open both apps.', cwd: '~/dev/me/threadbear', permissionMode: 'full', why: 'see both builds', createdAt: 1, state: 'pending' });
+  f.rows.set('req-1', { docId: 'doc1', requestId: 'req-1', runnerId: 'cloud1', runnerName: 'Hetzner Cloud', threadId: 'cloud-thread', target: 'main', text: 'Open both apps.', cwd: '~/dev/me/quokkacode', permissionMode: 'full', why: 'see both builds', createdAt: 1, state: 'pending' });
   f.setOpen('req-1');
   const got = await f.cross.get('cloud-thread', 'req-1');
   assert.equal(got.target?.id, 'm5');
@@ -170,7 +170,7 @@ test('answering on the main Mac: starts exactly what was filed, with a header sa
   f.log.shift();
   const made = JSON.parse(f.log[0]!.slice('here '.length));
   assert.equal(made.text, askedHeader({ threadId: 'cloud-thread', runnerName: 'Hetzner Cloud' }) + 'Open both apps.');
-  assert.equal(made.cwd, '~/dev/me/threadbear');
+  assert.equal(made.cwd, '~/dev/me/quokkacode');
   assert.deepEqual(made.startedBy, { kind: 'thread', label: 'Hetzner Cloud', threadId: 'cloud-thread', why: 'see both builds' });
   // Marked before the card is answered, so the asking runner's check finds it.
   assert.deepEqual(f.log.slice(1), ['decide req-1 allowed m5/new-here', 'respond cloud-thread req-1 allow']);

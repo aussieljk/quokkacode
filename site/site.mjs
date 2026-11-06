@@ -11,7 +11,7 @@ export const GITHUB_URL = "https://github.com/mikecann/threadbear";
 export const GITHUB_PUBLIC = true;
 
 /**
- * Threadbear for iPhone on the App Store, as https://apps.apple.com/app/id<Apple ID>. Empty
+ * Quokka Code for iPhone on the App Store, as https://apps.apple.com/app/id<Apple ID>. Empty
  * until there's an App Store Connect record. Until APP_STORE_LIVE is on, every App Store badge
  * says "Coming soon to the App Store" and isn't a link.
  */

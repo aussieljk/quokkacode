@@ -2,10 +2,10 @@
 
 Written 28 Oct 2026 (thread 66935d23) as a proposal, and kept as the record of why
 setup and updates work as they do. Most of it is built: section 4 says which steps
-are done. For how to set Threadbear up today, read README.md and INSTALL.md; for
+are done. For how to set Quokka Code up today, read README.md and INSTALL.md; for
 what it installs and talks to, docs/on-your-mac.md.
 
-What Mike asked for: setting up Threadbear has you create a Convex deployment
+What Mike asked for: setting up Quokka Code has you create a Convex deployment
 "where everything goes"; a careful think about how updates work and how the iPhone app
 fits; Tailscale as the default way things talk to each other; and defaults that suit
 Mike, since it's his app first and other people patch their own copy.
@@ -33,13 +33,13 @@ How it works today (file references are in the research notes at the bottom):
 
 ## 2. The proposal in one go
 
-Threadbear's backend is a Convex cloud deployment in your own Convex account, so your
+Quokka Code's backend is a Convex cloud deployment in your own Convex account, so your
 phone and your browser keep working when the laptop's shut. Running the backend on
 your own machine is an option for people who'd rather, not the default. More goes up
 than today's 20-message mirror: every message's text, with the heavy bits (tool output
 and images) staying on the Mac. Setup is one command. Updates are your own `main` as
 today, plus a way to bring in Mike's changes that an agent does for you and you approve.
-There's one App Store iPhone app for everyone, which pairs with any Threadbear backend
+There's one App Store iPhone app for everyone, which pairs with any Quokka Code backend
 and gets notifications through a small relay Mike runs. Tailscale is how your own
 machines reach each other: a second runner, a backend you host yourself, and the phone
 fetching the heavy bits straight from the Mac when it's awake.
@@ -79,13 +79,13 @@ always-on machine.
 
 ### 2.2 Setup: one command
 
-`./threadbear setup` from a clone, written so an agent could also run it:
+`./quokkacode setup` from a clone, written so an agent could also run it:
 
 1. Checks the basics: Xcode command line tools, Tailscale installed and logged in,
    Claude Code or Codex logged in. Downloads its own Node into the data folder rather
    than relying on nvm.
 2. Signs you in to Convex (`npx convex login`, once, in the browser), makes a
-   `threadbear` project in your account with a production deployment, makes the
+   `quokkacode` project in your account with a production deployment, makes the
    runner's key and sets `RUNNER_KEY`, deploys the functions and the website, and writes
    `runner.json`. A second Mac (`--existing`) gets no Convex login, deploy key or
    `RUNNER_KEY`: the first Mac gives it a runner key of its own with `tb runner add`
@@ -105,14 +105,14 @@ Setup forks it for you (`gh repo fork`, which renames the clone's `origin` to
 `upstream`). For Mike they're the same repo. Revised 29 Oct (thread 869a137f) after a
 second think, with Mike's answers in section 3.
 
-**Three layers, lowest first.** Every edit to Threadbear's own code is a merge waiting
+**Three layers, lowest first.** Every edit to Quokka Code's own code is a merge waiting
 to happen later, which is how forks usually end up stuck on an old version. So an agent
-changing someone's Threadbear uses the lowest layer that does the job:
+changing someone's Quokka Code uses the lowest layer that does the job:
 
 1. Settings (`runner.json`, the app's Settings): no code.
-2. Patches (`.threadbear/patches/`, `~/.threadbear/patches/`): their code, outside
-   Threadbear's, which updates never touch.
-3. Edits to Threadbear itself: commits on their `main`, merged with Mike's.
+2. Patches (`.quokkacode/patches/`, `~/.quokkacode/patches/`): their code, outside
+   Quokka Code's, which updates never touch.
+3. Edits to Quokka Code itself: commits on their `main`, merged with Mike's.
 
 **Releases, not Mike's main.** Mike's `main` moves dozens of times a day. Once a day,
 Mike's own runner tags the newest commit it has been running as its last good release
@@ -176,7 +176,7 @@ everything about it has to work with anyone's backend.
   only matters for opening tool output and images (2.5) or a self-hosted backend.
 - **A stable phone API:** `convex/phone.ts` is a contract between your backend and Mike's
   App Store app. It gets a version number; forks can add to it but shouldn't change
-  what's there. The app shows "update Threadbear on your Mac" when a backend is too old,
+  what's there. The app shows "update Quokka Code on your Mac" when a backend is too old,
   and the backend can say which app versions it needs.
 - **Notifications:** Apple only accepts pushes for Mike's app signed with Mike's key, so
   a backend that isn't Mike's can't send them itself. The proposal is a small push
@@ -244,7 +244,7 @@ it public is Mike's call, once he's happy for others to use it.
    from the version after 1.0.0 (falling back to API 1's `phone:thread` on an older
    backend).
 3. Push relay with encrypted messages, and the phone's notification extension.
-4. Done 28 Oct: `./threadbear setup` (scripts/setup.mjs) makes the Convex project in
+4. Done 28 Oct: `./quokkacode setup` (scripts/setup.mjs) makes the Convex project in
    your account with a production deployment, the deploy and runner keys, runner.json,
    deploys the backend and website, and installs the runner and the app; tested end to
    end in a sandbox against a new project except the install step. Mike's defaults
@@ -263,14 +263,14 @@ it public is Mike's call, once he's happy for others to use it.
 8. Self-hosted backend as a setup option.
 
 Steps 1 and 2 are useful to Mike straight away. 3 to 5 are what make it installable by
-other people. The landing page already says "Threadbear makes a Convex deployment in
+other people. The landing page already says "Quokka Code makes a Convex deployment in
 your own Convex account", which this now matches once step 4 is built.
 
 ## A Mac nobody sits at
 
-Before leaving a second Mac on its own, turn on Threadbear Runner in System
+Before leaving a second Mac on its own, turn on Quokka Code Runner in System
 Settings > Privacy & Security > Full Disk Access there (add
-`~/Applications/Threadbear Runner.app` with the + if it isn't listed). No program
+`~/Applications/QuokkaCode Runner.app` with the + if it isn't listed). No program
 can do this for you. Without it, an agent touching Desktop, Documents, Downloads
 or a removable drive leaves a macOS prompt waiting, and it can hold up every
 other app using that drive until someone answers. That
@@ -286,18 +286,18 @@ How things work today, from a read of the repo on 28 Oct:
 - Install: `app/install.sh` (checks swift and python3, runs `setup_mac.sh`, which runs
   `build-app.sh`); `runner/scripts/install-runner.sh` (main's tip only, not from inside a
   thread, Node 24 at the nvm path, writes the LaunchAgent, first release through
-  `deploy.mjs`). Since 28 Oct the LaunchAgent's program is `~/Applications/Threadbear
+  `deploy.mjs`). Since 28 Oct the LaunchAgent's program is `~/Applications/QuokkaCode
   Runner.app` (`runner/launcher/`), which runs `node launch.mjs` as its child, so macOS's
-  privacy prompts name Threadbear Runner rather than node (seen on Tinker Desk's first
+  privacy prompts name Quokka Code Runner rather than node (seen on Tinker Desk's first
   thread: "'node' wants to access files managed by Dropbox").
 - Runner updates: `runner/src/update.ts` (every 5 minutes and on ref changes, clones from
   the local checkout's `refs/heads/main`, builds when the runner's tree changed, idle
   restart); `runner/launch.mjs` (rollback to `lastGood` after 3 bad boots in 10 minutes).
-- App updates: `app/Sources/Threadbear/AppUpdate.swift` and `app/stage-update.sh` (same
+- App updates: `app/Sources/QuokkaCode/AppUpdate.swift` and `app/stage-update.sh` (same
   local-main model, swaps the bundle on quit or launch).
 - Convex: `convex/lib.ts` (`RUNNER_KEY`), `runner/src/sync.ts` (`sync.url` and
   `secrets/convex-key`), `convex/push.ts` (`APNS_*` env), docs/convex-backend.md.
-- Phone: `ios/ThreadbearKit/Sources/ThreadbearKit/Pairing.swift` (only `*.convex.cloud`
+- Phone: `ios/QuokkaCodeKit/Sources/QuokkaCodeKit/Pairing.swift` (only `*.convex.cloud`
   and `*.convex.site`), `ios/scripts/pair-qr.swift`, `ios/scripts/install-phone.sh`
   (Mike's phone and App Store Connect key).
 - Network: `runner/src/config.ts` binds `127.0.0.1`; docs/convex-backend.md section 2

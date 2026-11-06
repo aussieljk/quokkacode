@@ -4,14 +4,14 @@
 // "/compact" to the model as words. So each command is one of:
 //   - the CLI's: sent as typed (Claude's, and the Codex ones its adapter
 //     maps to an app-server call: /compact, /review, a skill);
-//   - Threadbear's: the runner does it, as the app would (/model, /effort,
+//   - Quokka Code's: the runner does it, as the app would (/model, /effort,
 //     Codex's /clear and /status), so the thread's settings stay the truth;
 //   - one that can't work here: answered with a note saying what does.
 // A path ("/Users/mike") isn't a command; a command neither CLI knows goes
 // to the model as words, as it did before.
 import type { Provider } from './protocol.ts';
 
-export type SlashCommandSource = 'cli' | 'skill' | 'threadbear';
+export type SlashCommandSource = 'cli' | 'skill' | 'quokkacode';
 
 // What the composer's picker lists.
 export type SlashCommand = {
@@ -39,11 +39,11 @@ export function parseCommand(text: string): ParsedCommand | undefined {
 }
 
 // Runner-side answers for commands that are part of a CLI's terminal app
-// and have a Threadbear equivalent or none. Both providers.
+// and have a Quokka Code equivalent or none. Both providers.
 const ELSEWHERE: Record<string, string> = {
   help: 'Type / in the message box to see the commands this thread can run.',
   rewind: 'To go back, edit one of your earlier messages: hover it and click the pencil. The conversation (and the files the agent edited) goes back to just before it.',
-  resume: 'Each Threadbear thread keeps its own session. Open the thread you want to carry on from the sidebar, or search for it.',
+  resume: 'Each Quokka Code thread keeps its own session. Open the thread you want to carry on from the sidebar, or search for it.',
   login: 'Sign in from Settings > Accounts in the Mac app.',
   logout: 'Sign out from Settings > Accounts in the Mac app.',
   permissions: 'Pick Full access, Auto or Ask before edits from the menu under the message box.',
@@ -73,23 +73,23 @@ const ELSEWHERE: Record<string, string> = {
 };
 
 // The ones Claude's CLI says "isn't available in this environment" to,
-// where Threadbear has its own way.
+// where Quokka Code has its own way.
 const CLAUDE_ELSEWHERE = new Set(['help', 'rewind', 'resume', 'login', 'logout', 'permissions', 'exit', 'quit']);
 
-// Commands Codex's terminal app has that Threadbear runs for it. Claude's
+// Commands Codex's terminal app has that Quokka Code runs for it. Claude's
 // own run in its CLI; these are the Codex picker's list.
 const CODEX_COMMANDS: SlashCommand[] = [
   { name: 'compact', description: 'Summarise the conversation so far to free up context', source: 'cli' },
   { name: 'review', description: 'Review the uncommitted changes, or what you describe', argumentHint: '[instructions]', source: 'cli' },
-  { name: 'clear', description: 'Start a fresh session in this thread (the transcript stays)', source: 'threadbear' },
-  { name: 'new', description: 'Start a fresh session in this thread (the transcript stays)', source: 'threadbear' },
-  { name: 'status', description: 'The model, effort, context used and the login\'s limits', source: 'threadbear' },
+  { name: 'clear', description: 'Start a fresh session in this thread (the transcript stays)', source: 'quokkacode' },
+  { name: 'new', description: 'Start a fresh session in this thread (the transcript stays)', source: 'quokkacode' },
+  { name: 'status', description: 'The model, effort, context used and the login\'s limits', source: 'quokkacode' },
 ];
 
-// Threadbear's own, on both providers: settings the app also changes.
-export const THREADBEAR_COMMANDS: SlashCommand[] = [
-  { name: 'model', description: 'Switch this thread\'s model', argumentHint: '[model]', source: 'threadbear' },
-  { name: 'effort', description: 'Set this thread\'s effort level', argumentHint: '[low|medium|high|xhigh|max]', source: 'threadbear' },
+// Quokka Code's own, on both providers: settings the app also changes.
+export const QUOKKACODE_COMMANDS: SlashCommand[] = [
+  { name: 'model', description: 'Switch this thread\'s model', argumentHint: '[model]', source: 'quokkacode' },
+  { name: 'effort', description: 'Set this thread\'s effort level', argumentHint: '[low|medium|high|xhigh|max]', source: 'quokkacode' },
 ];
 
 // Claude commands the picker leaves out: ones its CLI says "isn't available
@@ -125,16 +125,16 @@ export function planCommand(provider: Provider, cmd: ParsedCommand, skills: Read
   if (skills.has(cmd.name)) return { kind: 'cli' };
   if (name in ELSEWHERE) {
     const said = ELSEWHERE[name];
-    return { kind: 'note', text: `/${name} is part of Codex's terminal app and doesn't run in Threadbear.${said ? ` ${said}` : ''}` };
+    return { kind: 'note', text: `/${name} is part of Codex's terminal app and doesn't run in QuokkaCode.${said ? ` ${said}` : ''}` };
   }
   // Its adapter adds the skill when one has this name (the runner may not
   // have its list yet), else Codex gets it as words.
   return { kind: 'cli' };
 }
 
-// The picker's list for a thread: Threadbear's own first, then the CLI's.
+// The picker's list for a thread: Quokka Code's own first, then the CLI's.
 export function commandList(provider: Provider, cli: SlashCommand[]): SlashCommand[] {
-  const own = provider === 'codex' ? [...THREADBEAR_COMMANDS, ...CODEX_COMMANDS] : THREADBEAR_COMMANDS;
+  const own = provider === 'codex' ? [...QUOKKACODE_COMMANDS, ...CODEX_COMMANDS] : QUOKKACODE_COMMANDS;
   const seen = new Set(own.map((c) => c.name));
   const rest = cli.filter((c) => {
     if (seen.has(c.name) || (provider === 'claude' && CLAUDE_HIDDEN.has(c.name))) return false;

@@ -367,19 +367,19 @@ export const poolsPart = {
     const fromAccount = this.accounts.get(from.fromAccountId)?.title ?? from.fromAccountId;
     if (from.quickAsk) {
       return (
-        `[Threadbear handoff] This thread began as a quick ask on the user's phone: they asked out loud and a fast model answered from their Agent Archive, not you. This is a fresh session in ${rec.cwd}. ` +
+        `[Quokka Code handoff] This thread began as a quick ask on the user's phone: they asked out loud and a fast model answered from their Agent Archive, not you. This is a fresh session in ${rec.cwd}. ` +
         `The thread so far:\n\n${lines.join('\n\n') || '(none)'}\n\n[End of handoff. The new message follows.]\n\n`
       );
     }
     if (from.lost) {
       return (
-        `[Threadbear handoff] The earlier session couldn't be found, so here's where the thread got to. This is a fresh session in ${rec.cwd}. ` +
+        `[Quokka Code handoff] The earlier session couldn't be found, so here's where the thread got to. This is a fresh session in ${rec.cwd}. ` +
         `The thread so far:\n\n${lines.join('\n\n') || '(none)'}\n\n[End of handoff. The new message follows.]\n\n`
       );
     }
     if (from.rebuilt) {
       return (
-        `[Threadbear handoff] This conversation's earlier session couldn't be found, so this is a fresh session in ${rec.cwd}. ` +
+        `[Quokka Code handoff] This conversation's earlier session couldn't be found, so this is a fresh session in ${rec.cwd}. ` +
         `The thread so far:\n\n${lines.join('\n\n') || '(none)'}\n\n[End of handoff. The new message follows.]\n\n`
       );
     }
@@ -390,7 +390,7 @@ export const poolsPart = {
           ? `from ${from.fromCwd} to ${rec.cwd}`
           : `from the ${fromAccount} login to ${account.title}`;
     return (
-      `[Threadbear handoff] This conversation moved ${moved}, so this is a fresh session. ` +
+      `[Quokka Code handoff] This conversation moved ${moved}, so this is a fresh session. ` +
       `The thread so far:\n\n${lines.join('\n\n') || '(none)'}\n\n[End of handoff. The new message follows.]\n\n`
     );
   },

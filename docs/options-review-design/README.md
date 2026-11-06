@@ -2,7 +2,7 @@
 
 **4 November 2026: options have shots, and one reply box.** Mike picked
 "Directions with their shots" from four directions
-(`~/dev/me/misc/threadbear-options-window/round2` has all four and the
+(`~/dev/me/misc/quokkacode-options-window/round2` has all four and the
 reasons). A look through his 64 reviews found agents passing an option's
 extra screens as options of their own (A2, A3), Mike picking more than one
 or none, and answering most reviews in the thread in his own words; notes
@@ -12,7 +12,7 @@ several can be ticked, None is an answer, and one reply box replaces the
 note on each option. The paragraphs below describe the earlier windows.
 
 **1 November 2026: the window was redone.** `4-all-plus-form.png` is the layout
-Mike picked (`~/dev/me/misc/threadbear-options-window` has the other two he
+Mike picked (`~/dev/me/misc/quokkacode-options-window` has the other two he
 compared). Every image stays on a stage, sized by how many columns make them
 biggest, with the question, the choices and their reasons, a note on any of
 them and Send on the right. Picking opens that choice's note box and puts the
@@ -32,7 +32,7 @@ the native app and runner; usage is at the end of this document.
 
 Open `index.html` to compare the directions, then open either mockup at full
 browser size. `./render.sh` renders all three views with the existing headless
-Chromium, following `docs/threadbear-design/render.sh`. No install is needed.
+Chromium, following `docs/quokkacode-design/render.sh`. No install is needed.
 The source images are referenced from `docs/account-picker-design/`; nothing
 in that folder is modified.
 
@@ -73,7 +73,7 @@ This distinguishes context from a mutually exclusive design choice.
 ## Implementation outline, after approval
 
 Change `docs/protocol.md` first. Add a review request/response contract usable
-by both Claude and Codex through the existing Threadbear MCP server. Proposed
+by both Claude and Codex through the existing Quokka Code MCP server. Proposed
 tool: `show_options({ title, note?, options: [{ id, title, path, note?,
 reference? }] })`. Names and final schema remain to be decided with the
 protocol change. Import files when the review is created, not when the app
@@ -113,7 +113,7 @@ Chromium directly.
 
 ## Using V1
 
-An agent calls `threadbear.show_options` with image paths and stable option
+An agent calls `quokkacode.show_options` with image paths and stable option
 IDs. For example, from this repo:
 
 ```json
@@ -148,7 +148,7 @@ closes the request without messaging the agent. An answered card reopens the
 images and sent notes read-only.
 
 Runner files: `runner/src/reviews.ts`, the review methods in `runner.ts`,
-and the shared MCP tool in `threadbear-mcp.ts`. App files: core review models
+and the shared MCP tool in `quokkacode-mcp.ts`. App files: core review models
 and reduction, `ReviewSession.swift`, `ReviewRowCell.swift` and
 `Views/ReviewWindow.swift`. `app/Tools/screenshots.sh /tmp/review-shots --only 16`
 captures the card, all of them, a pick with a note, enlarged and 100% using the

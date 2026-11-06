@@ -11,7 +11,7 @@ const home = '/home/mike';
 const expand = (p: string) => (p.startsWith('~/') ? path.join(home, p.slice(2)) : p);
 
 test('runner.json sandbox: folders and an image, else nothing', () => {
-  assert.deepEqual(readSandbox({ folders: ['~/sandboxed'], image: 'threadbear-sandbox' }, expand), { folders: ['/home/mike/sandboxed'], image: 'threadbear-sandbox', docker: 'docker' });
+  assert.deepEqual(readSandbox({ folders: ['~/sandboxed'], image: 'quokkacode-sandbox' }, expand), { folders: ['/home/mike/sandboxed'], image: 'quokkacode-sandbox', docker: 'docker' });
   assert.equal(readSandbox({ folders: [], image: 'x' }, expand), undefined);
   assert.equal(readSandbox({ folders: ['~/s'] }, expand), undefined);
   assert.equal(readSandbox(undefined, expand), undefined);
@@ -37,9 +37,9 @@ test('the docker run mounts the folder, the login and the CLI at the same paths,
       command: '/home/mike/.local/bin/claude',
       args: ['--output-format', 'stream-json', '--settings', '/tmp/settings-abc.json', '--resume', 'abc'],
       cwd: '/home/mike/sandboxed/demo',
-      env: { PATH: '/usr/bin', HOME: '/home/mike', ANTHROPIC_MODEL: 'x', THREADBEAR_THREAD_ID: 't1', GONE: undefined },
+      env: { PATH: '/usr/bin', HOME: '/home/mike', ANTHROPIC_MODEL: 'x', QUOKKACODE_THREAD_ID: 't1', GONE: undefined },
     },
-    { folders: ['/home/mike/sandboxed'], image: 'threadbear-sandbox', docker: 'docker' },
+    { folders: ['/home/mike/sandboxed'], image: 'quokkacode-sandbox', docker: 'docker' },
     {
       threadId: 'abcdef0123', home, uid: 1000, gid: 1000,
       exists: (p) => there.has(p),
@@ -58,17 +58,17 @@ test('the docker run mounts the folder, the login and the CLI at the same paths,
     '/tmp/settings-abc.json:/tmp/settings-abc.json:ro',
   ]);
   const envs = a.flatMap((x, i) => (x === '-e' ? [a[i + 1]] : []));
-  assert.deepEqual(envs.sort(), ['ANTHROPIC_MODEL', 'HOME=/home/mike', 'THREADBEAR_THREAD_ID'], "the container's own PATH, and nothing unset");
+  assert.deepEqual(envs.sort(), ['ANTHROPIC_MODEL', 'HOME=/home/mike', 'QUOKKACODE_THREAD_ID'], "the container's own PATH, and nothing unset");
   assert.deepEqual(a.slice(a.indexOf('-w'), a.indexOf('-w') + 2), ['-w', '/home/mike/sandboxed/demo']);
   // The image, then the CLI's real file and its own arguments, untouched.
-  const at = a.indexOf('threadbear-sandbox');
-  assert.deepEqual(a.slice(at), ['threadbear-sandbox', '/home/mike/.local/share/claude/versions/2.1.318', '--output-format', 'stream-json', '--settings', '/tmp/settings-abc.json', '--resume', 'abc']);
+  const at = a.indexOf('quokkacode-sandbox');
+  assert.deepEqual(a.slice(at), ['quokkacode-sandbox', '/home/mike/.local/share/claude/versions/2.1.318', '--output-format', 'stream-json', '--settings', '/tmp/settings-abc.json', '--resume', 'abc']);
   assert.ok(a.includes('--rm') && a.includes('--init') && a.includes('-i'));
   assert.deepEqual(a.slice(a.indexOf('--user'), a.indexOf('--user') + 2), ['--user', '1000:1000']);
 });
 
 test("another login's config folder goes in instead of ~/.claude, without ~/.claude.json", () => {
-  const cfg = '/home/mike/Library/Application Support/Threadbear/accounts/claude-1';
+  const cfg = '/home/mike/Library/Application Support/QuokkaCode/accounts/claude-1';
   const run = dockerRun(
     { command: '/c', args: [], cwd: '/home/mike/sandboxed/x', env: { CLAUDE_CONFIG_DIR: cfg } },
     { folders: ['/home/mike/sandboxed'], image: 'img', docker: 'docker' },

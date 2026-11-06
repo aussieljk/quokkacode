@@ -20,7 +20,7 @@ function lstart(pid: number): string {
 
 test('reap keeps a start whose dev-app.sh is still running, and clears one whose has gone', async () => {
   const tmp = tmpDir('dev-app-reap-');
-  const root = path.join(tmp, 'threadbear-dev-app');
+  const root = path.join(tmp, 'quokkacode-dev-app');
   const old = Math.floor(Date.now() / 1000) - 3600;
   // Stands in for a dev-app.sh still building.
   const building = spawn('sleep', ['60'], { stdio: 'ignore' });
@@ -55,7 +55,7 @@ test('reap keeps a start whose dev-app.sh is still running, and clears one whose
     execFileSync('bash', [DEV_APP, 'status'], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, TMPDIR: tmp, THREADBEAR_THREAD_ID: 'test-thread' },
+      env: { ...process.env, TMPDIR: tmp, QUOKKACODE_THREAD_ID: 'test-thread' },
     });
 
     const left = fs.readdirSync(root).filter((id) => fs.existsSync(path.join(root, id, 'instance'))).sort();

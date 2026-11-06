@@ -63,7 +63,7 @@ turns had a single ask.
   - 69 of those had no words after the last tool call, 48 had only
     narration there, and 21 had a sign-off shorter than the bullets.
   - In 38% of turns with bullets, every word after the last tool call
-    was narration, so the agent's own wording never reached Threadbear.
+    was narration, so the agent's own wording never reached Quokka Code.
 - **The why either repeats or makes up.**
   - When the message showed, 70% of whys mostly repeated it.
   - When the bullets showed, 72% of whys shared nothing with them: they
@@ -201,9 +201,9 @@ write now: 70% of whys under a message that showed repeat it.
 Mike picked A: "try your pick… run an eval, and then if it passes… I'll
 try it out for a little bit." The eval lives in
 `~/dev/me/misc/end-turn-eval/v3`. `harness.mjs` runs a real session the
-way the runner does: the Agent SDK, Claude Code's prompt with Threadbear's
+way the runner does: the Agent SDK, Claude Code's prompt with Quokka Code's
 lines, adaptive thinking shown summarised (which is what produces
-narration), and a stand-in threadbear server. There are four tasks:
+narration), and a stand-in quokkacode server. There are four tasks:
 - a fix that ends done (`slug`)
 - a missing key (`key`)
 - explain, then decide (`bundle`)

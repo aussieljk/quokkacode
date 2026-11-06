@@ -150,7 +150,7 @@ export function toolTitle(name: string, input: Record<string, unknown>, cwd: str
     case 'ExitPlanMode':
       return 'Finish the plan';
     default:
-      if (name.startsWith('mcp__threadbear__')) return threadbearTitle(name.slice('mcp__threadbear__'.length), input);
+      if (name.startsWith('mcp__quokkacode__')) return quokkacodeTitle(name.slice('mcp__quokkacode__'.length), input);
       if (name.startsWith('mcp__')) {
         const [, server, ...rest] = name.split('__');
         return `${server}: ${rest.join('__')}`;
@@ -159,9 +159,9 @@ export function toolTitle(name: string, input: Record<string, unknown>, cwd: str
   }
 }
 
-// The threadbear tools (threadbear-mcp.ts) in plain words, for tool rows and
+// The quokkacode tools (quokkacode-mcp.ts) in plain words, for tool rows and
 // approval cards.
-function threadbearTitle(tool: string, input: Record<string, unknown>): string {
+function quokkacodeTitle(tool: string, input: Record<string, unknown>): string {
   const id = (str(input.threadId) || str(input.id)).slice(0, 8);
   switch (tool) {
     case 'show_options':
@@ -191,7 +191,7 @@ function threadbearTitle(tool: string, input: Record<string, unknown>): string {
     case 'delete_thread':
       return `Delete thread ${id}`;
     default:
-      return `threadbear: ${tool}`;
+      return `quokkacode: ${tool}`;
   }
 }
 

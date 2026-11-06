@@ -1,6 +1,6 @@
 // Runner entry point: `node src/main.ts`. launchd runs this (see
-// scripts/install-runner.sh); tests run it with THREADBEAR_HOME and
-// THREADBEAR_PORT pointing at temp places.
+// scripts/install-runner.sh); tests run it with QUOKKACODE_HOME and
+// QUOKKACODE_PORT pointing at temp places.
 import fs from 'node:fs';
 import path from 'node:path';
 import { loadConfig, ensureHome, readToken, paths, recordListening, defaultHome, DEFAULT_CWD, RUNNER_VERSION } from './config.ts';
@@ -60,7 +60,7 @@ import { detectMachineIcon } from './machine.ts';
 import { filesMethods } from './files.ts';
 import { devicesMethods } from './devices.ts';
 import { flushSentry, reportException, reportLoggedError, reportLoggedWarning, startSentry } from './sentry.ts';
-import { ALWAYS_ASK_TOOLS, NEVER_ASK_TOOLS, RICH_BLOCKS_LINE, SERVER_NAME, buildThreadbearTools, threadbearMcpServer, type RemoteControl } from './threadbear-mcp.ts';
+import { ALWAYS_ASK_TOOLS, NEVER_ASK_TOOLS, RICH_BLOCKS_LINE, SERVER_NAME, buildQuokkaCodeTools, quokkacodeMcpServer, type RemoteControl } from './quokkacode-mcp.ts';
 import { CrossRunner } from './cross-runner.ts';
 import { EFFORT_LEVELS, type EffortLevel } from './protocol.ts';
 
@@ -71,7 +71,7 @@ export const REPORTS_LISTENING = true;
 async function main(): Promise<void> {
   const cfg = loadConfig();
   ensureHome(cfg.home);
-  const log = createLogger(cfg.logFile, { echo: process.env.THREADBEAR_LOG_STDERR === '1', debug: process.env.THREADBEAR_DEBUG === '1', onError: reportLoggedError, onWarn: reportLoggedWarning });
+  const log = createLogger(cfg.logFile, { echo: process.env.QUOKKACODE_LOG_STDERR === '1', debug: process.env.QUOKKACODE_DEBUG === '1', onError: reportLoggedError, onWarn: reportLoggedWarning });
   // Only the installed runner reports to Sentry (sentry.ts says why).
   const reporting = await startSentry(cfg.home);
   log.info('runner starting', { version: RUNNER_VERSION, home: cfg.home, port: cfg.port, pid: process.pid, sentry: reporting });
@@ -114,7 +114,7 @@ async function main(): Promise<void> {
   const accounts = new AccountRegistry(cfg, usage);
   const tally = new TokenTally({ dataDir: cfg.home, clock: realClock, log, accounts: () => accounts.list() });
   if (cfg.tokenTally !== false) tally.start();
-  // Every session gets tools for driving Threadbear itself, bound to its
+  // Every session gets tools for driving Quokka Code itself, bound to its
   // own thread. Sessions only start after the runner exists.
   let runner!: Runner;
   let scheduler!: Scheduler;
@@ -160,7 +160,7 @@ async function main(): Promise<void> {
   // when a turn's gateway call failed: a sign-in ask comes only from that,
   // never from what a tool result says (connectors.ts, signInSignal).
   // `connectors` is the monitor made below; this only runs during a turn.
-  // Other runners' threads for the agent tools (threadbear-mcp.ts
+  // Other runners' threads for the agent tools (quokkacode-mcp.ts
   // RemoteControl), through the relay made further down, as the Mac app
   // reaches them. With nothing heard yet (no app connected since the
   // runner started) the list starts the watch and waits up to 3 seconds
@@ -196,20 +196,20 @@ async function main(): Promise<void> {
     claudePath: cfg.claudePath,
     registry,
     log,
-    mcpServersFor: (threadId) => ({ [SERVER_NAME]: threadbearMcpServer(router(), threadId, scheduleControl(), projectControl(), appRestarts, () => cfg.bulletReplies, pocketControl, () => cfg.oneReply, () => cfg.connectorsUrl, gatewayHealth, () => experimentOn(cfg.home, 'scheduleChecks'), remoteControl, () => experimentOn(cfg.home, 'richBlocks')) }),
+    mcpServersFor: (threadId) => ({ [SERVER_NAME]: quokkacodeMcpServer(router(), threadId, scheduleControl(), projectControl(), appRestarts, () => cfg.bulletReplies, pocketControl, () => cfg.oneReply, () => cfg.connectorsUrl, gatewayHealth, () => experimentOn(cfg.home, 'scheduleChecks'), remoteControl, () => experimentOn(cfg.home, 'richBlocks')) }),
     oneReply: () => cfg.oneReply,
     sandboxFor: (cwd) => sandboxFor(cfg.sandbox, cwd),
     alwaysAsk: ALWAYS_ASK_TOOLS,
     neverAsk: NEVER_ASK_TOOLS,
   });
   // One app-server per live Codex thread, each starting what E says is
-  // current, with the same threadbear tools as dynamic tools.
+  // current, with the same quokkacode tools as dynamic tools.
   const codex = new CodexAdapter({
     codexBinary: () => updates.codexBinary(),
     codexArgs: cfg.codexArgs,
     registry,
     log,
-    toolsFor: (threadId) => buildThreadbearTools(router(), threadId, Date.now, scheduleControl(), projectControl(), appRestarts, { provider: 'codex', bulletReplies: () => cfg.bulletReplies, oneReply: () => cfg.oneReply, pocket: pocketControl, gateway: () => cfg.connectorsUrl, gatewayHealth, scheduleChecks: () => experimentOn(cfg.home, 'scheduleChecks'), remote: remoteControl }),
+    toolsFor: (threadId) => buildQuokkaCodeTools(router(), threadId, Date.now, scheduleControl(), projectControl(), appRestarts, { provider: 'codex', bulletReplies: () => cfg.bulletReplies, oneReply: () => cfg.oneReply, pocket: pocketControl, gateway: () => cfg.connectorsUrl, gatewayHealth, scheduleChecks: () => experimentOn(cfg.home, 'scheduleChecks'), remote: remoteControl }),
     onNotice: (text) => runner.notice('warning', text),
     extraGuidance: () => (experimentOn(cfg.home, 'richBlocks') ? RICH_BLOCKS_LINE : ''),
   });
@@ -336,9 +336,9 @@ async function main(): Promise<void> {
   keepAwake.start();
   // A dialog waiting on this Mac's screen says so, from the installed runner
   // only: a dev runner's Mac is the one you're sat at, and a throwaway data
-  // dir shouldn't get a thread about it. THREADBEAR_MAC_SCREEN=on to try it
+  // dir shouldn't get a thread about it. QUOKKACODE_MAC_SCREEN=on to try it
   // on a dev runner, off to stop it.
-  const macScreenSetting = process.env.THREADBEAR_MAC_SCREEN;
+  const macScreenSetting = process.env.QUOKKACODE_MAC_SCREEN;
   const macScreen = process.platform === 'darwin' && macScreenSetting !== 'off' && (macScreenSetting === 'on' || readRelease())
     ? new MacScreen({ host: runner, clock: realClock, log, machine: cfg.sync.name ?? defaultRunnerName(), stateFile: path.join(cfg.home, 'mac-screen.json') })
     : undefined;
@@ -484,7 +484,7 @@ async function main(): Promise<void> {
       cwd: updateRelease?.checkout,
       // It fixes, lands and watches the build without anyone to approve.
       permissionMode: 'full',
-      startedBy: { kind: 'runner', label: 'Threadbear', why },
+      startedBy: { kind: 'runner', label: 'QuokkaCode', why },
     }).thread.id,
     open: openThread,
     send: (threadId, text) => void runner.send(threadId, text, [], { queue: true }),
@@ -519,7 +519,7 @@ async function main(): Promise<void> {
       cwd: thisRelease?.checkout,
       // As Bring Them In does: it merges and runs the checks in its worktree.
       permissionMode: 'full',
-      startedBy: { kind: 'runner', label: 'Threadbear', why },
+      startedBy: { kind: 'runner', label: 'QuokkaCode', why },
     }).thread.id,
     open: openThread,
     send: (threadId, text) => void runner.send(threadId, text, [], { queue: true }),
@@ -669,7 +669,7 @@ async function main(): Promise<void> {
   recordListening(cfg.home, port, DEFAULT_CWD);
   log.info('runner listening', { url: `ws://${cfg.host}:${port}/rpc` });
   // Tests read this line to know the runner is up.
-  process.stdout.write(`threadbear-runner listening on ${port}\n`);
+  process.stdout.write(`quokkacode-runner listening on ${port}\n`);
   tellLaunchListening();
   // Checks start a minute after this; installs never while a restart waits.
   updates.start();
@@ -680,7 +680,7 @@ async function main(): Promise<void> {
     home: cfg.home,
     logs: [
       { file: cfg.logFile, inPlace: true },
-      ...(cfg.home === defaultHome() ? [{ file: path.join(path.dirname(cfg.logFile), 'threadbear-update.log') }] : []),
+      ...(cfg.home === defaultHome() ? [{ file: path.join(path.dirname(cfg.logFile), 'quokkacode-update.log') }] : []),
     ],
     log,
   });
@@ -886,12 +886,12 @@ async function main(): Promise<void> {
 }
 
 // A warning when the Codex binary new sessions would start isn't there, or
-// undefined. Threadbear's own copy may still be on its way.
+// undefined. Quokka Code's own copy may still be on its way.
 function missingCodex(start: string, cfg: ReturnType<typeof loadConfig>): string | undefined {
   const bin = resolveCodexBinary(start);
   if (fs.existsSync(bin.command)) return undefined;
   if (cfg.codexPath) return `The codex CLI isn't at ${cfg.codexPath} (codexPath in runner.json), so Codex threads can't start.`;
-  if (cfg.cliUpdates.codex !== 'off') return `The codex CLI isn't at ${start} yet, so Codex threads can't start until Threadbear has installed its own copy (Usage shows how that's going).`;
+  if (cfg.cliUpdates.codex !== 'off') return `The codex CLI isn't at ${start} yet, so Codex threads can't start until Quokka Code has installed its own copy (Usage shows how that's going).`;
   return `The codex CLI isn't at ${start}, so Codex threads can't start. Install @openai/codex next to the runner's Node, or set codexPath in runner.json.`;
 }
 

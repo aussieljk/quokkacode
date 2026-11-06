@@ -28,7 +28,7 @@ const site = join(dirname(fileURLToPath(import.meta.url)), "..");
 const devApp = join(site, "../app/Tools/dev-app.sh");
 const id = process.env.CLIPS_APP_ID ?? "siteclips";
 const out = join(site, "public/clips");
-const work = join(tmpdir(), "threadbear-site-clips");
+const work = join(tmpdir(), "quokkacode-site-clips");
 mkdirSync(out, { recursive: true });
 mkdirSync(work, { recursive: true });
 
@@ -73,7 +73,7 @@ async function idle(thread, ms = 20000) {
 }
 
 // The mock writes the landing pages thread's mockups into the instance's data folder.
-const mockup = (name) => join(tmpdir(), "threadbear-dev-app", id, "data/work/site/mockups", name);
+const mockup = (name) => join(tmpdir(), "quokkacode-dev-app", id, "data/work/site/mockups", name);
 
 // One per slide in scripts/build.mjs's SLIDES, in the same order, which follows the launch video's:
 // the bits Mike is most excited about. `setup` runs before recording; `window` names a window
@@ -175,12 +175,12 @@ const CLIPS = {
   // The iPhone app, from the launch video's B-roll (Mike's own thread on his phone: the bike
   // pedal picture it made him). No pointer: it's a phone.
   phone: {
-    file: process.env.CLIPS_PHONE ?? join(homedir(), "dev/convex/convex-videos/threadbear-launch/broll/bike-pedals/phone-thread.mp4"),
+    file: process.env.CLIPS_PHONE ?? join(homedir(), "dev/convex/convex-videos/quokkacode-launch/broll/bike-pedals/phone-thread.mp4"),
   },
   // Patches: the built-in Convex panel and a project's own stats panel, from the icons down the
   // pane's right edge, then one of its buttons above the message box.
   patches: {
-    setup: () => run({ cmd: "mode", mode: "inbox" }, { cmd: "open", id: "demo_dark_mode" }, { cmd: "panel", id: "threadbear.highlights" }),
+    setup: () => run({ cmd: "mode", mode: "inbox" }, { cmd: "open", id: "demo_dark_mode" }, { cmd: "panel", id: "quokkacode.highlights" }),
     play: async () => {
       await wait(1100);
       click(1216, 57); // Convex

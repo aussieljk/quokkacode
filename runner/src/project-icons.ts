@@ -270,7 +270,7 @@ export async function phonePicture(iconPath: string, mediaType: string): Promise
     if (!['image/png', 'image/jpeg', 'image/webp'].includes(mediaType)) throw new Error(`the phone can't show a ${mediaType} picture`);
     return { bytes: new Uint8Array(await fs.promises.readFile(iconPath)), mediaType };
   }
-  const dir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'threadbear-icon-'));
+  const dir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'quokkacode-icon-'));
   try {
     const out = path.join(dir, path.basename(iconPath) + '.png');
     if (!(await svgToPng(iconPath, out, ICON_PX))) throw new Error('Could not draw the SVG (Quick Look, or rsvg-convert on Linux)');

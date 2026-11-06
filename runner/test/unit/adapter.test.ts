@@ -7,7 +7,7 @@ import type { SessionSink, AdapterOutput, ToolApprovalRequest } from '../../src/
 import { ProcessRegistry } from '../../src/proc.ts';
 import { nullLogger } from '../../src/log.ts';
 import { tmpDir } from '../helpers/fakes.ts';
-import { ALWAYS_ASK_TOOLS, NEVER_ASK_TOOLS } from '../../src/threadbear-mcp.ts';
+import { ALWAYS_ASK_TOOLS, NEVER_ASK_TOOLS } from '../../src/quokkacode-mcp.ts';
 import { END_TURN_FULL_NAME, END_TURN_NUDGE, ONE_REPLY_END_TURN_NUDGE, ONE_REPLY_WRITE_NUDGE, oneReplyAccepted, oneReplyAlreadyWritten } from '../../src/needs.ts';
 
 test('"Always allow" keeps only allow rules, scoped to the session', () => {
@@ -150,7 +150,7 @@ test('effort: sent at start, changed through flag settings, and read back from t
 });
 
 test('Stop hook: a turn that skipped end_turn is sent back once to call it', async () => {
-  const { state } = start([], {}, { mcpServersFor: () => ({ threadbear: { type: 'sdk', name: 'threadbear' } }) });
+  const { state } = start([], {}, { mcpServersFor: () => ({ quokkacode: { type: 'sdk', name: 'quokkacode' } }) });
   const stop = state.options.hooks.Stop[0].hooks[0];
   const post = state.options.hooks.PostToolUse[0];
   assert.equal(post.matcher, END_TURN_FULL_NAME);
@@ -175,7 +175,7 @@ test('Stop hook: a turn that skipped end_turn is sent back once to call it', asy
 // end_turn and the reply. send() cleared the note of the taken end_turn, so
 // the Stop hook sent the turn back to call a tool that then said "Already ended".
 test('Stop hook: a message sent after end_turn does not make it forget the call', async () => {
-  const { session, state, outputs } = start([], {}, { mcpServersFor: () => ({ threadbear: { type: 'sdk', name: 'threadbear' } }) });
+  const { session, state, outputs } = start([], {}, { mcpServersFor: () => ({ quokkacode: { type: 'sdk', name: 'quokkacode' } }) });
   const stop = state.options.hooks.Stop[0].hooks[0];
   await state.options.hooks.PostToolUse[0].hooks[0]({ hook_event_name: 'PostToolUse', tool_name: END_TURN_FULL_NAME });
   session.send({ id: 'turn-2', text: 'Archive', images: [] });
@@ -185,7 +185,7 @@ test('Stop hook: a message sent after end_turn does not make it forget the call'
 });
 
 test('Stop hook: an end_turn in a turn that ended with no Stop does not count for the next', async () => {
-  const { session, state } = start([], {}, { mcpServersFor: () => ({ threadbear: { type: 'sdk', name: 'threadbear' } }) });
+  const { session, state } = start([], {}, { mcpServersFor: () => ({ quokkacode: { type: 'sdk', name: 'quokkacode' } }) });
   const stop = state.options.hooks.Stop[0].hooks[0];
   await state.options.hooks.PostToolUse[0].hooks[0]({ hook_event_name: 'PostToolUse', tool_name: END_TURN_FULL_NAME });
   // Stopped by hand: the CLI reports the result without running Stop.
@@ -196,7 +196,7 @@ test('Stop hook: an end_turn in a turn that ended with no Stop does not count fo
 });
 
 test('Stop hook: says when it sent a turn back for end_turn, so end_turn knows not to ask for a reply', async () => {
-  const { state, outputs } = start([], {}, { mcpServersFor: () => ({ threadbear: { type: 'sdk', name: 'threadbear' } }), oneReply: () => true });
+  const { state, outputs } = start([], {}, { mcpServersFor: () => ({ quokkacode: { type: 'sdk', name: 'quokkacode' } }), oneReply: () => true });
   const stop = state.options.hooks.Stop[0].hooks[0];
   const nudges = () => outputs.filter((o: AdapterOutput) => o.kind === 'endTurnNudge').length;
   assert.equal((await stop({ hook_event_name: 'Stop', stop_hook_active: false })).reason, ONE_REPLY_END_TURN_NUDGE);
@@ -212,7 +212,7 @@ test('Stop hook: says when it sent a turn back for end_turn, so end_turn knows n
 // accepted end_turn, and the summary didn't say a reply was owed, so the agent
 // went back to work and the card's launcher plan was never written.
 test('SessionStart after a compaction reminds the agent of a reply it owes, with the card', async () => {
-  const { state } = start([], {}, { mcpServersFor: () => ({ threadbear: { type: 'sdk', name: 'threadbear' } }), oneReply: () => true });
+  const { state } = start([], {}, { mcpServersFor: () => ({ quokkacode: { type: 'sdk', name: 'quokkacode' } }), oneReply: () => true });
   const compacted = () => state.options.hooks.SessionStart[0].hooks[0]({ hook_event_name: 'SessionStart', source: 'compact' });
   // Nothing owed yet.
   assert.deepEqual(await compacted(), {});
@@ -237,7 +237,7 @@ test('SessionStart after a compaction reminds the agent of a reply it owes, with
 // From Codex's review: a refused repeat's card never showed, and a new
 // message from the user takes over from the reply owed to the last one.
 test('SessionStart after a compaction: the accepted card only, and nothing once the user has moved on', async () => {
-  const { session, state } = start([], {}, { mcpServersFor: () => ({ threadbear: { type: 'sdk', name: 'threadbear' } }), oneReply: () => true });
+  const { session, state } = start([], {}, { mcpServersFor: () => ({ quokkacode: { type: 'sdk', name: 'quokkacode' } }), oneReply: () => true });
   const compacted = () => state.options.hooks.SessionStart[0].hooks[0]({ hook_event_name: 'SessionStart', source: 'compact' });
   const call = (id: string, question: string) => state.frame!({ type: 'assistant', session_id: 's', message: { id: `m${id}`, role: 'assistant', content: [{ type: 'tool_use', id, name: END_TURN_FULL_NAME, input: { asks: [{ question }] } }] } });
   const answer = (id: string, content: string, is_error = false) => state.frame!({ type: 'user', session_id: 's', message: { role: 'user', content: [{ type: 'tool_result', tool_use_id: id, content, is_error }] } });
@@ -256,7 +256,7 @@ test('SessionStart after a compaction: the accepted card only, and nothing once 
 // A session on the older end_turn wrote its message first, and is told so:
 // asking for a reply would get a second that takes the first's place.
 test('Stop hook: no nudge for a reply when end_turn said the message above is it', async () => {
-  const { state } = start([], {}, { mcpServersFor: () => ({ threadbear: { type: 'sdk', name: 'threadbear' } }), oneReply: () => true });
+  const { state } = start([], {}, { mcpServersFor: () => ({ quokkacode: { type: 'sdk', name: 'quokkacode' } }), oneReply: () => true });
   const stop = state.options.hooks.Stop[0].hooks[0];
   await state.frame!({ type: 'assistant', session_id: 's', message: { id: 'a', role: 'assistant', content: [{ type: 'tool_use', id: 'e1', name: END_TURN_FULL_NAME, input: {} }] } });
   await state.options.hooks.PostToolUse[0].hooks[0]({ hook_event_name: 'PostToolUse', tool_name: END_TURN_FULL_NAME });
@@ -265,7 +265,7 @@ test('Stop hook: no nudge for a reply when end_turn said the message above is it
   state.close!();
 });
 
-test('Stop hook: no nudge in a session without the threadbear server', async () => {
+test('Stop hook: no nudge in a session without the quokkacode server', async () => {
   const { state } = start();
   assert.deepEqual(await state.options.hooks.Stop[0].hooks[0]({ hook_event_name: 'Stop', stop_hook_active: false }), {});
   state.close!();
@@ -327,10 +327,10 @@ test('pictures go to the CLI where their [Picture N] markers are, the rest befor
 // landed under the real answer (28 Oct 2026).
 test('end_turn is a terminal MCP tool for the CLI, so its result ends the turn without a nudge', () => {
   const { state } = start();
-  assert.equal(state.options.env.CLAUDE_CODE_TERMINAL_MCP_TOOLS, 'mcp__threadbear__end_turn');
-  assert.equal(terminalMcpTools(undefined), 'mcp__threadbear__end_turn');
-  assert.equal(terminalMcpTools(' mcp__other__finish , '), 'mcp__other__finish,mcp__threadbear__end_turn');
-  assert.equal(terminalMcpTools('mcp__threadbear__end_turn'), 'mcp__threadbear__end_turn');
+  assert.equal(state.options.env.CLAUDE_CODE_TERMINAL_MCP_TOOLS, 'mcp__quokkacode__end_turn');
+  assert.equal(terminalMcpTools(undefined), 'mcp__quokkacode__end_turn');
+  assert.equal(terminalMcpTools(' mcp__other__finish , '), 'mcp__other__finish,mcp__quokkacode__end_turn');
+  assert.equal(terminalMcpTools('mcp__quokkacode__end_turn'), 'mcp__quokkacode__end_turn');
   state.close!();
 });
 
@@ -354,20 +354,20 @@ test("a subagent's approval is asked at once, with no itemId and no diff", async
 
 // In "Ask before edits" end_turn stopped for an Allow card, so every turn
 // waited on Mike with no reply written yet (6 Nov 2026, thread c3e52aa6).
-test('the threadbear tools that only read or end the turn never ask, in any mode; the rest still do', async () => {
+test('the quokkacode tools that only read or end the turn never ask, in any mode; the rest still do', async () => {
   for (const mode of ['ask', 'auto'] as const) {
     const { state, approvals } = start(['Read'], { permissionMode: mode }, { neverAsk: NEVER_ASK_TOOLS, alwaysAsk: ALWAYS_ASK_TOOLS });
     const call = (name: string) => state.options.canUseTool(name, {}, { signal: new AbortController().signal, toolUseID: `toolu_${name}`, agentID: 'a' });
-    for (const name of ['mcp__threadbear__end_turn', 'mcp__threadbear__read_thread', 'mcp__threadbear__unpin']) {
+    for (const name of ['mcp__quokkacode__end_turn', 'mcp__quokkacode__read_thread', 'mcp__quokkacode__unpin']) {
       assert.equal((await call(name)).behavior, 'allow', `${name} in ${mode}`);
     }
     assert.equal(approvals.length, 0, `nothing asked in ${mode}`);
-    for (const name of ['mcp__threadbear__send_message', 'mcp__threadbear__update_thread', 'mcp__threadbear__create_thread', 'mcp__threadbear__schedule_message', 'mcp__threadbear__delete_thread', 'mcp__threadbear__pin', 'mcp__threadbear__show_panel', 'mcp__threadbear__show_options', 'mcp__threadbear__pocket', 'mcp__threadbear__wait_for_app_restart']) await call(name);
+    for (const name of ['mcp__quokkacode__send_message', 'mcp__quokkacode__update_thread', 'mcp__quokkacode__create_thread', 'mcp__quokkacode__schedule_message', 'mcp__quokkacode__delete_thread', 'mcp__quokkacode__pin', 'mcp__quokkacode__show_panel', 'mcp__quokkacode__show_options', 'mcp__quokkacode__pocket', 'mcp__quokkacode__wait_for_app_restart']) await call(name);
     assert.deepEqual(approvals.map((a) => a.name.split('__').at(-1)), ['send_message', 'update_thread', 'create_thread', 'schedule_message', 'delete_thread', 'pin', 'show_panel', 'show_options', 'pocket', 'wait_for_app_restart']);
     // And as allow rules, so the CLI lets them through before its own checks.
     assert.ok(state.options.allowedTools.includes('Read'));
-    assert.ok(state.options.allowedTools.includes('mcp__threadbear__end_turn'));
-    assert.ok(!state.options.allowedTools.includes('mcp__threadbear__send_message'));
+    assert.ok(state.options.allowedTools.includes('mcp__quokkacode__end_turn'));
+    assert.ok(!state.options.allowedTools.includes('mcp__quokkacode__send_message'));
     state.close!();
   }
   for (const name of ALWAYS_ASK_TOOLS) assert.ok(!NEVER_ASK_TOOLS.has(name));

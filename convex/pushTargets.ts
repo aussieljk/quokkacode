@@ -15,7 +15,7 @@ const live = (t: TokenState, now: number) => !t.revokedAt && t.expiresAt >= now;
 // aren't unique (tokens.ts issueToken), so while a second phone was paired
 // under the same name, a revoked phone's old row would have kept getting
 // pushes. A paired phone registers again with its token every time it
-// starts (ios/Threadbear/ThreadbearApp.swift askForNotifications), which
+// starts (ios/QuokkaCode/QuokkaCodeApp.swift askForNotifications), which
 // gives it a row with an id.
 export function hasLiveToken(device: DeviceLink, tokens: TokenState[], now: number): boolean {
   if (!device.tokenId) return false;

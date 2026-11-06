@@ -1,4 +1,4 @@
-// How /register (http.ts) tells a real Threadbear backend from someone
+// How /register (http.ts) tells a real Quokka Code backend from someone
 // scripting it. Plain TypeScript with no Convex imports, so the runner's
 // unit tests can check it.
 //

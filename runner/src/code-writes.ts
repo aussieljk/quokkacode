@@ -15,29 +15,29 @@ import os from 'node:os';
 import path from 'node:path';
 
 // Said on the approval card, after the edit's own title.
-export const RUNS_AS_CODE = 'Threadbear runs this file as code';
+export const RUNS_AS_CODE = 'Quokka Code runs this file as code';
 
 // What a PreToolUse hook tells the CLI when it makes such an edit ask.
 export const RUNS_AS_CODE_REASON = `${RUNS_AS_CODE}, so it always asks outside Full access.`;
 
 // By name alone, wherever it is: a patch file (a project's or
-// ~/.threadbear/patches, which is trusted whatever it holds), anything else
-// under ~/.threadbear (what home patches import), Claude Code settings
+// ~/.quokkacode/patches, which is trusted whatever it holds), anything else
+// under ~/.quokkacode (what home patches import), Claude Code settings
 // (`.claude/settings.json`, `settings.local.json` and the like, home's
 // included) and an `.mcp.json`. The runner adds the files a patch it has
 // hashed covers, and the scripts the thread folder's Claude settings name.
 export function runsAsCodeByName(file: string, home: string = os.homedir()): boolean {
   // By the name as written and as the disk has it, without case: on macOS
-  // `.Threadbear/Patches/x.ts` is the same file as `.threadbear/patches/x.ts`;
+  // `.QuokkaCode/Patches/x.ts` is the same file as `.quokkacode/patches/x.ts`;
   // a symlink to a patch writes the patch, and a patch that is a symlink
-  // (`~/.threadbear/patches/x.ts` to `~/src/x.ts`) runs what its name says.
+  // (`~/.quokkacode/patches/x.ts` to `~/src/x.ts`) runs what its name says.
   // The runner adds what such a link points at (writeRunsAsCode).
-  const homeDir = path.join(path.resolve(home), '.threadbear');
+  const homeDir = path.join(path.resolve(home), '.quokkacode');
   const homes = [homeDir.toLowerCase(), canonicalPath(homeDir).toLowerCase()];
   return [path.resolve(file), canonicalPath(file)].some((p) => {
     const abs = p.toLowerCase();
     const dir = path.dirname(abs);
-    if (path.basename(dir) === 'patches' && path.basename(path.dirname(dir)) === '.threadbear' && ['.ts', '.js', '.mjs'].includes(path.extname(abs))) return true;
+    if (path.basename(dir) === 'patches' && path.basename(path.dirname(dir)) === '.quokkacode' && ['.ts', '.js', '.mjs'].includes(path.extname(abs))) return true;
     if (homes.some((h) => isInside(abs, h))) return true;
     const name = path.basename(abs);
     if (name === '.mcp.json') return true;
@@ -48,7 +48,7 @@ export function runsAsCodeByName(file: string, home: string = os.homedir()): boo
 // `file` with the symlinks on its way resolved and each name as the disk
 // spells it, as far as it exists; the rest as given. A link to something
 // not there yet is followed too: a Write through it makes its target, so
-// `notes.txt -> ~/.threadbear/patches/p.ts` is a patch (Codex review).
+// `notes.txt -> ~/.quokkacode/patches/p.ts` is a patch (Codex review).
 export function canonicalPath(file: string, depth = 0): string {
   const abs = path.resolve(file);
   try {

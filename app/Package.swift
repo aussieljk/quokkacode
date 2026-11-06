@@ -2,13 +2,13 @@
 import PackageDescription
 
 let package = Package(
-    name: "Threadbear",
+    name: "QuokkaCode",
     platforms: [
         .macOS(.v26)
     ],
     products: [
-        .executable(name: "Threadbear", targets: ["Threadbear"]),
-        .library(name: "ThreadbearCore", targets: ["ThreadbearCore"]),
+        .executable(name: "QuokkaCode", targets: ["QuokkaCode"]),
+        .library(name: "QuokkaCodeCore", targets: ["QuokkaCodeCore"]),
     ],
     dependencies: [
         .package(url: "https://github.com/swiftlang/swift-markdown.git", from: "0.9.0"),
@@ -24,39 +24,39 @@ let package = Package(
         // Protocol models, the JSON-RPC client, the event reducer and other
         // logic with no AppKit or SwiftUI, so it can be tested on its own.
         .target(
-            name: "ThreadbearCore",
-            path: "Sources/ThreadbearCore"
+            name: "QuokkaCodeCore",
+            path: "Sources/QuokkaCodeCore"
         ),
         .executableTarget(
-            name: "Threadbear",
+            name: "QuokkaCode",
             dependencies: [
-                "ThreadbearCore",
+                "QuokkaCodeCore",
                 .product(name: "Markdown", package: "swift-markdown"),
                 .product(name: "Highlightr", package: "Highlightr"),
                 .product(name: "BearDock", package: "dock"),
                 .product(name: "Sentry", package: "SentryBinary"),
             ],
-            path: "Sources/Threadbear",
+            path: "Sources/QuokkaCode",
             // Big pictures (the Librarian's page). Looked up through Art,
             // never Bundle.module, which stops the app if the bundle's missing.
             resources: [.copy("Resources/Art"), .copy("Resources/Rich")],
             // The AppKit side renders and measures text off the main thread
             // with non-Sendable TextKit objects confined to one thread each;
             // Swift 5 mode keeps that from drowning in Sendable errors.
-            // ThreadbearCore stays in Swift 6 mode.
+            // QuokkaCodeCore stays in Swift 6 mode.
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
         .testTarget(
-            name: "ThreadbearCoreTests",
-            dependencies: ["ThreadbearCore"],
-            path: "Tests/ThreadbearCoreTests"
+            name: "QuokkaCodeCoreTests",
+            dependencies: ["QuokkaCodeCore"],
+            path: "Tests/QuokkaCodeCoreTests"
         ),
         // AppKit-side checks (the composer, transcript text, renders,
         // AppModel's drafts) against the app target itself.
         .testTarget(
-            name: "ThreadbearAppTests",
-            dependencies: ["Threadbear", "ThreadbearCore"],
-            path: "Tests/ThreadbearAppTests",
+            name: "QuokkaCodeAppTests",
+            dependencies: ["QuokkaCode", "QuokkaCodeCore"],
+            path: "Tests/QuokkaCodeAppTests",
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
     ]

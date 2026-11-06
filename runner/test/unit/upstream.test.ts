@@ -40,7 +40,7 @@ function commit(repo: string, file: string, subject: string): string {
 }
 
 function signedTag(repo: string, tag: string, priv: string, rev = 'HEAD'): void {
-  git(repo, '-c', 'gpg.format=ssh', '-c', `user.signingkey=${priv}`, 'tag', '-s', '-m', `Threadbear ${tag}`, tag, rev);
+  git(repo, '-c', 'gpg.format=ssh', '-c', `user.signingkey=${priv}`, 'tag', '-s', '-m', `QuokkaCode ${tag}`, tag, rev);
 }
 
 // Mike's repo (a bare one on "GitHub", and his checkout) and someone's fork
@@ -80,7 +80,7 @@ test('repoKey: the same repo however its URL is written', () => {
   for (const u of ['https://github.com/mikecann/threadbear.git', 'https://github.com/mikecann/threadbear', 'git@github.com:mikecann/threadbear.git', 'ssh://git@github.com/mikecann/threadbear', 'https://x-access-token@github.com/MikeCann/threadbear/']) {
     assert.equal(repoKey(u), k, u);
   }
-  assert.notEqual(repoKey('https://github.com/someone/threadbear.git'), k);
+  assert.notEqual(repoKey('https://github.com/someone/quokkacode.git'), k);
 });
 
 test('tagFor: release/ and the local date', () => {
@@ -110,7 +110,7 @@ test('a fork sees a newer signed release from Mike, with what main is missing', 
   assert.equal(git(w.theirs, 'tag', '--list', 'release/2026-10-30'), '');
 
   // Once main has it, there's nothing to bring in.
-  git(w.theirs, 'merge', '-q', '--no-edit', 'refs/threadbear/upstream/2026-10-30');
+  git(w.theirs, 'merge', '-q', '--no-edit', 'refs/quokkacode/upstream/2026-10-30');
   s = await up.check();
   assert.equal(s.state, 'idle');
   assert.equal(s.release?.changes, 0);
@@ -337,8 +337,8 @@ test('a release tag signed with OpenPGP or X.509 never counts, whatever gpg says
   const pgp = fakeGpg(w.root, 'PGP SIGNATURE');
   const x509 = fakeGpg(w.root, 'SIGNED MESSAGE');
   commit(w.mike, 'evil.txt', 'Attacker code');
-  git(w.mike, '-c', 'gpg.format=openpgp', '-c', `gpg.program=${pgp}`, '-c', 'user.signingkey=MALLORY', 'tag', '-s', '-m', 'Threadbear 2026-12-01', 'release/2026-12-01');
-  git(w.mike, '-c', 'gpg.format=x509', '-c', `gpg.x509.program=${x509}`, '-c', 'user.signingkey=MALLORY', 'tag', '-s', '-m', 'Threadbear 2026-12-02', 'release/2026-12-02');
+  git(w.mike, '-c', 'gpg.format=openpgp', '-c', `gpg.program=${pgp}`, '-c', 'user.signingkey=MALLORY', 'tag', '-s', '-m', 'QuokkaCode 2026-12-01', 'release/2026-12-01');
+  git(w.mike, '-c', 'gpg.format=x509', '-c', `gpg.x509.program=${x509}`, '-c', 'user.signingkey=MALLORY', 'tag', '-s', '-m', 'QuokkaCode 2026-12-02', 'release/2026-12-02');
   assert.match(git(w.mike, 'cat-file', 'tag', 'release/2026-12-01'), /-----BEGIN PGP SIGNATURE-----/);
   assert.match(git(w.mike, 'cat-file', 'tag', 'release/2026-12-02'), /-----BEGIN SIGNED MESSAGE-----/);
   git(w.mike, 'push', '-q', 'origin', 'main', '--tags');
@@ -349,7 +349,7 @@ test('a release tag signed with OpenPGP or X.509 never counts, whatever gpg says
   });
   assert.equal(s.release?.tag, 'release/2026-10-01');
   assert.equal(s.state, 'idle');
-  assert.equal(spawnSync('git', ['-C', w.theirs, 'rev-parse', '-q', '--verify', 'refs/threadbear/upstream/2026-12-01']).status, 1, 'never copied where a bring-in merges from');
+  assert.equal(spawnSync('git', ['-C', w.theirs, 'rev-parse', '-q', '--verify', 'refs/quokkacode/upstream/2026-12-01']).status, 1, 'never copied where a bring-in merges from');
 });
 
 test('splitSignedTag: only one SSH signature block, at the end, under the four headers git writes', () => {
@@ -381,9 +381,9 @@ test('splitSignedTag: only one SSH signature block, at the end, under the four h
   assert.ok(splitSignedTag(subject, 'release/2026-10-01'));
 });
 
-const kept = (repo: string, name: string) => spawnSync('git', ['-C', repo, 'rev-parse', '-q', '--verify', `refs/threadbear/upstream/${name}^{commit}`], { encoding: 'utf8' }).stdout.trim();
+const kept = (repo: string, name: string) => spawnSync('git', ['-C', repo, 'rev-parse', '-q', '--verify', `refs/quokkacode/upstream/${name}^{commit}`], { encoding: 'utf8' }).stdout.trim();
 
-// F31: the fetch force-moved refs/threadbear/upstream/<date>, the ref a
+// F31: the fetch force-moved refs/quokkacode/upstream/<date>, the ref a
 // bring-in thread merges, to whatever upstream served, before any check.
 test('a release swapped upstream after it verified never moves the ref a bring-in merges', async () => {
   const w = world();
@@ -396,14 +396,14 @@ test('a release swapped upstream after it verified never moves the ref a bring-i
   // The attacker force-pushes the same name, unsigned, at their own commit.
   git(w.mike, 'checkout', '-q', '-b', 'evil');
   const evil = commit(w.mike, 'evil.txt', 'Attacker code');
-  git(w.mike, 'tag', '-f', '-a', '-m', 'Threadbear 2026-10-30', 'release/2026-10-30', evil);
+  git(w.mike, 'tag', '-f', '-a', '-m', 'QuokkaCode 2026-10-30', 'release/2026-10-30', evil);
   git(w.mike, 'push', '-q', '-f', 'origin', 'refs/tags/release/2026-10-30');
   const s = await up.check();
   assert.equal(kept(w.theirs, '2026-10-30'), good, 'the verified ref keeps the commit that verified');
   assert.equal(s.release?.tag, 'release/2026-10-30');
   assert.equal(s.release?.commit, good);
   // What upstream serves now is only in the staging namespace.
-  assert.equal(git(w.theirs, 'rev-parse', 'refs/threadbear/upstream-incoming/2026-10-30^{commit}'), evil);
+  assert.equal(git(w.theirs, 'rev-parse', 'refs/quokkacode/upstream-incoming/2026-10-30^{commit}'), evil);
 });
 
 test('a release name that verified keeps its first tag even if a signed one replaces it upstream', async () => {
@@ -431,16 +431,16 @@ test('an unsigned ref an older runner left among the releases is taken out, and 
   git(w.mike, 'push', '-q', 'origin', 'refs/tags/release/2026-11-02');
   git(w.mike, 'checkout', '-q', 'main');
   // What the old fetch did.
-  git(w.theirs, 'fetch', '-q', '--no-tags', 'upstream', '+refs/tags/release/*:refs/threadbear/upstream/*');
+  git(w.theirs, 'fetch', '-q', '--no-tags', 'upstream', '+refs/tags/release/*:refs/quokkacode/upstream/*');
   assert.equal(kept(w.theirs, '2026-11-02'), evil);
-  const leftover = git(w.theirs, 'rev-parse', 'refs/threadbear/upstream/2026-11-02');
+  const leftover = git(w.theirs, 'rev-parse', 'refs/quokkacode/upstream/2026-11-02');
   git(w.mike, 'push', '-q', '-f', 'origin', ':refs/tags/release/2026-11-02');
   const s = await upstreamFor(w.theirs, w.home).check();
   assert.equal(s.release?.tag, 'release/2026-10-01');
   assert.equal(kept(w.theirs, '2026-11-02'), '', 'taken out, so nothing merges it by name');
 
   // Left over under a name upstream now has a real release for.
-  git(w.theirs, 'update-ref', 'refs/threadbear/upstream/2026-11-03', leftover);
+  git(w.theirs, 'update-ref', 'refs/quokkacode/upstream/2026-11-03', leftover);
   const real = commit(w.mike, 'd.txt', 'Real');
   signedTag(w.mike, 'release/2026-11-03', w.mikeKey.priv);
   git(w.mike, 'push', '-q', 'origin', 'main', '--tags');
@@ -479,7 +479,7 @@ test('every unsigned ref an older runner left among the releases goes, even olde
   git(w.mike, 'tag', '-a', '-m', 'unsigned', 'release/2026-10-30', evil);
   git(w.mike, 'tag', '-a', '-m', 'unsigned', 'release/2026-11-06/poison', evil);
   git(w.mike, 'push', '-q', 'origin', 'refs/tags/release/2026-10-30', 'refs/tags/release/2026-11-06/poison');
-  git(w.theirs, 'fetch', '-q', '--no-tags', 'upstream', '+refs/tags/release/*:refs/threadbear/upstream/*');
+  git(w.theirs, 'fetch', '-q', '--no-tags', 'upstream', '+refs/tags/release/*:refs/quokkacode/upstream/*');
   git(w.mike, 'push', '-q', 'origin', ':refs/tags/release/2026-11-06/poison');
   git(w.mike, 'tag', '-d', 'release/2026-11-06/poison');
   git(w.mike, 'checkout', '-q', 'main');
@@ -550,7 +550,7 @@ test('an unsigned ref an older runner left goes even while upstream cannot be fe
   const evil = commit(w.mike, 'evil.txt', 'Attacker code');
   git(w.mike, 'tag', '-a', '-m', 'unsigned', 'release/2026-11-06', evil);
   git(w.mike, 'push', '-q', 'origin', 'refs/tags/release/2026-11-06');
-  git(w.theirs, 'fetch', '-q', '--no-tags', 'upstream', '+refs/tags/release/*:refs/threadbear/upstream/*');
+  git(w.theirs, 'fetch', '-q', '--no-tags', 'upstream', '+refs/tags/release/*:refs/quokkacode/upstream/*');
   git(w.theirs, 'remote', 'set-url', 'upstream', path.join(w.root, 'gone.git'));
   const s = await upstreamFor(w.theirs, w.home).check();
   assert.equal(s.state, 'failed');
@@ -564,7 +564,7 @@ test('a huge tag is turned down unread, and one an older runner left is taken ou
   fs.writeFileSync(big, 'x'.repeat(17 * 1024 * 1024));
   git(w.mike, 'tag', '-a', '-F', big, 'release/2026-11-05');
   git(w.mike, 'push', '-q', 'origin', 'refs/tags/release/2026-11-05');
-  git(w.theirs, 'fetch', '-q', '--no-tags', 'upstream', '+refs/tags/release/*:refs/threadbear/upstream/*');
+  git(w.theirs, 'fetch', '-q', '--no-tags', 'upstream', '+refs/tags/release/*:refs/quokkacode/upstream/*');
   const real = commit(w.mike, 'd.txt', 'Real');
   signedTag(w.mike, 'release/2026-11-04', w.mikeKey.priv);
   git(w.mike, 'push', '-q', 'origin', 'main', 'refs/tags/release/2026-11-04');

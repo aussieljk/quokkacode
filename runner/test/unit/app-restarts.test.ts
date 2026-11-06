@@ -18,7 +18,7 @@ function setUp() {
 const said = (h: ReturnType<typeof makeHarness>, threadId: string) => {
   const evs = h.events(threadId);
   return {
-    note: evs.findLast((e) => e.type === 'system.note' && String(e.text).startsWith('Threadbear app restarted'))?.text,
+    note: evs.findLast((e) => e.type === 'system.note' && String(e.text).startsWith('Quokka Code app restarted'))?.text,
     message: evs.findLast((e) => e.type === 'user.message' && e.origin === 'runner')?.text,
   };
 };
@@ -32,7 +32,7 @@ test('a thread waiting hears when the app comes back on another build', () => {
   assert.equal(said(h, thread.id).message, undefined);
   watcher.appHello(B);
   const { note, message } = said(h, thread.id);
-  assert.equal(note, 'Threadbear app restarted: aaaa111 to bbbb222');
+  assert.equal(note, 'Quokka Code app restarted: aaaa111 to bbbb222');
   assert.match(message, /restarted onto bbbb222/);
   // Once only.
   watcher.appHello({ ...A, tree: 'tree-c' });
@@ -70,7 +70,7 @@ test('an archived thread or a stale request only gets the note', () => {
 });
 
 test('a thread on a draining runner hears once it comes across', () => {
-  // THREADBEAR-5: the app came back while the thread was finishing a turn
+  // QUOKKACODE-5: the app came back while the thread was finishing a turn
   // on the old runner; the primary said "Thread not found" and dropped
   // the request.
   const { h, thread } = setUp();
@@ -93,7 +93,7 @@ test('a thread on a draining runner hears once it comes across', () => {
   watcher.adopted(thread.id);
   assert.deepEqual(warned, []);
   assert.match(said(h, thread.id).message, /restarted onto bbbb222/);
-  assert.equal(said(h, thread.id).note, 'Threadbear app restarted: aaaa111 to bbbb222');
+  assert.equal(said(h, thread.id).note, 'Quokka Code app restarted: aaaa111 to bbbb222');
   assert.equal(watcher.isWatching(thread.id), false);
   // Once only.
   watcher.adopted(thread.id);
@@ -113,19 +113,19 @@ test('a deleted thread is dropped quietly', () => {
 });
 
 test('asks that tell Mike to restart the app count as a request', () => {
-  assert.equal(asksForAppRestart([{ action: 'Click Restart to Update in the Threadbear menu' }]), true);
-  assert.equal(asksForAppRestart([{ action: 'Restart Threadbear', where: 'Threadbear menu > Restart to Update' }]), true);
+  assert.equal(asksForAppRestart([{ action: 'Click Restart to Update in the Quokka Code menu' }]), true);
+  assert.equal(asksForAppRestart([{ action: 'Restart QuokkaCode', where: 'Quokka Code menu > Restart to Update' }]), true);
   // The ask is one paragraph now, so the words can be in its why.
-  assert.equal(asksForAppRestart([{ action: 'Try the new card', why: 'It needs Restart to Update in the Threadbear menu first.' }]), true);
+  assert.equal(asksForAppRestart([{ action: 'Try the new card', why: 'It needs Restart to Update in the Quokka Code menu first.' }]), true);
   assert.equal(asksForAppRestart([{ action: 'Restart the runner' }]), false);
   assert.equal(asksForAppRestart(undefined), false);
 });
 
 test('end_turn asking for Restart to Update signs the thread up; wait_for_app_restart sets the text', async () => {
-  const { buildThreadbearTools } = await import('../../src/threadbear-mcp.ts');
+  const { buildQuokkaCodeTools } = await import('../../src/quokkacode-mcp.ts');
   const { h, watcher, thread } = setUp();
   watcher.appHello(A);
-  const tools = buildThreadbearTools(h.runner, thread.id, Date.now, undefined, undefined, watcher);
+  const tools = buildQuokkaCodeTools(h.runner, thread.id, Date.now, undefined, undefined, watcher);
   const call = async (name: string, args: Record<string, unknown>) => {
     const t = tools.find((x) => x.name === name)!;
     const r = (await t.handler(args as never, {})) as { content: { text: string }[] };
@@ -136,12 +136,12 @@ test('end_turn asking for Restart to Update signs the thread up; wait_for_app_re
   assert.equal(watcher.isWatching(thread.id), true);
   // Asks about something else don't.
   const { thread: other } = h.runner.create({ text: 'Other', accountId: 'claude-3' });
-  const otherTools = buildThreadbearTools(h.runner, other.id, Date.now, undefined, undefined, watcher);
+  const otherTools = buildQuokkaCodeTools(h.runner, other.id, Date.now, undefined, undefined, watcher);
   await otherTools.find((x) => x.name === 'end_turn')!.handler({ needs: 'you', asks: [{ action: 'Paste the key', why: 'The deploy needs it.' }] } as never, {});
   assert.equal(watcher.isWatching(other.id), false);
   // Every ask has to say why: a card with only an action and a place
   // left Mike guessing (28 Oct). The schema refuses one without.
-  const shape = (buildThreadbearTools(h.runner, thread.id, Date.now, undefined, undefined, watcher, { provider: 'codex' }).find((x) => x.name === 'end_turn')!.inputSchema as any).asks;
+  const shape = (buildQuokkaCodeTools(h.runner, thread.id, Date.now, undefined, undefined, watcher, { provider: 'codex' }).find((x) => x.name === 'end_turn')!.inputSchema as any).asks;
   assert.equal(shape.safeParse([{ action: 'Fix the Slack draft', where: 'Slack' }]).success, false);
   assert.equal(shape.safeParse([{ action: 'Fix the Slack draft', why: 'It says Hayden; he is Pete.', links: [{ title: 'Open the Slack message', url: 'https://x.slack.com/archives/C1/p1' }] }]).success, true);
   // The tool's text is what's sent.
@@ -157,7 +157,7 @@ test('a turn whose end_turn was refused still signs up from its closing "What I 
   const { thread } = h.runner.create({ text: 'Share a thread', accountId: 'claude-3' });
   const s = h.adapter.last;
   s.init();
-  s.text('m1', 'Landed.\n\n**What I need from you**\n\n1. Choose Restart to Update from the Threadbear menu, then reply "restarted".');
+  s.text('m1', 'Landed.\n\n**What I need from you**\n\n1. Choose Restart to Update from the Quokka Code menu, then reply "restarted".');
   s.result('completed');
   assert.deepEqual(asked, [thread.id]);
   // A turn asking for something else doesn't.

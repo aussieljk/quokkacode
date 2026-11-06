@@ -31,7 +31,7 @@ def rows(items, sug=0):
 PANELS = {}
 
 # ---- Bruce (thread 6fb15afc): a step for Mike ----
-FDA = '<code>/Users/bruce/Applications/Threadbear Runner.app</code>'
+FDA = '<code>/Users/bruce/Applications/QuokkaCode Runner.app</code>'
 bruce_report = re.sub(r'<p>I don\'t know what state I left the file picker in\. It may still have a "Go to folder" box open\.</p>\n', '', bruce)
 
 PANELS['bruce', 'A'] = (

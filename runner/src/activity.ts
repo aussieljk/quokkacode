@@ -2,8 +2,8 @@
 // log"). The app writes a line for each thing done in it (a click, a menu
 // item, a shortcut, a thread opened, a message sent) to
 // <home>/activity/<day>.jsonl, but only while it's switched on in Settings >
-// General (app/Sources/Threadbear/ActivityRecorder.swift has the fields).
-// It's for an agent working on Threadbear to see how the app is really used.
+// General (app/Sources/QuokkaCode/ActivityRecorder.swift has the fields).
+// It's for an agent working on Quokka Code to see how the app is really used.
 // The files are read straight off the disk, so this works with the runner
 // down; thread titles come from the runner when it's up.
 import fs from 'node:fs';

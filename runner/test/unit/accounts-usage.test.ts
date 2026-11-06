@@ -585,7 +585,7 @@ test("Codex defaults from config.toml's top-level keys only", () => {
   assert.equal(codex.defaultModel, 'gpt-6.1-sol');
   assert.equal(codex.defaultEffort, 'high');
   assert.ok(!JSON.stringify(codex).includes('SHOULD-NOT-APPEAR'));
-  // An effort Threadbear doesn't know is left out; a table before the keys hides them.
+  // An effort Quokka Code doesn't know is left out; a table before the keys hides them.
   fs.writeFileSync(path.join(d.codexMain, 'config.toml'), 'model_reasoning_effort = "minimal"\n');
   assert.deepEqual(readCodexConfig(path.join(d.codexMain, 'config.toml')), {});
   fs.writeFileSync(path.join(d.codexMain, 'config.toml'), '[features]\nmodel = "gpt-6-luna"\n');

@@ -1,6 +1,6 @@
-# What Threadbear does on your Mac
+# What Quokka Code does on your Mac
 
-Everything Threadbear installs, runs in the background, reads, and talks to
+Everything Quokka Code installs, runs in the background, reads, and talks to
 over the network. It's here so you, or the agent installing it for you, can
 check the code against it before running anything. If the code does
 something that isn't on this list, treat that as a problem and say so.
@@ -22,16 +22,16 @@ File references are where to look.
   If that login goes missing or expires, the Convex panel's Sign in to
   Convex button runs `convex login` again from the runner, which writes
   the same file; you approve it in your browser on auth.convex.dev.
-- **Apps:** `~/Applications/Threadbear.app` and
-  `~/Applications/Threadbear Runner.app`, both built and signed on your Mac.
-- **A LaunchAgent:** `~/Library/LaunchAgents/com.mikerosoft.threadbear.runner.plist`,
+- **Apps:** `~/Applications/QuokkaCode.app` and
+  `~/Applications/QuokkaCode Runner.app`, both built and signed on your Mac.
+- **A LaunchAgent:** `~/Library/LaunchAgents/com.lucasknight.quokkacode.runner.plist`,
   which keeps the runner going while you're logged in. A runner on a Linux
   server (INSTALL.md, section 6) has a systemd user service in its place,
-  `~/.config/systemd/user/com.mikerosoft.threadbear.runner.service`, and no
+  `~/.config/systemd/user/com.lucasknight.quokkacode.runner.service`, and no
   apps; it converts pictures with ImageMagick and rsvg-convert, and reads
   the account's full name from `getent passwd` rather than `id -F`.
-- **A command:** `~/.local/bin/threadbear`.
-- **Files:** the data folder `~/Library/Application Support/Threadbear`
+- **A command:** `~/.local/bin/quokkacode`.
+- **Files:** the data folder `~/Library/Application Support/QuokkaCode`
   (threads, settings, `secrets/`, runner releases, the pinned release key
   `upstream-signers`, and `sync-sent.json`, hashes of what's already in your
   Convex mirror so a restart sends only what changed, and
@@ -55,20 +55,20 @@ File references are where to look.
   on that Mac prints both): the only host the app sends that token to.
   The app only reads these, and proves it has the token rather than
   sending it (docs/protocol.md, "Auth"); with no `.host` it dials nowhere;
-  `~/Library/Caches/Threadbear/update`;
-  `~/Library/Caches/Threadbear/remote` (copies of pictures and files from
+  `~/Library/Caches/QuokkaCode/update`;
+  `~/Library/Caches/QuokkaCode/remote` (copies of pictures and files from
   threads on your other Macs, at most 512 MB, unused ones go after 30 days);
-  `~/Library/Caches/Threadbear/rich` (pictures of the ```` ```mermaid ```` and
+  `~/Library/Caches/QuokkaCode/rich` (pictures of the ```` ```mermaid ```` and
   ```` ```html ```` blocks in replies, and each one's page for the side pane,
   newest 900 files kept). They're drawn on this Mac in web views that load
   nothing from the network: the diagram library, [Pele](https://pele.run/),
   is bundled with the app (`Resources/Rich/pele.js`, MIT), and a block's
   page runs no scripts;
-  `~/Library/Logs/threadbear-runner.log` and `threadbear-update.log`;
-  `~/Library/Logs/Threadbear/hangs` (the last 10 times the app froze: if its
+  `~/Library/Logs/quokkacode-runner.log` and `quokkacode-update.log`;
+  `~/Library/Logs/QuokkaCode/hangs` (the last 10 times the app froze: if its
   main thread is stuck for 4 seconds it runs macOS's `sample` on itself, in
   a sandbox, and
-  nothing else ever reads these); and `~/ThreadbearThreads`, the default
+  nothing else ever reads these); and `~/QuokkaCodeThreads`, the default
   folder for new threads. A folder you open from a link in the side pane
   is listed, and watched for changes only while it's showing, and macOS may
   ask for permission the first time that's somewhere like Documents. The runner also runs `vm_stat` and `sw_vers` on a Mac, or reads `/proc/meminfo` and `/etc/os-release` on Linux, for the memory and system figures in the website's Runners view and the Mac app's runner details (`runner/src/runner-stats.ts`), every 5 minutes and while either is open. It also runs `ps`, and `sample` (in a
@@ -83,7 +83,7 @@ File references are where to look.
 ## What runs in the background
 
 - **Landing work** (`runner/src/worktrees.ts`): `tb land` keeps an empty
-  `threadbear-land.lock` in the repo's common git directory. It runs
+  `quokkacode-land.lock` in the repo's common git directory. It runs
   macOS's `lockf` (Linux's `flock`) with a small Node child to hold an OS
   lock from before rebasing until the check and fast-forward finish.
   Another landing waits; exiting, including a crash, releases the lock.
@@ -100,7 +100,7 @@ File references are where to look.
   a login to the Mac, and so is admin access to your Convex deployment.
   Pairings last 90 days unless set otherwise, at most 365
   (`convex/tokens.ts`); Revoke in Settings › Phone & browser ends one.
-- **Following your main** (`runner/src/update.ts`, `app/Sources/Threadbear/AppUpdate.swift`):
+- **Following your main** (`runner/src/update.ts`, `app/Sources/QuokkaCode/AppUpdate.swift`):
   the runner and the app watch your local `main`, and look again every 5
   minutes. Within seconds of it changing, they rebuild themselves from it
   and redeploy your backend, so whatever reaches your `main` runs, with no
@@ -111,7 +111,7 @@ File references are where to look.
   `scheduleChecks`, off by default): a schedule's check command runs in
   `/bin/sh` before each run, as you, for at most a minute (or up to five,
   if the schedule says). Each keeps a
-  state file in `schedule-checks/` in Threadbear's data folder, and
+  state file in `schedule-checks/` in Quokka Code's data folder, and
   beside it what the check last printed (`<id>.<hash>.kept.json`, readable
   only by you) until a run carrying it has been sent, and, while a check
   runs, which runner process is running it (`<id>.running.json`).
@@ -122,10 +122,10 @@ File references are where to look.
   and the screen still locks). While it does, it reads `pmset -g batt`
   every 2 minutes and lets go on battery below 15%.
 - **Mike's releases** (`runner/src/upstream.ts`): every 6 hours it fetches
-  `upstream`'s signed `release/*` tags into `refs/threadbear/upstream-incoming/`
+  `upstream`'s signed `release/*` tags into `refs/quokkacode/upstream-incoming/`
   in your checkout, checks each with `ssh-keygen -Y verify` against the
   pinned key (the signature goes in a temp file under `$TMPDIR` for a
-  moment), and copies those that pass to `refs/threadbear/upstream/`. It never changes your code by
+  moment), and copies those that pass to `refs/quokkacode/upstream/`. It never changes your code by
   itself. Every 5 days, when there's one your copy doesn't have, it starts
   one thread (on your own Claude or Codex login, like any thread) that
   merges it in a worktree, runs the checks and asks you before it lands
@@ -137,7 +137,7 @@ File references are where to look.
 - **CLI updates** (`runner/src/updates/`): every hour it checks for new
   Claude Code and Codex versions and installs them. If you don't point it
   at your own Codex, it installs one into the data folder.
-  `THREADBEAR_CLI_UPDATES=off` stops this.
+  `QUOKKACODE_CLI_UPDATES=off` stops this.
 - **Small model calls** (`runner/src/models/`): thread titles, filing
   threads into projects (the librarian, every 5 minutes) and similar jobs
   send short excerpts of your threads to `claude -p` on your own logins.
@@ -155,8 +155,8 @@ File references are where to look.
 - **Dialogs on the screen** (`runner/src/mac-screen.ts`): every 2 minutes it
   runs `osascript` to count the windows of macOS's UserNotificationCenter, so
   it can tell you when a dialog has been left waiting. It sees how many, not
-  what they say. `THREADBEAR_MAC_SCREEN=off` stops it.
-- **Patches** (`.threadbear/patches/`): code from a folder runs only after
+  what they say. `QUOKKACODE_MAC_SCREEN=off` stops it.
+- **Patches** (`.quokkacode/patches/`): code from a folder runs only after
   you trust that folder (`runner/src/patch-trust.ts`). A folder's Claude
   Code hooks, other commands, `env` settings and (in Ask and Auto threads)
   permission rules in its `.claude/settings*.json`, its `.mcp.json`
@@ -165,7 +165,7 @@ File references are where to look.
   those files and the scripts they reach to hash them, runs `git ls-files`
   in the folder to find skills in folders under it, and keeps what you
   trusted in the same `patch-trust.json`.
-- **Menus on macOS 27.2** (`app/Sources/Threadbear/DragSpace.swift`): every
+- **Menus on macOS 27.2** (`app/Sources/QuokkaCode/DragSpace.swift`): every
   5 seconds, and before a button opens a menu, the app asks the window
   server which Spaces its own windows are on, and takes them off the drag
   Space a window drag can leave them on, which hides their menus. A window
@@ -179,7 +179,7 @@ File references are where to look.
   `~/.claude.json`), a few settings, and the token counts in your session
   transcripts, so it can show how much room each login has
   (`runner/src/accounts.ts`, `runner/src/token-tally.ts`;
-  `THREADBEAR_TOKEN_TALLY=off` stops the counting). It never reads or
+  `QUOKKACODE_TOKEN_TALLY=off` stops the counting). It never reads or
   copies login tokens or the Keychain.
 - Token Stats' files, if you have that app, and any logins you've added
   under `accounts` in its data folder (`claude-1`, `codex-1`...).
@@ -189,7 +189,7 @@ File references are where to look.
 - Whether it has Full Disk Access, by opening macOS's permissions database
   (`~/Library/Application Support/com.apple.TCC/TCC.db`) and closing it
   again. It never reads it. Without the access macOS refuses, with no prompt.
-- Whether `Threadbear.app` is in `/Applications` or `~/Applications`, as a Mac
+- Whether `QuokkaCode.app` is in `/Applications` or `~/Applications`, as a Mac
   without it is probably one nobody sits at.
 - The `.env*` files in the folders your threads work in (the folder, the
   folders directly inside it, and up to its repo's root; not `.env.example`
@@ -206,17 +206,17 @@ File references are where to look.
 |---|---|---|
 | Your Convex deployment | yours | Thread titles and status, all message text (each message cut at 8,000 characters), one line per tool call, projects, schedules, your logins' emails and usage, whether you're at the Mac, whether this machine is low on memory or disk, and the pictures you paste into a message, up to 10 MB each, so your own website can show them. Those go up as they are, in your deployment's file storage: unlike text, nothing can scrub a secret out of a picture, so a screenshot of something sensitive goes too. `"sync": { "pastedPictures": false }` in `runner.json` keeps them on this Mac. While someone has the website's Runners view open, this machine's CPU, memory and disk use, its processor model, operating system and time since it started, every 10 seconds; with nobody looking, none of that is sent. Photos you send from the phone, deleted once the Mac has fetched them. Pictures and videos agents put in their replies or pin, at most 10 MB each, for the phone to show. Other images only for threads you share by link. Other tool output and files stay on the Mac. Text has known secrets taken out first: see below. |
 | Convex (the Convex panel) | yours | Only for a thread in a Convex project, when its Convex panel opens: the runner's Convex CLI asks api.convex.dev for the project's deployments and a deploy key, the runner asks the deployment whether a kept key still works (`/api/check_admin_key`), and the panel loads Convex's embedded dashboard (dashboard-embedded.convex.dev) with that key. Sign in to Convex goes to auth.convex.dev. (`runner/src/convex-keys.ts`) |
-| Your other Macs, over ssh | yours | Only when you run `tb runner add <name> --ssh <host>` or `tb runner check --ssh <host>` on your first Mac: it reads that Mac's Threadbear `runner.json`, writes its id and the deployment's address there if it hasn't them, writes its new key into that Mac's `secrets/convex-key`, and looks whether that Mac has a deploy key, Convex panel keys or a Convex login (names only, never a key), through your own ssh setup with agent and port forwarding off (`runner/src/runner-keys.ts`). `tb runner audit` asks this Mac's runner for its threads' last seqs and your deployment for what the main key made. `tb runner rotate-owner` sets env vars on your deployment with your deploy key, and, if you give it a Convex team access token for that run (`CONVEX_TEAM_TOKEN`, never kept), asks api.convex.dev for the deployment's deploy keys (their names and dates) before it rotates. |
+| Your other Macs, over ssh | yours | Only when you run `tb runner add <name> --ssh <host>` or `tb runner check --ssh <host>` on your first Mac: it reads that Mac's Quokka Code `runner.json`, writes its id and the deployment's address there if it hasn't them, writes its new key into that Mac's `secrets/convex-key`, and looks whether that Mac has a deploy key, Convex panel keys or a Convex login (names only, never a key), through your own ssh setup with agent and port forwarding off (`runner/src/runner-keys.ts`). `tb runner audit` asks this Mac's runner for its threads' last seqs and your deployment for what the main key made. `tb runner rotate-owner` sets env vars on your deployment with your deploy key, and, if you give it a Convex team access token for that run (`CONVEX_TEAM_TOKEN`, never kept), asks api.convex.dev for the deployment's deploy keys (their names and dates) before it rotates. |
 | GitHub | Mike's repo | Release tags fetched every 6 hours; the fork at setup |
 | downloads.claude.ai, registry.npmjs.org | Anthropic, npm | CLI version checks and installs; `npm ci` |
 | Anthropic, OpenAI | yours | Your threads, through the official CLIs on your own logins. With the `labReview` experiment on (off by default), a thread's code change, with your message and the agent's reply, goes to your other provider's CLI as a review thread, as if you'd started one. After a turn fails because the API couldn't be reached, the runner itself opens (and straight away closes) a connection to api.anthropic.com or chatgpt.com on port 443, at most once a minute, until one opens and the thread carries on. Nothing is sent over it (`runner/src/net-probe.ts`). |
 | Mike's push relay | Mike's | Only when a paired iPhone gets a notification. It's sent from your Convex deployment, not the Mac. The text is encrypted for the phone; the relay sees the device token and thread id (`convex/push.ts`, `docs/push-relay.md`). The first time, your deployment registers with it, giving its own address; the relay keeps that address and checks it by posting a one-time code back to your deployment's `/relay/verify` (`convex/http.ts`). |
 | A Connectors gateway | whoever runs it | Only if one is set in `runner.json` or `~/.claude.json`. Its `/health` every few minutes (and once more at the end of a turn where a call to one of its services failed, to see if it needs signing in), and for a project with a Notion page, a Notion read or two every 5 minutes for its task board (`runner/src/notion-tasks.ts`), signed with the header the `headersHelper` command in that `connectors` entry prints, which it runs for each read |
-| Sentry | Mike's | Nothing from your copy. Only a copy whose `origin` is Mike's own repo reports errors or uploads the app's debug symbols (`runner/src/sentry.ts`, `app/Sources/Threadbear/CrashReporting.swift`, `app/build-app.sh`). The App Store iPhone app sends anonymous crash reports. |
+| Sentry | Mike's | Nothing from your copy. Only a copy whose `origin` is Mike's own repo reports errors or uploads the app's debug symbols (`runner/src/sentry.ts`, `app/Sources/QuokkaCode/CrashReporting.swift`, `app/build-app.sh`). The App Store iPhone app sends anonymous crash reports. |
 
 An HTML file opened in the side pane (a mockup or report an agent made,
 a page in a project) talks to nothing. It loads through the app's own
-`threadbear-preview:` scheme, which serves only that page and the
+`quokkacode-preview:` scheme, which serves only that page and the
 styles, pictures, fonts and media its markup names in its folder:
 never another page, a script file, SVG, a dotfile, a symlink or a file
 outside it. Its web view
@@ -228,19 +228,19 @@ over that page, which turns them on for that version of the file only,
 remembered by its SHA-256 in the app's settings), has WebRTC off, and doesn't
 follow links away from it, submit
 forms, open windows or download
-(`app/Sources/Threadbear/Views/LocalPreviewSchemeHandler.swift`,
-`app/Sources/ThreadbearCore/Support/LocalPreviewSite.swift`).
+(`app/Sources/QuokkaCode/Views/LocalPreviewSchemeHandler.swift`,
+`app/Sources/QuokkaCodeCore/Support/LocalPreviewSite.swift`).
 
 On the Mac itself, a web link you click in the app first goes to
 BrowserBear's socket (`~/Library/Application Support/BrowserBear/browserbear.sock`),
 if you have BrowserBear, to ask whether an agent's Chrome tab is already
-on that page (`app/Sources/Threadbear/BrowserBear.swift`). Only the link
+on that page (`app/Sources/QuokkaCode/BrowserBear.swift`). Only the link
 goes there.
 
 The Browser panel also uses that private socket to list connected Chrome profiles
 and the pages agents associate with threads. In an existing profile, frames and
 your mouse and keys go through BrowserBear's extension; the page uses Chrome's
-original sign-ins. Threadbear does not read Chrome's cookie database or copy
+original sign-ins. Quokka Code does not read Chrome's cookie database or copy
 credentials. Frames stay on this Mac, in memory, and are not sent to Convex.
 BrowserBear stores thread/tab/profile/target associations and cached page titles in `panel-tabs.json` in
 its own folder (0600); it verifies the target before reconnecting after a service
@@ -251,7 +251,7 @@ The optional separate agent Chrome (`browserbear ... --profile agent`) keeps its
 existing path: the panel reads `agent/tabs.json` in BrowserBear's folder and connects
 to that Chrome's local debugging port. It is real Google Chrome with its own profile
 folder; any program on this Mac could reach that port, so it holds only what you
-sign it in to (`app/Sources/Threadbear/Views/AgentBrowserPanel.swift`).
+sign it in to (`app/Sources/QuokkaCode/Views/AgentBrowserPanel.swift`).
 
 Nothing else: no analytics, no ads, no tracking.
 

@@ -5,7 +5,7 @@ import path from 'node:path';
 import { makeHarness, tick } from '../helpers/fakes.ts';
 import { describeAt, describeCron, nextRuns, parseCron } from '../../src/cron.ts';
 import { Scheduler, scheduleMethods, type ScheduleBackend, type StoredSchedule } from '../../src/schedules.ts';
-import { buildThreadbearTools } from '../../src/threadbear-mcp.ts';
+import { buildQuokkaCodeTools } from '../../src/quokkacode-mcp.ts';
 import { ErrorCode, RpcError } from '../../src/protocol.ts';
 import { nullLogger } from '../../src/log.ts';
 import { readRunnerJson } from '../../src/config.ts';
@@ -310,7 +310,7 @@ test('the methods check what they are given', async () => {
 test('agents schedule messages to their own thread by default', async () => {
   const { h, sched } = setup();
   const { thread, s } = idleThread(h);
-  const list = buildThreadbearTools(h.runner, thread.id, () => h.clock.now(), sched);
+  const list = buildQuokkaCodeTools(h.runner, thread.id, () => h.clock.now(), sched);
   const call = async (name: string, args: Record<string, unknown>) => {
     const t = list.find((x) => x.name === name)!;
     const r = (await t.handler(args as never, {})) as { content: { text: string }[]; isError?: boolean };

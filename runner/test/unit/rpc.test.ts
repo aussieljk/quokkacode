@@ -36,12 +36,12 @@ test('local tools queue a panel only with a connected Mac app, including through
     assert.equal(h.runner.get(thread.id).panelRequest, undefined);
     assert.deepEqual(await c.call('threads.showPanel', { threadId: 'away', panel: 'browser' }), { available: false });
     assert.deepEqual(calls, []);
-    await mac.call('hello', { client: 'threadbear-mac' });
+    await mac.call('hello', { client: 'quokkacode-mac' });
     assert.deepEqual(await c.call('threads.showPanel', { threadId: thread.id, panel: 'browser' }), { available: false }, 'an older Mac app uses the Chrome fallback');
-    await mac.call('hello', { client: 'threadbear-mac', browserPanel: true });
+    await mac.call('hello', { client: 'quokkacode-mac', browserPanel: true });
     const pending = c.call('threads.showPanel', { threadId: thread.id, panel: 'browser' });
     await patiently(() => Boolean(h.runner.get(thread.id).panelRequest));
-    assert.equal(h.runner.get(thread.id).panelRequest?.panel, 'threadbear.browser');
+    assert.equal(h.runner.get(thread.id).panelRequest?.panel, 'quokkacode.browser');
     h.clock.advance(2000);
     assert.equal((await pending).available, true);
     await c.call('threads.showPanel', { threadId: 'away', panel: 'browser' });
@@ -566,7 +566,7 @@ test('panels.render answers after the screenshot, with an image or a note; unkno
 
 test('clis.* call CliUpdates and return at once; without it they are -32601; clis.updated reaches every client', async () => {
   const calls: unknown[][] = [];
-  const status = [{ provider: 'codex', path: '/t/codex', managedBy: 'threadbear', installedVersion: '0.164.0', status: 'current', policy: 'auto', inUse: [] }] as never[];
+  const status = [{ provider: 'codex', path: '/t/codex', managedBy: 'quokkacode', installedVersion: '0.164.0', status: 'current', policy: 'auto', inUse: [] }] as never[];
   let changed: (c: never[]) => void = () => {};
   const clis = {
     list: () => (calls.push(['list']), status),

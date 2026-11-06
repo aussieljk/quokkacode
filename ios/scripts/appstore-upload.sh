@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Archive a Release build of Threadbear for iOS, export it for App Store Connect and (with UPLOAD=1)
+# Archive a Release build of Quokka Code for iOS, export it for App Store Connect and (with UPLOAD=1)
 # upload it. Signing is automatic and cloud-managed, through the App Store Connect API key in
 # ~/.config/poddle (no Xcode account or local distribution certificate needed).
 #
@@ -9,7 +9,7 @@
 # Each run gets a new build number, the UTC time as YYMMDDHHMM (always increasing), unless
 # BUILD_NUMBER is set, like Walkies' and Quick Ask's (this script is theirs, copied). The version
 # (MARKETING_VERSION, 1.0.0) comes from the project. Everything
-# lands in OUT (default /tmp/threadbear-appstore/<build>). VALIDATE=0 skips `altool --validate-app`.
+# lands in OUT (default /tmp/quokkacode-appstore/<build>). VALIDATE=0 skips `altool --validate-app`.
 # The API key is Poddle's team-wide one (same team), read from ~/.config/poddle and never printed.
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -20,9 +20,9 @@ KEY_DIR=${KEY_DIR:-$HOME/.config/poddle}
 ASC_KEY="$KEY_DIR/AuthKey_$ASC_KEY_ID.p8"
 TEAM_ID=4DTAZSZL6B
 BUILD=${BUILD_NUMBER:-$(date -u +%y%m%d%H%M)}
-OUT=${OUT:-/tmp/threadbear-appstore/$BUILD}
-DD=${DD:-/tmp/threadbear-dd-appstore}
-ARCHIVE="$OUT/Threadbear.xcarchive"
+OUT=${OUT:-/tmp/quokkacode-appstore/$BUILD}
+DD=${DD:-/tmp/quokkacode-dd-appstore}
+ARCHIVE="$OUT/QuokkaCode.xcarchive"
 
 [[ -f "$ASC_KEY" ]] || { echo "No App Store Connect API key at $ASC_KEY" >&2; exit 1; }
 auth=(-allowProvisioningUpdates -authenticationKeyPath "$ASC_KEY"
@@ -50,38 +50,38 @@ PLIST
 }
 
 echo "Archiving Release for iOS…"
-xcodebuild archive -project Threadbear.xcodeproj -scheme Threadbear -configuration Release \
+xcodebuild archive -project QuokkaCode.xcodeproj -scheme QuokkaCode -configuration Release \
   -destination 'generic/platform=iOS' -archivePath "$ARCHIVE" -derivedDataPath "$DD" \
-  CURRENT_PROJECT_VERSION="$BUILD" THREADBEAR_APS_ENVIRONMENT=production "${auth[@]}" > "$OUT/archive.log" 2>&1 \
+  CURRENT_PROJECT_VERSION="$BUILD" QUOKKACODE_APS_ENVIRONMENT=production "${auth[@]}" > "$OUT/archive.log" 2>&1 \
   || { grep -E " error:|ARCHIVE FAILED" "$OUT/archive.log" >&2; echo "Archive failed, see $OUT/archive.log" >&2; exit 1; }
 VERSION=$(/usr/libexec/PlistBuddy -c "Print :ApplicationProperties:CFBundleShortVersionString" "$ARCHIVE/Info.plist")
-echo "Archived Threadbear $VERSION ($BUILD)"
+echo "Archived QuokkaCode $VERSION ($BUILD)"
 # The App Store build knows no deployment of Mike's (it only has what it's paired with), has none
-# of the Debug-only launch arguments in it (the sample threads and -ThreadbearFake stay: they're
+# of the Debug-only launch arguments in it (the sample threads and -QuokkaCodeFake stay: they're
 # the demo App Review uses), pushes through production APNs, and has its privacy manifest.
-APPDIR="$ARCHIVE/Products/Applications/Threadbear.app"
-BINARY="$APPDIR/Threadbear"
+APPDIR="$ARCHIVE/Products/Applications/QuokkaCode.app"
+BINARY="$APPDIR/QuokkaCode"
 if strings "$BINARY" | grep -qE "[a-z]+-[a-z]+-[0-9]{3}\.convex\.(cloud|site)"; then
   echo "The archive mentions a Convex deployment. Pairing should be the only way it learns one." >&2; exit 1
 fi
-if strings "$BINARY" | grep -qE "ThreadbearPair|ThreadbearOpen|ThreadbearCompose"; then
+if strings "$BINARY" | grep -qE "QuokkaCodePair|QuokkaCodeOpen|QuokkaCodeCompose"; then
   echo "The archive has the Debug-only launch arguments in it. Is it a Release build?" >&2; exit 1
 fi
-APS=$(/usr/libexec/PlistBuddy -c "Print :ThreadbearAPSEnvironment" "$APPDIR/Info.plist")
-[[ "$APS" == production ]] || { echo "ThreadbearAPSEnvironment is $APS, not production" >&2; exit 1; }
+APS=$(/usr/libexec/PlistBuddy -c "Print :QuokkaCodeAPSEnvironment" "$APPDIR/Info.plist")
+[[ "$APS" == production ]] || { echo "QuokkaCodeAPSEnvironment is $APS, not production" >&2; exit 1; }
 [[ -f "$APPDIR/PrivacyInfo.xcprivacy" ]] || { echo "No privacy manifest in the app" >&2; exit 1; }
 
 echo "Exporting for App Store Connect…"
 xcodebuild -exportArchive -archivePath "$ARCHIVE" -exportPath "$OUT/export" \
   -exportOptionsPlist "$(export_options export)" "${auth[@]}" > "$OUT/export.log" 2>&1 \
   || { grep -E "error|EXPORT FAILED" "$OUT/export.log" >&2; echo "Export failed, see $OUT/export.log" >&2; exit 1; }
-IPA="$OUT/export/Threadbear.ipa"
+IPA="$OUT/export/QuokkaCode.ipa"
 echo "Signed: $IPA"
 # What it's signed with: an Apple Distribution certificate and an App Store profile.
 CHECK="$OUT/ipa-check"
 rm -rf "$CHECK" && mkdir -p "$CHECK" && unzip -q "$IPA" -d "$CHECK"
-codesign -dvv "$CHECK/Payload/Threadbear.app" 2>&1 | grep -E "^Authority=" | head -1 || true
-security cms -D -i "$CHECK/Payload/Threadbear.app/embedded.mobileprovision" 2>/dev/null \
+codesign -dvv "$CHECK/Payload/QuokkaCode.app" 2>&1 | grep -E "^Authority=" | head -1 || true
+security cms -D -i "$CHECK/Payload/QuokkaCode.app/embedded.mobileprovision" 2>/dev/null \
   | plutil -extract Name raw -o - - 2>/dev/null | sed 's/^/Profile: /' || true
 
 if [[ "${VALIDATE:-1}" == 1 ]]; then
@@ -100,7 +100,7 @@ echo "Uploading build $BUILD to App Store Connect…"
 xcodebuild -exportArchive -archivePath "$ARCHIVE" -exportPath "$OUT/upload" \
   -exportOptionsPlist "$(export_options upload)" "${auth[@]}" 2>&1 | tee "$OUT/upload.log" \
   | grep -E "error|Upload succeeded|EXPORT SUCCEEDED|EXPORT FAILED|Uploaded"
-echo "Uploaded Threadbear $VERSION ($BUILD). It shows up under TestFlight once App Store Connect has processed it."
+echo "Uploaded QuokkaCode $VERSION ($BUILD). It shows up under TestFlight once App Store Connect has processed it."
 
 # Sentry needs the archive's dSYMs to show function names in the App Store build's crash reports.
 # Only an uploaded build ships, so only then. Never fails the script: no sentry-cli or token skips
@@ -111,6 +111,6 @@ SENTRY_TOKEN=${SENTRY_AUTH_TOKEN:-}
 [[ -z "$SENTRY_TOKEN" && -r "$HOME/.config/sentry/token" ]] && SENTRY_TOKEN=$(tr -d '[:space:]' < "$HOME/.config/sentry/token")
 if [[ -z "$SENTRY_CLI" || -z "$SENTRY_TOKEN" ]]; then
   echo "Debug symbols not uploaded to Sentry (no sentry-cli or no token)."
-elif ! SENTRY_AUTH_TOKEN="$SENTRY_TOKEN" "$SENTRY_CLI" debug-files upload --org mikec --project threadbear "$ARCHIVE/dSYMs"; then
+elif ! SENTRY_AUTH_TOKEN="$SENTRY_TOKEN" "$SENTRY_CLI" debug-files upload --org mikec --project quokkacode "$ARCHIVE/dSYMs"; then
   echo "WARNING: debug symbols weren't uploaded to Sentry; crash reports from build $BUILD won't show function names."
 fi

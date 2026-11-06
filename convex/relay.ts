@@ -135,7 +135,7 @@ export function commandArgs(kind: Kind, raw: unknown): Record<string, unknown> {
       if (Object.keys(out).length !== 1) throw bad('an update changes one thing');
       // How it went, with an archive (API 42), as phone:update takes it.
       if (out.archive === true && ['worked', 'didntWork', 'notNeeded'].includes(String(a.verdict))) out.verdict = a.verdict;
-      // An agent on the main Mac archived it (its threadbear tools), so that
+      // An agent on the main Mac archived it (its quokkacode tools), so that
       // runner says "archived by an agent", not by Mike.
       if (out.archive === true && a.by === 'agent') out.by = 'agent';
       break;

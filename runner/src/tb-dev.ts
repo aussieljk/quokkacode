@@ -1,4 +1,4 @@
-// tb's commands for working on Threadbear from inside Threadbear
+// tb's commands for working on Quokka Code from inside QuokkaCode
 // (docs/dev-tools.md, section 3): the runner's state, the calling thread,
 // restarts, a thread as plain text, the runner log, fixture exports for the
 // mock runner, and raw calls. cli.ts hands these commands over; the
@@ -13,9 +13,9 @@ import { pushFailingText } from './push-failing.ts';
 import type { RestartResult, RunnerStatus } from './restart.ts';
 import type { UpstreamStatus } from './upstream.ts';
 
-export const DEV_HELP = `Working on Threadbear itself:
+export const DEV_HELP = `Working on Quokka Code itself:
   tb status [--json]              the runner: version, live CLIs, busy threads, a pending restart
-  tb self [--json]                the thread this command runs in (THREADBEAR_THREAD_ID)
+  tb self [--json]                the thread this command runs in (QUOKKACODE_THREAD_ID)
   tb updates [check] [--json]     Mike's newest release and what this copy's main is missing
                                   (docs/bringing-in-updates.md); check fetches upstream now
   tb restart [--now] [--resume "text" | --no-resume] [--reason "text"] [--thread ID]
@@ -47,15 +47,15 @@ const BUSY = ['starting', 'running', 'waiting'];
 const TB = path.resolve(import.meta.dirname, '..', 'bin', 'tb');
 
 // The tb to print in a follow-up command, so pasting it reaches the runner
-// this one talked to. A dev runner's <home>/tb sets THREADBEAR_TB to itself.
-// Otherwise, inside a thread whose THREADBEAR_HOME was pointed somewhere
+// this one talked to. A dev runner's <home>/tb sets QUOKKACODE_TB to itself.
+// Otherwise, inside a thread whose QUOKKACODE_HOME was pointed somewhere
 // else for this one command, the home goes in front: a bare tb there is the
 // thread's own runner, the live one, and `tb restart --cancel` on that
 // would withdraw someone's deploy.
 export function tbCommand(env: NodeJS.ProcessEnv = process.env): string {
-  if (env.THREADBEAR_TB) return shQuote(env.THREADBEAR_TB);
-  const home = env.THREADBEAR_HOME ?? env.THREADBEAR_DATA_DIR;
-  if (home && env.THREADBEAR_RUNNER_HOME && !sameDir(home, env.THREADBEAR_RUNNER_HOME)) return `THREADBEAR_HOME=${shQuote(home)} ${shQuote(TB)}`;
+  if (env.QUOKKACODE_TB) return shQuote(env.QUOKKACODE_TB);
+  const home = env.QUOKKACODE_HOME ?? env.QUOKKACODE_DATA_DIR;
+  if (home && env.QUOKKACODE_RUNNER_HOME && !sameDir(home, env.QUOKKACODE_RUNNER_HOME)) return `QUOKKACODE_HOME=${shQuote(home)} ${shQuote(TB)}`;
   return shQuote(TB);
 }
 
@@ -72,13 +72,13 @@ export async function runDev(client: RunnerClient, cmd: string, args: string[], 
         const busy = threads.filter((t) => BUSY.includes(t.status)).map((t) => t.id);
         if (f.json) return printJson({ version: hello.runnerVersion, running: busy, old: true });
         const lines = [`Runner ${hello.runnerVersion}`, busy.length ? `Busy threads: ${busy.length}` : 'Busy threads: none'];
-        for (const id of busy) lines.push(`  ${threadLine(id, threads, env.THREADBEAR_THREAD_ID)}`);
+        for (const id of busy) lines.push(`  ${threadLine(id, threads, env.QUOKKACODE_THREAD_ID)}`);
         lines.push("This runner predates runner.status and picks it up on its next restart. Don't restart it yourself.");
         process.stdout.write(lines.join('\n') + '\n');
         return 0;
       }
       if (f.json) return printJson(s);
-      process.stdout.write(formatStatus(s, await listAll(client), Date.now(), env.THREADBEAR_THREAD_ID));
+      process.stdout.write(formatStatus(s, await listAll(client), Date.now(), env.QUOKKACODE_THREAD_ID));
       return 0;
     }
     case 'updates': {
@@ -96,17 +96,17 @@ export async function runDev(client: RunnerClient, cmd: string, args: string[], 
       return 0;
     }
     case 'self': {
-      const id = env.THREADBEAR_THREAD_ID;
+      const id = env.QUOKKACODE_THREAD_ID;
       if (!id) {
-        console.error("THREADBEAR_THREAD_ID isn't set: tb self only works inside a Threadbear thread.");
+        console.error("QUOKKACODE_THREAD_ID isn't set: tb self only works inside a Quokka Code thread.");
         return 1;
       }
       const t = (await listAll(client)).find((x) => x.id === id);
       if (!t) {
         // Most likely tb is pointed at another runner than the thread's.
         const s = await client.call<RunnerStatus>('runner.status').catch(() => undefined);
-        const here = s?.home ?? env.THREADBEAR_HOME ?? defaultHome();
-        const mine = env.THREADBEAR_RUNNER_HOME;
+        const here = s?.home ?? env.QUOKKACODE_HOME ?? defaultHome();
+        const mine = env.QUOKKACODE_RUNNER_HOME;
         if (mine && !sameDir(mine, here)) console.error(`This thread (${id.slice(0, 8)}) runs on the runner at ${mine}; this tb talks to the one at ${here}.`);
         else console.error(`Thread not found: ${id}`);
         return 1;
@@ -123,8 +123,8 @@ export async function runDev(client: RunnerClient, cmd: string, args: string[], 
         // goes back) and the thread waiting to be carried on never is.
         const status = await client.call<RunnerStatus>('runner.status').catch(quietlyTooOld);
         const p = status?.pendingRestart;
-        const self = env.THREADBEAR_THREAD_ID;
-        const onIt = status && (Boolean(env.THREADBEAR_RUNNER_HOME && sameDir(env.THREADBEAR_RUNNER_HOME, status.home)) || isAncestor(status.pid));
+        const self = env.QUOKKACODE_THREAD_ID;
+        const onIt = status && (Boolean(env.QUOKKACODE_RUNNER_HOME && sameDir(env.QUOKKACODE_RUNNER_HOME, status.home)) || isAncestor(status.pid));
         if (p && onIt && !f.force && (!self || p.resumeThreadId !== self)) {
           const threads = await listAll(client);
           const what = [p.reason ? `"${p.reason}"` : 'a restart', p.release ? `onto ${p.release}` : ''].filter(Boolean).join(' ');
@@ -148,9 +148,9 @@ export async function runDev(client: RunnerClient, cmd: string, args: string[], 
       const threads = await listAll(client);
       // The thread this runs in, if it's one of this runner's: tb may be
       // pointed at a dev runner or sandbox from a thread of the real one.
-      const self = env.THREADBEAR_THREAD_ID && threads.some((t) => t.id === env.THREADBEAR_THREAD_ID) ? env.THREADBEAR_THREAD_ID : undefined;
+      const self = env.QUOKKACODE_THREAD_ID && threads.some((t) => t.id === env.QUOKKACODE_THREAD_ID) ? env.QUOKKACODE_THREAD_ID : undefined;
       const refused = restartRefusal(status, {
-        onIt: Boolean(self) || Boolean(env.THREADBEAR_RUNNER_HOME && sameDir(env.THREADBEAR_RUNNER_HOME, status.home)) || isAncestor(status.pid),
+        onIt: Boolean(self) || Boolean(env.QUOKKACODE_RUNNER_HOME && sameDir(env.QUOKKACODE_RUNNER_HOME, status.home)) || isAncestor(status.pid),
         real: sameDir(status.home, defaultHome()),
         force: Boolean(f.force),
       });
@@ -267,7 +267,7 @@ export async function runDev(client: RunnerClient, cmd: string, args: string[], 
       if (!params || typeof params !== 'object' || Array.isArray(params)) throw new Error('Params must be a JSON object');
       // The same guards tb approve, delete and interrupt apply: a thread's
       // own cards are Mike's to answer, and it can't stop itself.
-      const own = env.THREADBEAR_THREAD_ID && (params as { threadId?: unknown }).threadId === env.THREADBEAR_THREAD_ID;
+      const own = env.QUOKKACODE_THREAD_ID && (params as { threadId?: unknown }).threadId === env.QUOKKACODE_THREAD_ID;
       // A plan's Go ahead is one of its cards too: approving its own plan
       // would take the thread out of Plan first by itself.
       if (own && ['approvals.respond', 'plans.approve', 'threads.delete', 'threads.interrupt'].includes(args[0])) {
@@ -452,10 +452,10 @@ export function formatStatus(s: RunnerStatus, threads: ThreadSummary[], now: num
   if (s.upstream?.held) lines.push(heldLine(s.upstream.held));
   if (s.sync) lines.push(formatSync(s.sync, now));
   if (s.sync?.scrub) lines.push(...formatSecrets(s.sync.scrub, s.secretCheck, now, s.sync.full));
-  // Releases never touch the LaunchAgent (launch.mjs, the plist, Threadbear
+  // Releases never touch the LaunchAgent (launch.mjs, the plist, QuokkaCode
   // Runner.app); only Mike's install-runner.sh does.
   if (u?.launcherChanged) lines.push(`${u.launcherReason ?? 'launch.mjs on main differs from the installed one.'} The user runs ${u.checkout ? `${u.checkout}/runner/` : 'runner/'}scripts/install-runner.sh once nothing is busy.`);
-  if (s.macScreen?.fullDiskAccess === false) lines.push('Threadbear Runner has no Full Disk Access here, so macOS can stop and wait for someone to answer a prompt. System Settings > Privacy & Security > Full Disk Access turns it on.');
+  if (s.macScreen?.fullDiskAccess === false) lines.push('QuokkaCode Runner has no Full Disk Access here, so macOS can stop and wait for someone to answer a prompt. System Settings > Privacy & Security > Full Disk Access turns it on.');
   if (s.macScreen?.dialogs) lines.push(`${plural(s.macScreen.dialogs, 'dialog', 'dialogs')} waiting on this Mac's screen${s.macScreen.dialogsSince ? `, for ${duration(now - Date.parse(s.macScreen.dialogsSince))}` : ''}. A privacy prompt can hold up other apps until someone answers it.`);
   return lines.join('\n') + '\n';
 }
@@ -762,7 +762,7 @@ export function findRepoRoot(starts: string[] = [process.cwd(), path.resolve(imp
 
 function defaultExportDir(id: string): string {
   const root = findRepoRoot();
-  if (!root) throw new Error("Couldn't find a Threadbear checkout to export into; pass --out DIR.");
+  if (!root) throw new Error("Couldn't find a Quokka Code checkout to export into; pass --out DIR.");
   return path.join(root, 'app', '.fixtures', 'threads', id);
 }
 
@@ -809,12 +809,12 @@ export function exportThread(t: ThreadSummary, events: PersistedEvent[], out: st
 // ------------------------------------------------------------------- logs
 
 // tb logs works with the runner down (that's when it's needed most), so it
-// runs before tb connects. The file is THREADBEAR_LOG, else the one the
+// runs before tb connects. The file is QUOKKACODE_LOG, else the one the
 // runner says it writes, else where a runner on that data dir writes:
 // <home>/runner.log for a dev runner or sandbox, the default for the real
 // one. Which file it is goes to stderr.
 export async function logsCommand(cfg: Config, f: Flags): Promise<number> {
-  const file = process.env.THREADBEAR_LOG ? cfg.logFile : ((await runnerLogFile(cfg)) ?? fallbackLog(cfg));
+  const file = process.env.QUOKKACODE_LOG ? cfg.logFile : ((await runnerLogFile(cfg)) ?? fallbackLog(cfg));
   console.error(`==> ${file} <==`);
   const n = f.lines !== undefined ? Number(f.lines) : 200;
   if (!Number.isInteger(n) || n < 0) throw new Error('-n takes a whole number');

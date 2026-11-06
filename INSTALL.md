@@ -1,9 +1,9 @@
-# Installing Threadbear (for an agent)
+# Installing Quokka Code (for an agent)
 
-You're an agent (Claude Code, Codex or similar) installing Threadbear on the
+You're an agent (Claude Code, Codex or similar) installing Quokka Code on the
 Mac you're running on, for the person you're working with. Follow these steps
 in order. Stop and ask them at the points marked **Ask**; everything else you
-can do yourself. `README.md` says what Threadbear is.
+can do yourself. `README.md` says what Quokka Code is.
 
 ## 1. Check the Mac
 
@@ -35,36 +35,36 @@ cd ~ && gh repo fork mikecann/threadbear --clone
 If `gh` isn't logged in (`gh auth status` fails, which an expired login
 does too), run `gh auth login --web` and **Ask** them to approve it in the
 browser. If they'd rather not use GitHub, a plain
-`git clone https://github.com/mikecann/threadbear ~/threadbear` works too:
+`git clone https://github.com/mikecann/threadbear ~/quokkacode` works too:
 setup then makes Mike's repo their `upstream`, and they can fork later.
-Work from `~/threadbear` from here on.
+Work from `~/quokkacode` from here on.
 
 ## 3. Run setup
 
 Look first, without changing anything:
 
 ```sh
-./threadbear setup --dry-run --yes
+./quokkacode setup --dry-run --yes
 ```
 
 **Ask** them, in one message:
 
-- whether this Mac is joining a Threadbear they already have on another Mac
+- whether this Mac is joining a Quokka Code they already have on another Mac
   (then: the name of that Convex project),
-- otherwise, what to call their new Convex project (default `threadbear`),
+- otherwise, what to call their new Convex project (default `quokkacode`),
 - and if the dry run said their Convex login has several teams, which team
   it goes in (pass it as `--team <slug>`).
 
 Then run it, with their answers:
 
 ```sh
-./threadbear setup --yes --project <name>
+./quokkacode setup --yes --project <name>
 # joining an existing project instead:
-./threadbear setup --yes --existing --project <name>
+./quokkacode setup --yes --existing --project <name>
 ```
 
-New threads start in `~/ThreadbearThreads`, which setup makes (not
-`~/Threadbear`: macOS ignores case, so that would be this repo's folder).
+New threads start in `~/QuokkaCodeThreads`, which setup makes (not
+`~/QuokkaCode`: macOS ignores case, so that would be this repo's folder).
 They can change it in the app's Settings, and pick a folder for each
 thread as they start it.
 
@@ -78,22 +78,22 @@ It takes a few minutes (it builds the Mac app). Along the way:
 - Any other stop says what's wrong; fix it and run the same command again. It
   carries on from where it got to.
 
-It finishes with "Threadbear is set up." Then open the app:
-`open ~/Applications/Threadbear.app`.
+It finishes with "Quokka Code is set up." Then open the app:
+`open ~/Applications/QuokkaCode.app`.
 
-Setup also puts `Threadbear Runner.app` in `~/Applications`. It's the small
+Setup also puts `Quokka Code Runner.app` in `~/Applications`. It's the small
 program that runs the runner in the background; it isn't for opening. When
 an agent in a thread first reads a protected folder (Desktop, Documents,
-Downloads, iCloud or Dropbox), macOS asks whether to let "Threadbear Runner"
-do that. Tell them that prompt is Threadbear's, so they can answer it.
+Downloads, iCloud or Dropbox), macOS asks whether to let "Quokka Code Runner"
+do that. Tell them that prompt is Quokka Code's, so they can answer it.
 
 ## 4. The phone and the browser
 
 Both happen in the app, in Settings (⌘,) › Phone & browser. **Ask** them to
 open it there:
 
-- "Show the code" shows a QR code to scan with the Threadbear iPhone app.
-- "Open signed in" opens their Threadbear website in their browser, signed in.
+- "Show the code" shows a QR code to scan with the Quokka Code iPhone app.
+- "Open signed in" opens their Quokka Code website in their browser, signed in.
 - The same tab lists what's paired, each with Revoke.
 
 The terminal scripts still work when there's no app window to hand
@@ -108,7 +108,7 @@ that the runner and app update themselves when their `main` changes.
 
 ## 6. A runner on Linux (optional)
 
-Once Threadbear works on the Mac, a Linux server can be a second, always-on
+Once Quokka Code works on the Mac, a Linux server can be a second, always-on
 runner, like a second Mac: its threads show in the Mac app's sidebar and on
 the phone, and the composer's machine chip starts threads there. It runs the
 runner only, no app. Ubuntu 24.04 on x86_64 is what's been tried, on a
@@ -134,17 +134,17 @@ Hetzner cloud server with 8 GB. Do this as an ordinary user with sudo, not root.
    **Ask** them to open the link it prints. Once it's on their tailnet, close
    the server's public SSH port in the cloud's firewall and use the tailnet
    name instead.
-5. **The code:** clone their fork to `~/dev/me/threadbear` (any folder
+5. **The code:** clone their fork to `~/dev/me/quokkacode` (any folder
    works) and, in `runner/`, `npm ci`.
 6. **Join their backend:** copy `secrets/convex-key` from the Mac's data
-   folder to the same place here (`~/Library/Application Support/Threadbear`;
+   folder to the same place here (`~/Library/Application Support/QuokkaCode`;
    the folders keep their macOS names on Linux, so every path in these docs
    is the same) with `scp`, never by printing it, and `chmod 600` it. Then
    write `runner.json` there: `port` 8797, and `sync` with `url` (the Mac's
    `sync.url`), `name` (what the sidebar calls this machine) and `rpcUrl`
    (`wss://<tailnet name>:8798/rpc`).
 7. **Install:** `runner/scripts/install-runner.sh`. On Linux it writes a
-   systemd user service, `~/.config/systemd/user/com.mikerosoft.threadbear.runner.service`,
+   systemd user service, `~/.config/systemd/user/com.lucasknight.quokkacode.runner.service`,
    in place of the LaunchAgent. Turn on lingering once, or it stops when
    nobody is logged in: `sudo loginctl enable-linger $USER`.
 8. **Reach it from the Mac:** `sudo tailscale serve --bg --https=8798

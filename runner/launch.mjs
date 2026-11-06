@@ -20,7 +20,7 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 // THREADBARE_* was the old name for these variables (config.ts, adoptOldNames).
 for (const [k, v] of Object.entries(process.env)) {
-  const name = k.startsWith('THREADBARE_') ? 'THREADBEAR_' + k.slice(11) : undefined;
+  const name = k.startsWith('THREADBARE_') ? 'QUOKKACODE_' + k.slice(11) : undefined;
   if (name && process.env[name] === undefined) process.env[name] = v;
 }
 
@@ -152,7 +152,7 @@ export const KILL_AFTER_MS = 5_000;
 export const STOP_GRACE_MS = 20_000;
 // Printed by every runner once it's serving (main.ts, and releases from
 // before the IPC message), so either tells the supervisor it's up.
-export const LISTENING_LINE = /threadbear-runner listening on \d+/;
+export const LISTENING_LINE = /quokkacode-runner listening on \d+/;
 
 function msEnv(name, fallback) {
   const v = Number(process.env[name]);
@@ -160,7 +160,7 @@ function msEnv(name, fallback) {
 }
 
 // The supervisor: launchd's program. Each runner is a child process
-// (`node <release>/src/main.ts`, THREADBEAR_SUPERVISED=1, an IPC channel),
+// (`node <release>/src/main.ts`, QUOKKACODE_SUPERVISED=1, an IPC channel),
 // so a new release can start while an older one finishes the turns it
 // still has (a handover, docs/dev-tools.md). Only the newest child is
 // "the runner"; older ones are draining and are only waited for.
@@ -177,11 +177,11 @@ async function main() {
   let stopping = false;
   let retry = null;
 
-  const startTimeoutMs = msEnv('THREADBEAR_START_TIMEOUT_MS', START_TIMEOUT_MS);
-  const crashRetryMs = msEnv('THREADBEAR_CRASH_RETRY_MS', CRASH_RETRY_MS);
-  const restartMs = msEnv('THREADBEAR_RESTART_MS', RESTART_MS);
-  const killAfterMs = msEnv('THREADBEAR_KILL_AFTER_MS', KILL_AFTER_MS);
-  const stopGraceMs = msEnv('THREADBEAR_STOP_GRACE_MS', STOP_GRACE_MS);
+  const startTimeoutMs = msEnv('QUOKKACODE_START_TIMEOUT_MS', START_TIMEOUT_MS);
+  const crashRetryMs = msEnv('QUOKKACODE_CRASH_RETRY_MS', CRASH_RETRY_MS);
+  const restartMs = msEnv('QUOKKACODE_RESTART_MS', RESTART_MS);
+  const killAfterMs = msEnv('QUOKKACODE_KILL_AFTER_MS', KILL_AFTER_MS);
+  const stopGraceMs = msEnv('QUOKKACODE_STOP_GRACE_MS', STOP_GRACE_MS);
 
   // A closed stdout (a test that stopped reading) must not take the
   // supervisor down with its children.
@@ -215,7 +215,7 @@ async function main() {
     const root = path.join(dir, 'releases', plan.start);
     const proc = spawn(process.execPath, [path.join(root, 'src', 'main.ts')], {
       cwd: root,
-      env: { ...process.env, THREADBEAR_SUPERVISED: '1' },
+      env: { ...process.env, QUOKKACODE_SUPERVISED: '1' },
       stdio: ['ignore', 'pipe', 'inherit', 'ipc'],
     });
     const boot = plan.state.boots.at(-1);

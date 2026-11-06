@@ -8,7 +8,7 @@ import { makeHarness, tick, tmpDir } from '../helpers/fakes.ts';
 import { Scheduler } from '../../src/schedules.ts';
 import { nullLogger } from '../../src/log.ts';
 import { checkLimitMs, checkOutcome, checkRunningElsewhere, keptCheckFile, markCheckRunning, runCheck, type CheckResult } from '../../src/schedule-check.ts';
-import { buildThreadbearTools } from '../../src/threadbear-mcp.ts';
+import { buildQuokkaCodeTools } from '../../src/quokkacode-mcp.ts';
 import { toOwnedScheduleDoc } from '../../src/sync.ts';
 
 const MIN = 60_000;
@@ -106,7 +106,7 @@ test('scheduleChecks: the backend gets the check only from API 51', () => {
 test('scheduleChecks: the tools offer check only while the experiment is on', () => {
   const { h, sched } = setup();
   const names = (on: boolean) => {
-    const tools = buildThreadbearTools(h.runner, 'x', Date.now, sched, undefined, undefined, { scheduleChecks: () => on }) as unknown as { name: string; inputSchema: Record<string, unknown> }[];
+    const tools = buildQuokkaCodeTools(h.runner, 'x', Date.now, sched, undefined, undefined, { scheduleChecks: () => on }) as unknown as { name: string; inputSchema: Record<string, unknown> }[];
     return Object.keys(tools.find((t) => t.name === 'schedule_message')!.inputSchema);
   };
   assert.ok(!names(false).includes('check'));
@@ -118,7 +118,7 @@ test('runCheck: runs in the folder with a state file, keeps what it prints, and 
   const home = tmpDir();
   const cwd = tmpDir('tb-check-cwd-');
   fs.writeFileSync(path.join(cwd, 'new.txt'), 'two new issues');
-  const r = await runCheck({ command: 'cat new.txt; echo "$THREADBEAR_SCHEDULE_ID" > "$THREADBEAR_CHECK_STATE"', cwd, home, scheduleId: 'abc' });
+  const r = await runCheck({ command: 'cat new.txt; echo "$QUOKKACODE_SCHEDULE_ID" > "$QUOKKACODE_CHECK_STATE"', cwd, home, scheduleId: 'abc' });
   assert.deepEqual(r, { ok: true, output: 'two new issues' });
   assert.equal(fs.readFileSync(path.join(home, 'schedule-checks', 'abc.state'), 'utf8').trim(), 'abc');
   assert.deepEqual(await runCheck({ command: 'true', cwd, home, scheduleId: 'abc' }), { ok: true, output: '' });
@@ -167,7 +167,7 @@ const sentText = (h: ReturnType<typeof makeHarness>) => newThreads(h).map((t) =>
 test('scheduleChecks: what a check printed survives a restart that refuses the send', async () => {
   const h = makeHarness();
   const seen: string[] = [];
-  const result = onceCheck('fork: someone/threadbear 3 new commits');
+  const result = onceCheck('fork: someone/quokkacode 3 new commits');
   const old = schedulerOn(h, result, seen);
   const sc = await old.create({ text: 'Look at the forks', title: 'Watch Sentry', at: new Date(h.clock.now() + MIN).toISOString(), check: 'fork-watch' });
   h.runner.refuseNewTurns('The runner is restarting; send again in a moment.');
@@ -201,7 +201,7 @@ test('scheduleChecks: what a check printed survives the runner stopping mid-chec
   assert.equal(seen.length, 1, 'the check started');
   old.stop();
   const settled = old.settled();
-  finish({ ok: true, output: 'fork: someone/threadbear 3 new commits' });
+  finish({ ok: true, output: 'fork: someone/quokkacode 3 new commits' });
   await settled;
   assert.equal(newThreads(h).length, 0);
 
@@ -518,7 +518,7 @@ test('scheduleChecks: the backend gets checkTimeoutSecs only from API 55, and th
   const { h, sched } = setup();
   for (const name of ['schedule_message', 'update_schedule']) {
     const keys = (on: boolean) => {
-      const tools = buildThreadbearTools(h.runner, 'x', Date.now, sched, undefined, undefined, { scheduleChecks: () => on }) as unknown as { name: string; inputSchema: Record<string, unknown> }[];
+      const tools = buildQuokkaCodeTools(h.runner, 'x', Date.now, sched, undefined, undefined, { scheduleChecks: () => on }) as unknown as { name: string; inputSchema: Record<string, unknown> }[];
       return Object.keys(tools.find((t) => t.name === name)!.inputSchema);
     };
     assert.ok(keys(true).includes('checkTimeoutSecs'), name);

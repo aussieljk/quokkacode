@@ -134,7 +134,7 @@ function writePatch(dir: string, name: string, text: string): string {
 test('patch files in the project and in home give actions and panels, with ids from the title', async () => {
   const home = tmpDir();
   const app = project(home, 'dev/app', { convex: null, 'package.json': '{}' });
-  const file = writePatch(path.join(app, '.threadbear/patches'), 'reseed.ts', `
+  const file = writePatch(path.join(app, '.quokkacode/patches'), 'reseed.ts', `
     export default {
       actions: [
         { title: "Reseed dev DB", run: "npx convex run seed:reset", note: "Dev only" },
@@ -143,7 +143,7 @@ test('patch files in the project and in home give actions and panels, with ids f
       panels: [{ title: "Storybook", url: "http://localhost:6006" }],
     } satisfies Record<string, unknown>;
   `);
-  const homeFile = writePatch(path.join(home, '.threadbear/patches'), 'everywhere.mjs', `export default { actions: [{ title: "Disk space", run: "df -h ." }] };`);
+  const homeFile = writePatch(path.join(home, '.quokkacode/patches'), 'everywhere.mjs', `export default { actions: [{ title: "Disk space", run: "df -h ." }] };`);
   const set = await loadPatchSet(path.join(app, 'packages/web'), home);
   fs.mkdirSync(path.join(app, 'packages/web'), { recursive: true });
   assert.deepEqual(set.patches, [
@@ -162,7 +162,7 @@ test('patch files in the project and in home give actions and panels, with ids f
 test('a patch file that breaks is listed with its error and gives nothing; an edit reloads it', async () => {
   const home = tmpDir();
   const app = project(home, 'p');
-  const dir = path.join(app, '.threadbear/patches');
+  const dir = path.join(app, '.quokkacode/patches');
   const file = writePatch(dir, 'broken.ts', 'export default { actions: [{ title: "No command" }] };');
   writePatch(dir, 'syntax.ts', 'export default {');
   writePatch(dir, 'types.d.ts', 'export {};');
@@ -290,13 +290,13 @@ test("a project's folders add their patches: tagged with the project, run in the
   const misc = project(home, 'dev/misc');
   const app = project(home, 'dev/app', { convex: null, 'package.json': '{}', '.env.local': 'CONVEX_DEPLOYMENT=dev:app-1\n' });
   const web = project(home, 'dev/web', { convex: null, 'package.json': '{}', '.env.local': 'CONVEX_DEPLOYMENT=dev:web-2\n' });
-  const ownFile = writePatch(path.join(misc, '.threadbear/patches'), 'checks.ts', `export default { actions: [{ title: "Lint", run: "echo misc" }] };`);
-  const appFile = writePatch(path.join(app, '.threadbear/patches'), 'checks.ts', `export default {
+  const ownFile = writePatch(path.join(misc, '.quokkacode/patches'), 'checks.ts', `export default { actions: [{ title: "Lint", run: "echo misc" }] };`);
+  const appFile = writePatch(path.join(app, '.quokkacode/patches'), 'checks.ts', `export default {
     actions: [{ title: "Lint", run: "echo app" }],
     hooks: [{ title: "Typecheck", on: "turn.end", run: "tsc", edited: "**/*.ts" }, { title: "Any edit", on: "turn.end", run: "true" }],
   };`);
   // A patch dir above both is loaded once, as the thread's own.
-  const shared = writePatch(path.join(home, 'dev/.threadbear/patches'), 'shared.ts', `export default { actions: [{ title: "Shared", run: "true" }] };`);
+  const shared = writePatch(path.join(home, 'dev/.quokkacode/patches'), 'shared.ts', `export default { actions: [{ title: "Shared", run: "true" }] };`);
   const set = await loadPatchSet(misc, home, new Map(), [
     { folder: app, projectId: 'p_1' },
     { folder: web, projectId: 'p_1' },
@@ -344,8 +344,8 @@ test('panels that share a title name their folders, the thread\'s own included, 
   const siteA = project(home, 'dev/a/site');
   const siteB = project(home, 'dev/b/site');
   const panelPatch = `export default { panels: [{ title: "Preview", url: "http://localhost:3000" }, { title: "Docs", url: "http://localhost:4000" }] };`;
-  writePatch(path.join(siteA, '.threadbear/patches'), 'preview.ts', panelPatch);
-  writePatch(path.join(siteB, '.threadbear/patches'), 'preview.ts', panelPatch.replace(', { title: "Docs", url: "http://localhost:4000" }', ''));
+  writePatch(path.join(siteA, '.quokkacode/patches'), 'preview.ts', panelPatch);
+  writePatch(path.join(siteB, '.quokkacode/patches'), 'preview.ts', panelPatch.replace(', { title: "Docs", url: "http://localhost:4000" }', ''));
   const cache = new Map();
   const folders = [other, siteA, siteB].map((folder) => ({ folder, projectId: 'p_1' }));
   const set = await loadPatchSet(own, home, cache, folders);
@@ -370,7 +370,7 @@ test('a panel with an items function is a list panel, filled by renderListPanel 
   const { renderListPanel } = await import('../../src/patches.ts');
   const home = tmpDir();
   const app = project(home, 'dev/app', { 'package.json': '{}' });
-  writePatch(path.join(app, '.threadbear/patches'), 'work.ts', `
+  writePatch(path.join(app, '.quokkacode/patches'), 'work.ts', `
     export default {
       panels: [
         { title: "Worktrees", icon: "arrow.triangle.branch", items: async ({ cwd, sh }) => [
@@ -422,14 +422,14 @@ test('a panel with an items function is a list panel, filled by renderListPanel 
 test('a tool patch (appliesTo) applies only where its name is found, from any project folder, and runs there', async () => {
   const home = tmpDir();
   const tool = project(home, 'dev/tandem', { 'package.json': '{}' });
-  const file = writePatch(path.join(tool, '.threadbear/patches'), 'tandem.ts', `
+  const file = writePatch(path.join(tool, '.quokkacode/patches'), 'tandem.ts', `
     export default {
       appliesTo: "*.tandem",
       actions: [{ title: "Open in Tandem", run: "open *.tandem" }],
     };
   `);
   // Another project's patch with no appliesTo stays with that project.
-  writePatch(path.join(tool, '.threadbear/patches'), 'build.ts', `export default { actions: [{ title: "Build", run: "swift build" }] };`);
+  writePatch(path.join(tool, '.quokkacode/patches'), 'build.ts', `export default { actions: [{ title: "Build", run: "swift build" }] };`);
   const video = project(home, 'videos/batching', { 'Batching.tandem': 'x', 'Short.tandem': null });
   const sub = project(home, 'videos/batching/broll');
   const plain = project(home, 'videos/other');
@@ -453,7 +453,7 @@ test('live state: when hides, badge counts, a shared command runs once, a failur
   const { applyLive, hasLive } = await import('../../src/patches.ts');
   const home = tmpDir();
   const app = project(home, 'dev/app', { 'package.json': '{}' });
-  writePatch(path.join(app, '.threadbear/patches'), 'review.ts', `
+  writePatch(path.join(app, '.quokkacode/patches'), 'review.ts', `
     const count = async ({ sh }) => JSON.parse(await sh("echo '{\\"n\\":3}'")).n;
     export default {
       actions: [
@@ -503,7 +503,7 @@ test("a patch's icon can be a picture or an app, relative to the patch file; act
   const home = tmpDir();
   const tool = project(home, 'dev/tool', { icons: null });
   fs.writeFileSync(path.join(tool, 'icons/tool.png'), 'png');
-  const file = writePatch(path.join(tool, '.threadbear/patches'), 'tool.ts', `
+  const file = writePatch(path.join(tool, '.quokkacode/patches'), 'tool.ts', `
     export default {
       icon: "../../icons/tool.png",
       actions: [{ title: "Go", run: "true" }, { title: "Own", run: "true", icon: "star" }],
@@ -517,8 +517,8 @@ test("a patch's icon can be a picture or an app, relative to the patch file; act
   assert.deepEqual(set.panels.map((p) => [p.title, p.icon, p.iconFile]), [['List', undefined, png], ['Docs', 'book', undefined]]);
   for (const a of set.actions) assert.deepEqual(checkAction(a as never), []);
   for (const p of set.panels) assert.deepEqual(checkPanel(p as never), []);
-  const err = (icon: unknown) => readPatchModule('x', 'project', path.join(tool, '.threadbear/patches/x.ts'), { icon }).info.error;
-  assert.equal(err('./missing.png'), `icon "./missing.png" isn't there (looked for ${path.join(tool, '.threadbear/patches/missing.png')}).`);
+  const err = (icon: unknown) => readPatchModule('x', 'project', path.join(tool, '.quokkacode/patches/x.ts'), { icon }).info.error;
+  assert.equal(err('./missing.png'), `icon "./missing.png" isn't there (looked for ${path.join(tool, '.quokkacode/patches/missing.png')}).`);
   assert.equal(err('./notes.txt'), 'icon "./notes.txt" should be a .png, .svg, .icns, .pdf, .jpg, .jpeg, .app file.');
   assert.equal(err(''), 'icon should be an SF Symbol name like "film", or a path to a picture or an app.');
   assert.equal(err('film'), undefined);

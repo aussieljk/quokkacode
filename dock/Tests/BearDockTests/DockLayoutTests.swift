@@ -18,7 +18,7 @@ private func ids() -> () -> String {
     return { n += 1; return "n\(n)" }
 }
 
-/// Threadbear's option 2: threads | transcript | highlights over convex.
+/// Quokka Code's option 2: threads | transcript | highlights over convex.
 private func threeColumns() -> DockLayout {
     DockLayout(root: h("root", [
         g("left", ["threads"]),

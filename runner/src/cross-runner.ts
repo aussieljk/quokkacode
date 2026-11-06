@@ -18,7 +18,7 @@ import { wasNotSent } from './relay.ts';
 
 // The card's name in approval.requested, which the Mac app draws as a
 // request rather than a tool's approval.
-export const START_CARD = 'threadbear.start_thread';
+export const START_CARD = 'quokkacode.start_thread';
 // How long the asking agent waits for Mike before the card expires.
 export const REQUEST_WAIT_MIN = 60;
 
@@ -107,7 +107,7 @@ export class CrossRunner {
   async start(threadId: string, req: StartRequest): Promise<string | undefined> {
     if (this.isSelf(req.runner)) return undefined;
     const backend = this.deps.backend();
-    if (!backend) throw other("This runner isn't connected to Threadbear's Convex backend, so it can't reach another runner.");
+    if (!backend) throw other("This runner isn't connected to Quokka Code's Convex backend, so it can't reach another runner.");
     const { runner, ...request } = req;
     if (backend.ownerKey()) {
       const target = await this.resolve(runner);
@@ -129,7 +129,7 @@ export class CrossRunner {
         if (row?.state === 'allowed' && row.result) return { status: 'started', ...row.result };
         if (row?.state === 'denied' || row?.state === 'closed') return { status: 'declined' };
         if (row?.state === 'claimed') throw bad('The main Mac is starting it now.');
-        throw bad('Answer this in the Threadbear app on the main Mac: it starts the thread from there.');
+        throw bad('Answer this in the Quokka Code app on the main Mac: it starts the thread from there.');
       },
     });
     // Closed here without starting (declined, expired, Mike wrote instead):
@@ -209,7 +209,7 @@ export class CrossRunner {
 
   private mustOwn() {
     const backend = this.deps.backend();
-    if (!backend) throw other("This runner isn't connected to Threadbear's Convex backend.");
+    if (!backend) throw other("This runner isn't connected to Quokka Code's Convex backend.");
     if (!backend.ownerKey()) throw other("Only the main Mac's runner can answer another runner's request.");
     return backend;
   }

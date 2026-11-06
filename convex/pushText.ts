@@ -18,7 +18,7 @@ export const PUSH_BODY_CHARS = 180;
 export function pushText(t: PushThread): { title: string; body: string } {
   // A thread on a Mac with a runner key says which, so a push asking for a
   // secret or an approval can't pass for one from the main Mac.
-  const title = t.mac ? `${t.mac} · ${t.title || 'Threadbear'}` : t.title || 'Threadbear';
+  const title = t.mac ? `${t.mac} · ${t.title || 'Quokka Code'}` : t.title || 'Quokka Code';
   const p = t.pendingApproval;
   let body: string;
   if (p?.kind === 'question') body = p.questions[0]?.question ?? 'Has a question for you';

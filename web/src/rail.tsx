@@ -51,7 +51,7 @@ export function Rail({ token, route }: { token: string; route: Route }) {
 
   return (
     <nav className="rail" aria-label="Views">
-      <img className="brand-mark" src="/icon.png" alt="Threadbear" title="Threadbear" width={24} height={24} />
+      <img className="brand-mark" src="/icon.png" alt="Quokka Code" title="Quokka Code" width={24} height={24} />
       <a
         className={`rail-btn ${threads ? 'on' : ''}`}
         href="/"

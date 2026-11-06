@@ -1,7 +1,7 @@
 {
-  "name": "threadbear",
+  "name": "quokkacode",
   "private": true,
-  "description": "Threadbear's Convex project: the live mirror the phone and the website read (docs/convex-backend.md, docs/website.md). The runner is in runner/, the Mac app in app/, the website in web/.",
+  "description": "Quokka Code's Convex project: the live mirror the phone and the website read (docs/convex-backend.md, docs/website.md). The runner is in runner/, the Mac app in app/, the website in web/.",
   "type": "module",
   "scripts": {
     "convex:typecheck": "tsc --noEmit -p convex",

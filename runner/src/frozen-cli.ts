@@ -160,7 +160,7 @@ export class FrozenClis {
 }
 
 export function frozenText(machine: string): string {
-  return `Claude Code is stuck opening a file on ${machine}, so this thread isn't getting anywhere. macOS is probably showing a permission prompt on that Mac's screen, or a disk isn't responding. Answer the prompt there, or give Threadbear Runner Full Disk Access in System Settings > Privacy & Security on that Mac. If nothing changes, this turn stops in ${STOP_AFTER_MS / 60_000} minutes.`;
+  return `Claude Code is stuck opening a file on ${machine}, so this thread isn't getting anywhere. macOS is probably showing a permission prompt on that Mac's screen, or a disk isn't responding. Answer the prompt there, or give QuokkaCode Runner Full Disk Access in System Settings > Privacy & Security on that Mac. If nothing changes, this turn stops in ${STOP_AFTER_MS / 60_000} minutes.`;
 }
 
 export function movingText(machine: string): string {
@@ -168,7 +168,7 @@ export function movingText(machine: string): string {
 }
 
 export function stoppedText(machine: string): string {
-  return `Stopped this turn: Claude Code stayed stuck opening a file on ${machine}, probably on a macOS permission prompt nobody answered. Answer it on that Mac's screen, or give Threadbear Runner Full Disk Access in System Settings > Privacy & Security there, then send your message again.`;
+  return `Stopped this turn: Claude Code stayed stuck opening a file on ${machine}, probably on a macOS permission prompt nobody answered. Answer it on that Mac's screen, or give QuokkaCode Runner Full Disk Access in System Settings > Privacy & Security there, then send your message again.`;
 }
 
 // The file system calls a privacy prompt or a dead disk holds up.
@@ -202,7 +202,7 @@ export function parseProcs(text: string): Proc[] {
 
 // sample hunts for debug symbols through Spotlight, wherever it says they
 // are. On Bruce that took it to a folder deep in an external drive, which
-// macOS asks about in Threadbear Runner's name: the very prompt this file is
+// macOS asks about in QuokkaCode Runner's name: the very prompt this file is
 // looking for. It happened first at 21:54 on 31 Oct 2026, in the unit test of
 // this code that every release build runs, and that prompt then held up every
 // other app on that drive until 06:43 (docs/protocol.md, "A dialog on a Mac's
@@ -224,7 +224,7 @@ export function realProbe(): FrozenProbe {
       return parseProcs(await run('/bin/ps', ['-axo', 'pid=,command=']));
     },
     async stuckIn(pid) {
-      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'threadbear-sample-'));
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'quokkacode-sample-'));
       const file = path.join(dir, 'sample.txt');
       try {
         await run('/usr/bin/sandbox-exec', ['-p', sampleSandbox(os.homedir()), '/usr/bin/sample', String(pid), '1', '-mayDie', '-file', file]);

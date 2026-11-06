@@ -56,8 +56,8 @@ test('many threads in a few folders: one shared cache lists each folder once and
   fs.mkdirSync(path.join(app, 'convex'), { recursive: true });
   fs.writeFileSync(path.join(app, 'package.json'), '{}');
   fs.writeFileSync(path.join(app, '.env.local'), 'CONVEX_DEPLOYMENT=dev:happy-otter-123\n');
-  fs.mkdirSync(path.join(app, '.threadbear/patches'), { recursive: true });
-  fs.writeFileSync(path.join(app, '.threadbear/patches/go.mjs'), 'export default { actions: [{ title: "Go", run: "true" }] };');
+  fs.mkdirSync(path.join(app, '.quokkacode/patches'), { recursive: true });
+  fs.writeFileSync(path.join(app, '.quokkacode/patches/go.mjs'), 'export default { actions: [{ title: "Go", run: "true" }] };');
   const shared = new FolderCache(10_000, () => 0);
   const listed: string[] = [];
   const realReaddir = fs.promises.readdir;

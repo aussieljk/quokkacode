@@ -50,7 +50,7 @@ run_copy() {
   else echo "no copy on $host for: $cmd"; exit 1; fi
 }
 case "$cmd" in
-  *"uname -s"*) printf '%s\\n%s\\n%s\\n' "$d/home/.cache/threadbear-check" Darwin "$(cat "$d/state")" ;;
+  *"uname -s"*) printf '%s\\n%s\\n%s\\n' "$d/home/.cache/quokkacode-check" Darwin "$(cat "$d/state")" ;;
   *"lockf -t 0 -k"*)
     n="$(cat "$d/lose" 2>/dev/null || echo 0)"
     if [ "$n" -gt 0 ]; then echo $((n - 1)) >"$d/lose"; [ -f "$d/looks-free" ] || echo busy >"$d/state"; exit 75; fi
@@ -90,12 +90,12 @@ function setup(hosts: Record<string, { state: string; lose?: number; looksFree?:
     run(hostList: string, staySecs: number, peek = '') {
       const r = spawnSync('bash', [path.join(repo, 'scripts', 'check-remote.sh'), hostList, '--quick'], {
         encoding: 'utf8',
-        env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, FAKE: fake, PEEK: peek, THREADBEAR_CHECK_STAY_SECS: String(staySecs) },
+        env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, FAKE: fake, PEEK: peek, QUOKKACODE_CHECK_STAY_SECS: String(staySecs) },
       });
       const read = (f: string) => (fs.existsSync(path.join(fake, f)) ? fs.readFileSync(path.join(fake, f), 'utf8') : '');
       // The copies left on each host afterwards.
       const left = (h: string) => {
-        const runs = path.join(fake, h, 'home', '.cache', 'threadbear-check', 'runs');
+        const runs = path.join(fake, h, 'home', '.cache', 'quokkacode-check', 'runs');
         return fs.existsSync(runs) ? fs.readdirSync(runs) : [];
       };
       return { ...r, ssh: read('ssh.log'), copies: read('copies.log').trim().split('\n').filter(Boolean), left, peek: read('peek') };

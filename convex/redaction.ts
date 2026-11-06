@@ -1,4 +1,4 @@
-// What Threadbear scrubs from anything it sends to Convex. This file has two
+// What Quokka Code scrubs from anything it sends to Convex. This file has two
 // byte-identical copies, runner/src/redaction.ts and convex/redaction.ts (a
 // unit test keeps them equal): the runner scrubs before upload, and the
 // backend scrubs again before storing, so an older runner can't put a known
@@ -179,7 +179,7 @@ const secretRules: SecretRule[] = [
     ),
     replace: () => "[REDACTED PRIVATE KEY]",
   },
-  // Threadbear's own phone and browser tokens (convex/tokens.ts).
+  // Quokka Code's own phone and browser tokens (convex/tokens.ts).
   /(?<![A-Za-z0-9_])tbr?_[0-9a-f]{32,}(?![0-9a-f])/g,
   // Agent Archive device tokens.
   /(?<![A-Za-z0-9_])aa_[a-f0-9]{16}_[A-Za-z0-9_-]{32,}/g,
@@ -255,7 +255,7 @@ const secretRules: SecretRule[] = [
 ];
 
 // A key the runner's summary code cut short: a title or preview ends part way
-// through one, too short for the rules above and still most of a key. Threadbear's
+// through one, too short for the rules above and still most of a key. Quokka Code's
 // own addition. Only at the very end of the text, and only in its last stretch so
 // a long text costs nothing, with a prefix that's clearly a credential's. Ones
 // that can start an ordinary name (hf_transfer, npm_registry) need a digit or

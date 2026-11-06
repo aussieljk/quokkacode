@@ -1,11 +1,11 @@
-<!--page {"title": "Threadbear · The agent app you can patch yourself", "description": "Threadbear is a Mac app for running Claude Code and Codex threads on the subscriptions you already have, with an iPhone app, a link for every thread, and the whole source to change however you like.", "path": "/"} -->
+<!--page {"title": "Quokka Code · The agent app you can patch yourself", "description": "Quokka Code is a Mac app for running Claude Code and Codex threads on the subscriptions you already have, with an iPhone app, a link for every thread, and the whole source to change however you like.", "path": "/"} -->
 <!-- Every claim here is checked against the repo (AGENTS.md, docs/guide.md, docs/protocol.md,
      docs/convex-backend.md, docs/website.md, ios/README.md). Anything the page describes that
      isn't built yet has a "NOT BUILT" comment right beside it. Search for NOT BUILT and change
      the copy when the app changes.
 
      The layout is "Watch It Work", the one Mike picked on 5 Nov from four directions
-     (~/dev/me/misc/threadbear-site-review/REVIEW.md): the page is a player first. One line of
+     (~/dev/me/misc/quokkacode-site-review/REVIEW.md): the page is a player first. One line of
      what it is and the copy button, then the features down the left beside the playing clip, and
      everything after it short: four one-line tiles with the detail behind an (i), where your
      stuff lives, the launch video with the commit count, install (the only place the prompt is
@@ -63,7 +63,7 @@
       </ul>
     </section>
 
-    <!-- ./threadbear setup makes the deployment (scripts/setup.mjs). What goes up and what stays
+    <!-- ./quokkacode setup makes the deployment (scripts/setup.mjs). What goes up and what stays
          on the Mac follows docs/convex-backend.md. -->
     <section class="block reveal" aria-labelledby="where-title">
       <h2 class="section-title" id="where-title">Where your stuff lives</h2>
@@ -77,13 +77,13 @@
 
     <!-- Proof: the launch video and the repo's own history. No users or quotes yet, so none get
          made up. The count and first day come from git at build time (scripts/build.mjs). "From
-         inside Threadbear": since 27 Oct its threads get their own worktrees and land with
+         inside Quokka Code": since 27 Oct its threads get their own worktrees and land with
          `tb land` (AGENTS.md). The video is LAUNCH_VIDEO_ID in site.mjs. -->
     <section class="block proof reveal" aria-labelledby="proof-title">
       <div>
         <h2 id="proof-title">Watch me go through it</h2>
         <p>The launch video walks through all of it in about 25 minutes, so grab yourself a lovely cup of tea first.</p>
-        <p>I started Threadbear on {{firstDay}} and my agents have made <b>{{commits}} commits</b> to it since, lately from inside Threadbear itself.</p>
+        <p>I started Quokka Code on {{firstDay}} and my agents have made <b>{{commits}} commits</b> to it since, lately from inside Quokka Code itself.</p>
         <p class="more"><a href="https://github.com/mikecann/threadbear/commits/main">See the commits on GitHub</a></p>
       </div>
       {{launchVideo}}
@@ -106,7 +106,7 @@
           <li><b>Paste it into Claude Code or Codex</b><span>Your agent forks the repo and checks the code for anything malicious before it runs any of it, then tells you what it thinks.</span></li>
           <!-- INSTALL.md: builds the app and runner, makes the Convex deployment, starts the app;
                the tour is the app's own onboarding. -->
-          <li><b>Say yes, and it sets it up</b><span>It builds the app, makes your own Convex deployment and starts Threadbear, with a little tour to get you going.</span></li>
+          <li><b>Say yes, and it sets it up</b><span>It builds the app, makes your own Convex deployment and starts Quokka Code, with a little tour to get you going.</span></li>
         </ol>
       </div>
       <div>

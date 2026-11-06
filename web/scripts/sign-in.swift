@@ -1,4 +1,4 @@
-// Signs a browser in to the Threadbear website (docs/website.md) without the
+// Signs a browser in to the Quokka Code website (docs/website.md) without the
 // token ever being printed, copied or left on disk. Issues a phone token
 // with `npx convex run tokens:issue` (so only someone logged in to the
 // Convex team can do it) and puts it in the link's #fragment, which the
@@ -22,7 +22,7 @@ func siteOf(_ cloud: String?) -> String? {
     guard let cloud, cloud.contains(".convex.cloud") else { return nil }
     return cloud.replacingOccurrences(of: ".convex.cloud", with: ".convex.site").trimmingCharacters(in: CharacterSet(charactersIn: "/"))
 }
-let dataDir = ProcessInfo.processInfo.environment["THREADBEAR_HOME"] ?? (NSHomeDirectory() + "/Library/Application Support/Threadbear")
+let dataDir = ProcessInfo.processInfo.environment["QUOKKACODE_HOME"] ?? (NSHomeDirectory() + "/Library/Application Support/QuokkaCode")
 let runnerJson = (try? JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: dataDir + "/runner.json")))) as? [String: Any]
 let prodURL = siteOf((runnerJson?["sync"] as? [String: Any])?["url"] as? String)
 let envLocal = (try? String(contentsOfFile: URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().path + "/.env.local", encoding: .utf8)) ?? ""
@@ -40,7 +40,7 @@ let name = value("--name", qr ? "web-qr" : "web-mac") + (prod ? "" : "-dev")
 let days = Int(value("--days", "90")) ?? 90
 let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
 guard let site = local ? "http://localhost:5181" : prod ? prodURL : devURL else {
-    fail(prod ? "No sync.url in \(dataDir)/runner.json. Run ./threadbear setup first." : "No CONVEX_URL in the repo's .env.local.")
+    fail(prod ? "No sync.url in \(dataDir)/runner.json. Run ./quokkacode setup first." : "No CONVEX_URL in the repo's .env.local.")
 }
 
 func fail(_ message: String) -> Never {
@@ -73,7 +73,7 @@ if qr {
     filter.setValue(Data(link.utf8), forKey: "inputMessage")
     filter.setValue("M", forKey: "inputCorrectionLevel")
     let image = filter.outputImage!.transformed(by: CGAffineTransform(scaleX: 12, y: 12))
-    let file = FileManager.default.temporaryDirectory.appendingPathComponent("threadbear-web-\(UUID().uuidString.prefix(6)).png")
+    let file = FileManager.default.temporaryDirectory.appendingPathComponent("quokkacode-web-\(UUID().uuidString.prefix(6)).png")
     try! NSBitmapImageRep(ciImage: image).representation(using: .png, properties: [:])!.write(to: file)
     try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: file.path)
     NSWorkspace.shared.open(file)

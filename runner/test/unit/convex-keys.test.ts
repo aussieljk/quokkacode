@@ -28,7 +28,7 @@ test('a deploy key is made once per deployment, kept private, and made again on 
   assert.equal(a, 'dev:calm-cat-1|secretsecret');
   assert.equal(b, a);
   assert.equal(cli.calls.length, 1, 'two panels opening together make one key');
-  const name = /token create (threadbear-panel-mikes-macbook-[0-9a-f]{6}) --deployment calm-cat-1 --save-env '/.exec(cli.calls[0].command)?.[1];
+  const name = /token create (quokkacode-panel-mikes-macbook-[0-9a-f]{6}) --deployment calm-cat-1 --save-env '/.exec(cli.calls[0].command)?.[1];
   assert.ok(name, cli.calls[0].command);
   assert.ok(cli.calls[0].command.startsWith(`${CONVEX_CLI} deployment token create `), cli.calls[0].command);
   assert.equal(cli.calls[0].cwd, '/proj');
@@ -42,7 +42,7 @@ test('a deploy key is made once per deployment, kept private, and made again on 
   // (names are unique on a deployment).
   await keys.key('calm-cat-1', '/proj', true);
   assert.equal(cli.calls[1].command, `${CONVEX_CLI} deployment token delete ${name} --deployment calm-cat-1`);
-  assert.match(cli.calls[2].command, /token create threadbear-panel-mikes-macbook-[0-9a-f]{6} /);
+  assert.match(cli.calls[2].command, /token create quokkacode-panel-mikes-macbook-[0-9a-f]{6} /);
   assert.ok(!cli.calls[2].command.includes(name!));
   assert.equal(JSON.parse(fs.readFileSync(file, 'utf8')).name, /token create (\S+)/.exec(cli.calls[2].command)![1]);
 });
@@ -126,7 +126,7 @@ test('unavailable choices leave the configured deployment usable and explain why
   assert.match(listed.note!, /Production: No production deployment/);
 });
 
-// THREADBEAR-6: a project on convex 1.32 has no `deployment token` command
+// QUOKKACODE-6: a project on convex 1.32 has no `deployment token` command
 // or `--inline-query`, so its own CLI printed its help instead. The runner's
 // own CLI works in any project folder, whatever version the project is on.
 test('the runner\'s own Convex CLI is used, not the project\'s older one', () => {
@@ -165,7 +165,7 @@ test('a saved key that Convex says is revoked is replaced by itself; the check o
   assert.equal(cli.calls.length, 1, 'a working key is kept');
   verdict = 'bad';
   await keys.key('calm-cat-1', '/proj', false, at);
-  assert.match(cli.calls[1].command, /deployment token delete threadbear-panel-mac-/);
+  assert.match(cli.calls[1].command, /deployment token delete quokkacode-panel-mac-/);
   assert.match(cli.calls[2].command, /deployment token create /);
   // A project's env file could name any URL: the key never goes there.
   await keys.key('calm-cat-1', '/proj', false, { deploymentUrl: 'https://evil.example' });

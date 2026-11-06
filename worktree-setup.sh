@@ -1,9 +1,9 @@
 #!/bin/bash
-# Sets up a thread's own worktree of Threadbear (docs/thread-worktrees.md):
+# Sets up a thread's own worktree of QuokkaCode (docs/thread-worktrees.md):
 # node_modules for the repo root (the Convex functions), the runner and
 # the mock runner. The runner runs it in
 # the new worktree before the thread's first turn
-# (.threadbear/patches/checks.ts); it's safe to run again.
+# (.quokkacode/patches/checks.ts); it's safe to run again.
 #
 # Where the main checkout has the same package-lock.json and has installed
 # it, node_modules is a symlink to the main checkout's: a moment, rather
@@ -18,9 +18,9 @@
 set -euo pipefail
 
 # THREADBARE_* was the old name for these variables: each stands in for its new name.
-for v in $(compgen -e | grep '^THREADBARE_' || true); do n="THREADBEAR_${v#THREADBARE_}"; [ -n "${!n+x}" ] || export "$n=${!v}"; done
+for v in $(compgen -e | grep '^THREADBARE_' || true); do n="QUOKKACODE_${v#THREADBARE_}"; [ -n "${!n+x}" ] || export "$n=${!v}"; done
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-NODE="${THREADBEAR_NODE:-$HOME/.nvm/versions/node/v24.22.1/bin/node}"
+NODE="${QUOKKACODE_NODE:-$HOME/.nvm/versions/node/v24.22.1/bin/node}"
 NPM="$(dirname "$NODE")/npm"
 [ -x "$NPM" ] || NPM="npm"
 
@@ -38,7 +38,7 @@ MAIN="$(git -C "$ROOT" worktree list --porcelain | awk '
 # threads' worktrees link to it and ci empties the folder first; a lock
 # folder keeps two setups from installing at once.
 refresh_main() {
-  local there="$1" lock="$MAIN/.git/threadbear-npm.lock" tries=0
+  local there="$1" lock="$MAIN/.git/quokkacode-npm.lock" tries=0
   [ "$there/package-lock.json" -nt "$there/node_modules/.package-lock.json" ] || return 0
   until mkdir "$lock" 2>/dev/null; do
     tries=$((tries + 1))

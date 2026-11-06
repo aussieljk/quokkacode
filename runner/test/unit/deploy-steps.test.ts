@@ -59,7 +59,7 @@ test('step: a plain failure says the exit code', () => {
 });
 
 test('unitTests: a run that failed without naming a test file gets the whole suite once more', () => {
-  // As on 4 Nov (THREADBEAR-M): npm test died in 0.1s with an empty log.
+  // As on 4 Nov (QUOKKACODE-M): npm test died in 0.1s with an empty log.
   const { io, said, calls } = fakeIo([{ status: null, signal: 'SIGKILL' }, { status: 0 }]);
   steps.unitTests(c, {}, io);
   assert.deepEqual(calls.map((x) => [x.cmd, ...x.args]), [[c.npm, 'test'], [c.npm, 'test']]);

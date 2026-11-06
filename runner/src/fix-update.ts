@@ -100,7 +100,7 @@ function firstMessage(f: UpdateFailure, home: string): string {
     : `The runner builds main again within seconds of it moving. If nothing needed landing (it was a one-off), remove "${path.join(home, 'runner', 'update.json')}" and it tries again within 5 minutes.`;
   return `${what(f)}. The whole output is in ${f.logFile}.
 
-Threadbear started this thread in the background in place of a banner. Fix it without me if you can:
+Quokka Code started this thread in the background in place of a banner. Fix it without me if you can:
 
 1. Read the output and work out why. Fetch main first: if a commit since ${f.short} already fixes it, or another thread is on it, don't do it twice.
 2. Fix the cause. A test that failed because the Mac was busy, or that flakes, gets made to hold up under load rather than just run again. Land the fix on main the usual way (AGENTS.md).

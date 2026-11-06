@@ -4,7 +4,7 @@
 // through Mike's Connectors gateway (connectors.ts), the same Notion login
 // his agents use, so there's no Notion key of its own to keep. Notion stays
 // the one place tasks are changed: people edit the board there and agents
-// move cards with the Notion tools. Threadbear only shows it.
+// move cards with the Notion tools. Quokka Code only shows it.
 //
 // The gateway speaks MCP over HTTP. Each read is three tool calls at most
 // (the page, the database's schema, its rows), stateless, with the
@@ -139,7 +139,7 @@ export async function findSource(call: CallTool, url: string): Promise<TaskSourc
   const type = f.metadata?.type;
   if (type === 'database') {
     const ds = text.match(/<data-source url="\{*(collection:\/\/[0-9a-f-]+)\}*"/)?.[1];
-    if (!ds) throw new Error('That Notion database has no data source Threadbear can read.');
+    if (!ds) throw new Error('That Notion database has no data source Quokka Code can read.');
     const view = pickView(text);
     return { dataSource: ds, databaseUrl: cleanUrl(f.url ?? url), ...(view ? { view } : {}) };
   }
@@ -526,7 +526,7 @@ export class TaskBoards {
     const fetchedAt = new Date(this.now()).toISOString();
     let next: Saved;
     if (!this.opts.call) {
-      next = { notion, tasks: { url: notion, columns: [], items: [], fetchedAt, error: 'Threadbear reads Notion through the Connectors gateway, and none is set up.' } };
+      next = { notion, tasks: { url: notion, columns: [], items: [], fetchedAt, error: 'Quokka Code reads Notion through the Connectors gateway, and none is set up.' } };
     } else {
       try {
         const { source, board, tasks } = await readTasks(this.opts.call, notion, known, cached);

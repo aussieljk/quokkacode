@@ -65,7 +65,7 @@ function agentWrite(s: { out(o: AdapterOutput): void }, id: string, file: string
 // level runs a payload. Before the fix 'wrote' trusted it and the runner
 // imported it at once.
 for (const mode of ['auto', 'ask'] as const) {
-  test(`F1: in ${mode} mode, an agent's Write of .threadbear/patches/notes.ts isn't trusted and none of it runs`, async () => {
+  test(`F1: in ${mode} mode, an agent's Write of .quokkacode/patches/notes.ts isn't trusted and none of it runs`, async () => {
     const root = tmpDir();
     const marks = tmpDir();
     const project = path.join(root, 'triage');
@@ -77,7 +77,7 @@ for (const mode of ['auto', 'ask'] as const) {
     const s = h.adapter.last;
     s.init();
     const mark = path.join(marks, 'notes.ran');
-    agentWrite(s, 'c1', path.join(project, '.threadbear', 'patches', 'notes.ts'), payload(mark), mode);
+    agentWrite(s, 'c1', path.join(project, '.quokkacode', 'patches', 'notes.ts'), payload(mark), mode);
     s.result('completed');
     const t = await settle(h, thread.id);
     assert.equal(fs.existsSync(mark), false, 'none of its code ran');
@@ -103,9 +103,9 @@ test('F1: the mode is the one recorded with the call: a write let through in Ask
   h.runner.update({ threadId: thread.id, permissionMode: 'full' });
   assert.equal(h.runner.get(thread.id).permissionMode, 'full');
   const askMark = path.join(marks, 'ask.ran');
-  agentWrite(s, 'c1', path.join(project, '.threadbear', 'patches', 'a.ts'), payload(askMark, 'A'), 'ask');
+  agentWrite(s, 'c1', path.join(project, '.quokkacode', 'patches', 'a.ts'), payload(askMark, 'A'), 'ask');
   const noMark = path.join(marks, 'none.ran');
-  agentWrite(s, 'c2', path.join(project, '.threadbear', 'patches', 'b.ts'), payload(noMark, 'B'), undefined);
+  agentWrite(s, 'c2', path.join(project, '.quokkacode', 'patches', 'b.ts'), payload(noMark, 'B'), undefined);
   let t = await settle(h, thread.id);
   assert.equal(fs.existsSync(askMark), false);
   assert.equal(fs.existsSync(noMark), false);
@@ -113,7 +113,7 @@ test('F1: the mode is the one recorded with the call: a write let through in Ask
   assert.equal(t.patches?.find((p) => p.id === 'b')?.untrusted, 'new');
   // A write made on Full access is trusted as before (Mike's own workflow).
   const fullMark = path.join(marks, 'full.ran');
-  agentWrite(s, 'c3', path.join(project, '.threadbear', 'patches', 'c.ts'), payload(fullMark, 'C'), 'full');
+  agentWrite(s, 'c3', path.join(project, '.quokkacode', 'patches', 'c.ts'), payload(fullMark, 'C'), 'full');
   t = await settle(h, thread.id);
   assert.equal(fs.existsSync(fullMark), true);
   assert.deepEqual(t.actions?.map((a) => a.title), ['C']);
@@ -136,7 +136,7 @@ test('F4: in Auto, a patch with a turn.end hook and the script it runs, both wri
     const mark = path.join(marks, 'lint.ran');
     agentWrite(s, 'c1', path.join(project, 'scripts', 'lint.sh'), `#!/bin/sh\necho x > ${JSON.stringify(mark)}\n`, mode);
     fs.chmodSync(path.join(project, 'scripts', 'lint.sh'), 0o755);
-    agentWrite(s, 'c2', path.join(project, '.threadbear', 'patches', 'lint.ts'), `export default { hooks: [{ title: 'Lint', on: 'turn.end', run: './scripts/lint.sh', tell: 'never' }] };\n`, mode);
+    agentWrite(s, 'c2', path.join(project, '.quokkacode', 'patches', 'lint.ts'), `export default { hooks: [{ title: 'Lint', on: 'turn.end', run: './scripts/lint.sh', tell: 'never' }] };\n`, mode);
     await tick();
     await h.runner.patchesIdle();
     s.result('completed');
@@ -167,7 +167,7 @@ test("F1, F4: even on Full access, a write outside the thread's own folder trust
   const s = h.adapter.last;
   s.init();
   const mark = path.join(marks, 'other.ran');
-  const file = path.join(other, '.threadbear', 'patches', 'tool.ts');
+  const file = path.join(other, '.quokkacode', 'patches', 'tool.ts');
   agentWrite(s, 'c1', file, payload(mark, 'Tool'), 'full');
   await settle(h, thread.id);
   const { thread: there } = h.runner.create({ text: 'hi', accountId: 'claude-3', cwd: other });
@@ -177,7 +177,7 @@ test("F1, F4: even on Full access, a write outside the thread's own folder trust
   // From a thread in a folder above it (~, ~/dev): inside, but that repo's
   // patches aren't this thread's own.
   const unit = new PatchTrust();
-  const nested = path.join(other, '.threadbear', 'patches', 'nested.ts');
+  const nested = path.join(other, '.quokkacode', 'patches', 'nested.ts');
   put(nested, payload(path.join(marks, 'nested.ran'), 'Nested'));
   assert.deepEqual(unit.trustAgentWrite(nested, sha(nested), null, root), []);
   assert.deepEqual(unit.trustAgentWrite(nested, sha(nested), null, other), [nested]);
@@ -318,7 +318,7 @@ test("F1: the adapter sends each write with the mode it went through on, recorde
   const toAsk = a.s.setPermissionMode('ask');
   a.state.held.shift()!();
   await toFull;
-  const patch = path.join(a.dir, '.threadbear', 'patches', 'p.ts');
+  const patch = path.join(a.dir, '.quokkacode', 'patches', 'p.ts');
   const out = await a.hook('w6', patch, 'bypassPermissions');
   assert.equal(out.hookSpecificOutput?.permissionDecision, 'ask', 'still Ask: the code write asks');
   a.state.held.shift()!();
@@ -332,10 +332,10 @@ for (const mode of ['ask', 'auto'] as const) {
     const helper = path.join(tmpDir(), 'lib', 'h.ts');
     const a = session(mode, (f) => f === helper);
     const code = [
-      path.join(a.dir, '.threadbear', 'patches', 'notes.ts'),
-      path.join(a.dir, '.Threadbear', 'Patches', 'NOTES.TS'),
-      path.join(os.homedir(), '.threadbear', 'patches', 'mine.ts'),
-      path.join(os.homedir(), '.threadbear', 'lib', 'x.ts'),
+      path.join(a.dir, '.quokkacode', 'patches', 'notes.ts'),
+      path.join(a.dir, '.QuokkaCode', 'Patches', 'NOTES.TS'),
+      path.join(os.homedir(), '.quokkacode', 'patches', 'mine.ts'),
+      path.join(os.homedir(), '.quokkacode', 'lib', 'x.ts'),
       path.join(a.dir, '.claude', 'settings.json'),
       path.join(a.dir, '.claude', 'settings.local.json'),
       path.join(os.homedir(), '.claude', 'settings.json'),
@@ -367,27 +367,27 @@ for (const mode of ['ask', 'auto'] as const) {
 
 test("Full access: an agent's patch write doesn't ask (Mike's own workflow)", async () => {
   const a = session('full');
-  assert.deepEqual(await a.hook('c1', path.join(a.dir, '.threadbear', 'patches', 'notes.ts'), 'bypassPermissions'), {});
+  assert.deepEqual(await a.hook('c1', path.join(a.dir, '.quokkacode', 'patches', 'notes.ts'), 'bypassPermissions'), {});
   a.state.close!();
 });
 
 test('what counts as code by name, and what the runner adds: files a hashed patch covers, scripts Claude settings name', async () => {
   const home = tmpDir();
-  assert.ok(runsAsCodeByName('/x/.threadbear/patches/a.mjs', home));
-  assert.ok(runsAsCodeByName(path.join(home, '.threadbear', 'anything.json'), home));
+  assert.ok(runsAsCodeByName('/x/.quokkacode/patches/a.mjs', home));
+  assert.ok(runsAsCodeByName(path.join(home, '.quokkacode', 'anything.json'), home));
   assert.ok(runsAsCodeByName('/x/.claude/settings.team.json', home));
-  assert.ok(!runsAsCodeByName('/x/.threadbear/patches/notes.md', home));
+  assert.ok(!runsAsCodeByName('/x/.quokkacode/patches/notes.md', home));
   assert.ok(!runsAsCodeByName('/x/src/index.ts', home));
   // Through a symlink: the file it writes is a patch.
   const dir = tmpDir();
-  fs.mkdirSync(path.join(dir, '.threadbear', 'patches'), { recursive: true });
-  fs.symlinkSync(path.join(dir, '.threadbear', 'patches'), path.join(dir, 'p'));
+  fs.mkdirSync(path.join(dir, '.quokkacode', 'patches'), { recursive: true });
+  fs.symlinkSync(path.join(dir, '.quokkacode', 'patches'), path.join(dir, 'p'));
   assert.ok(runsAsCodeByName(path.join(dir, 'p', 'x.ts'), home));
 
   const root = tmpDir();
   const project = path.join(root, 'app');
-  put(path.join(project, '.threadbear', 'lib', 'h.ts'), `export const t = 'Go';\n`);
-  put(path.join(project, '.threadbear', 'patches', 'p.ts'), `import { t } from '../lib/h.ts';\nexport default { actions: [{ title: t, run: "./scripts/go.sh" }] };\n`);
+  put(path.join(project, '.quokkacode', 'lib', 'h.ts'), `export const t = 'Go';\n`);
+  put(path.join(project, '.quokkacode', 'patches', 'p.ts'), `import { t } from '../lib/h.ts';\nexport default { actions: [{ title: t, run: "./scripts/go.sh" }] };\n`);
   put(path.join(project, 'scripts', 'go.sh'), '#!/bin/sh\ntrue\n');
   put(path.join(project, '.claude', 'settings.json'), JSON.stringify({ hooks: { Stop: [{ hooks: [{ type: 'command', command: 'sh .claude/hooks/stop.sh' }] }] } }));
   put(path.join(project, '.claude', 'hooks', 'stop.sh'), 'true\n');
@@ -396,7 +396,7 @@ test('what counts as code by name, and what the runner adds: files a hashed patc
   const { thread } = h.runner.create({ text: 'hi', accountId: 'claude-3', cwd: project, permissionMode: 'auto' });
   await settle(h, thread.id);
   const runsAsCode = h.adapter.last.opts.runsAsCode!;
-  assert.ok(runsAsCode(path.join(project, '.threadbear', 'lib', 'h.ts')), "a patch's helper");
+  assert.ok(runsAsCode(path.join(project, '.quokkacode', 'lib', 'h.ts')), "a patch's helper");
   assert.ok(runsAsCode(path.join(project, 'scripts', 'go.sh')), 'a script it names');
   assert.ok(runsAsCode(path.join(project, '.claude', 'hooks', 'stop.sh')), 'a script the settings run');
   assert.ok(!runsAsCode(path.join(project, 'README.md')));
@@ -407,12 +407,12 @@ test('what counts as code by name, and what the runner adds: files a hashed patc
   const elsewhere = path.join(root, 'src');
   put(path.join(elsewhere, 'tools.ts'), `import { x } from './lib.ts';\nexport default { actions: [{ title: x, run: "true" }] };\n`);
   put(path.join(elsewhere, 'lib.ts'), `export const x = 'X';\n`);
-  fs.mkdirSync(path.join(root, '.threadbear', 'patches'), { recursive: true });
-  fs.symlinkSync(path.join(elsewhere, 'tools.ts'), path.join(root, '.threadbear', 'patches', 'tools.ts'));
-  assert.ok(runsAsCode(path.join(root, '.threadbear', 'patches', 'tools.ts')), 'the link by its own name');
+  fs.mkdirSync(path.join(root, '.quokkacode', 'patches'), { recursive: true });
+  fs.symlinkSync(path.join(elsewhere, 'tools.ts'), path.join(root, '.quokkacode', 'patches', 'tools.ts'));
+  assert.ok(runsAsCode(path.join(root, '.quokkacode', 'patches', 'tools.ts')), 'the link by its own name');
   assert.ok(runsAsCode(path.join(elsewhere, 'tools.ts')), 'what it points at');
   assert.ok(runsAsCode(path.join(elsewhere, 'lib.ts')), 'what that imports');
-  assert.ok(runsAsCodeByName(path.join(root, '.threadbear', 'patches', 'tools.ts'), tmpDir()), 'a patch by the name as written, though it resolves elsewhere');
+  assert.ok(runsAsCodeByName(path.join(root, '.quokkacode', 'patches', 'tools.ts'), tmpDir()), 'a patch by the name as written, though it resolves elsewhere');
 });
 
 test("Codex review, round 2: the runner's data dir, a link to a patch not there yet, other logins' settings, and what home patches run from the thread's folder", async () => {
@@ -426,7 +426,7 @@ test("Codex review, round 2: the runner's data dir, a link to a patch not there 
   // A home patch (root is home here) whose hook runs a script from the
   // thread's folder, and one naming an absolute script that isn't there.
   const missing = path.join(tmpDir(), 'on-end.sh');
-  put(path.join(root, '.threadbear', 'patches', 'mine.ts'), `export default { hooks: [{ title: 'Lint', on: 'turn.end', run: "sh ./scripts/lint.sh" }, { title: 'End', on: 'turn.end', run: ${JSON.stringify(missing)} }] };\n`);
+  put(path.join(root, '.quokkacode', 'patches', 'mine.ts'), `export default { hooks: [{ title: 'Lint', on: 'turn.end', run: "sh ./scripts/lint.sh" }, { title: 'End', on: 'turn.end', run: ${JSON.stringify(missing)} }] };\n`);
   put(path.join(project, 'scripts', 'lint.sh'), '#!/bin/sh\ntrue\n');
   const h = makeHarness(home, {}, {
     panelsRoot: root,
@@ -446,7 +446,7 @@ test("Codex review, round 2: the runner's data dir, a link to a patch not there 
   assert.ok(!runsAsCode(path.join(project, 'README.md')));
   // A link to a home patch that isn't there yet: a Write through it makes the patch.
   const link = path.join(project, 'notes.txt');
-  fs.symlinkSync(path.join(root, '.threadbear', 'patches', 'p.ts'), link);
+  fs.symlinkSync(path.join(root, '.quokkacode', 'patches', 'p.ts'), link);
   assert.ok(runsAsCodeByName(link, tmpDir()));
   assert.ok(runsAsCode(link));
 });
@@ -475,7 +475,7 @@ test("Codex review, round 3: a linked user settings file, its hooks' ./ paths fr
   assert.ok(runsAsCode(path.join(project, 'scripts', 'not-yet.sh')), "a project hook's script that isn't there yet");
   assert.ok(!runsAsCode(path.join(project, 'README.md')));
   // A home patch whose imports can't be followed: every edit asks.
-  put(path.join(root, '.threadbear', 'patches', 'dyn.ts'), `const dir = process.cwd();\nconst m = await import(dir + '/end.ts');\nexport default m.default;\n`);
+  put(path.join(root, '.quokkacode', 'patches', 'dyn.ts'), `const dir = process.cwd();\nconst m = await import(dir + '/end.ts');\nexport default m.default;\n`);
   h = make();
   ({ thread } = h.runner.create({ text: 'hi', accountId: 'claude-3', cwd: project, permissionMode: 'auto' }));
   await settle(h, thread.id);
@@ -507,7 +507,7 @@ test("Codex review, round 4: what a settings hook's script imports, a quoted scr
   assert.ok(!runsAsCode(path.join(project, 'README.md')));
   // A home hook whose script loads code by a computed name: every edit asks.
   put(path.join(project, 'scripts', 'after.mjs'), `const target = './payload.mjs';\nawait import(target);\n`);
-  put(path.join(root, '.threadbear', 'patches', 'end.ts'), `export default { hooks: [{ title: 'After', on: 'turn.end', run: "node ./scripts/after.mjs" }] };\n`);
+  put(path.join(root, '.quokkacode', 'patches', 'end.ts'), `export default { hooks: [{ title: 'After', on: 'turn.end', run: "node ./scripts/after.mjs" }] };\n`);
   h = make();
   ({ thread } = h.runner.create({ text: 'hi', accountId: 'claude-3', cwd: project, permissionMode: 'ask' }));
   await settle(h, thread.id);
@@ -515,9 +515,9 @@ test("Codex review, round 4: what a settings hook's script imports, a quoted scr
   assert.ok(runsAsCode(path.join(project, 'scripts', 'payload.mjs')), 'fails closed');
   // One whose hook names a script that isn't there: the follow stops
   // there, so what comes after it wasn't seen, and every edit asks.
-  fs.rmSync(path.join(root, '.threadbear', 'patches', 'end.ts'));
+  fs.rmSync(path.join(root, '.quokkacode', 'patches', 'end.ts'));
   put(path.join(project, 'scripts', 'after2.mjs'), `console.log('x');\n`);
-  put(path.join(root, '.threadbear', 'patches', 'opt.ts'), `export default { hooks: [{ title: 'Opt', on: 'turn.end', run: "if [ -f scripts/optional.sh ]; then sh scripts/optional.sh; fi; node scripts/after2.mjs" }] };\n`);
+  put(path.join(root, '.quokkacode', 'patches', 'opt.ts'), `export default { hooks: [{ title: 'Opt', on: 'turn.end', run: "if [ -f scripts/optional.sh ]; then sh scripts/optional.sh; fi; node scripts/after2.mjs" }] };\n`);
   h = make();
   ({ thread } = h.runner.create({ text: 'hi', accountId: 'claude-3', cwd: project, permissionMode: 'ask' }));
   await settle(h, thread.id);
@@ -529,7 +529,7 @@ test('Codex review, round 2: on Full access an Edit of a patch that is a link in
   const folder = path.join(root, 'repo');
   const real = path.join(folder, 'src', 'p.ts');
   put(real, `export default { actions: [{ title: 'Go', run: 'true' }] };\n`);
-  const link = path.join(folder, '.threadbear', 'patches', 'p.ts');
+  const link = path.join(folder, '.quokkacode', 'patches', 'p.ts');
   fs.mkdirSync(path.dirname(link), { recursive: true });
   fs.symlinkSync(real, link);
   const trust = new PatchTrust();
@@ -544,8 +544,8 @@ test('Codex review, round 2: on Full access an Edit of a patch that is a link in
 // F21: an Edit vouches for what it changed, not for the rest of the file.
 
 function helperPatch(folder: string, title = 'Go') {
-  const file = path.join(folder, '.threadbear', 'patches', 'p.ts');
-  const helper = path.join(folder, '.threadbear', 'lib', 'h.ts');
+  const file = path.join(folder, '.quokkacode', 'patches', 'p.ts');
+  const helper = path.join(folder, '.quokkacode', 'lib', 'h.ts');
   put(helper, `export const actions = [{ title: ${JSON.stringify(title)}, run: "true" }];\n`);
   put(file, `import { actions } from '../lib/h.ts';\nexport default { actions };\n`);
   return { file, helper };
@@ -583,7 +583,7 @@ test('F21 case 2: in a cloned repo, a small Edit to its patch trusts none of it;
   const root = tmpDir();
   const marks = tmpDir();
   const folder = path.join(root, 'cloned');
-  const file = path.join(folder, '.threadbear', 'patches', 'p.ts');
+  const file = path.join(folder, '.quokkacode', 'patches', 'p.ts');
   const mark = path.join(marks, 'p.ran');
   const theirs = payload(mark, 'Theirs');
   put(file, theirs);
@@ -599,7 +599,7 @@ test('F21 case 2: in a cloned repo, a small Edit to its patch trusts none of it;
   put(file, mine);
   assert.deepEqual(trust.trustAgentWrite(file, shaOf(mine), null, folder), [file]);
   // A new file made with Edit (no original) is the agent's too.
-  const fresh = path.join(folder, '.threadbear', 'patches', 'q.ts');
+  const fresh = path.join(folder, '.quokkacode', 'patches', 'q.ts');
   put(fresh, mine);
   assert.deepEqual(trust.trustAgentWrite(fresh, shaOf(mine), null, folder), [fresh]);
 });
@@ -608,7 +608,7 @@ test('F21 through the real normalizer: a Full access Edit of an untrusted patch 
   const root = tmpDir();
   const marks = tmpDir();
   const project = path.join(root, 'cloned');
-  const file = path.join(project, '.threadbear', 'patches', 'tools.ts');
+  const file = path.join(project, '.quokkacode', 'patches', 'tools.ts');
   const mark = path.join(marks, 'tools.ran');
   put(file, payload(mark, 'Deploy'));
   const home = tmpDir();

@@ -12,7 +12,7 @@ import { CLI_POLICIES, isEffortLevel, isProvider, type CliPolicy, type EffortLev
 // <package version>+<release id>, or +source when run from a checkout.
 export const RUNNER_VERSION = RELEASE.version;
 // Where a new thread starts when nothing says otherwise. Setup writes
-// ~/ThreadbearThreads into runner.json (not the home folder, where agents set off
+// ~/QuokkaCodeThreads into runner.json (not the home folder, where agents set off
 // macOS's Dropbox, Desktop and Documents prompts); anyone's own choice
 // goes in their runner.json's defaults.cwd.
 export const DEFAULT_CWD = '~';
@@ -39,8 +39,8 @@ export type CliUpdatesConfig = {
 export const DEFAULT_CLI_UPDATES: CliUpdatesConfig = { claude: 'auto', codex: 'auto', checkMinutes: 60, keepCodexVersions: 2 };
 
 // Everything that differs between the real install and a test lives here, so
-// tests can point THREADBEAR_HOME and THREADBEAR_PORT somewhere harmless and
-// never touch ~/Library/Application Support/Threadbear.
+// tests can point QUOKKACODE_HOME and QUOKKACODE_PORT somewhere harmless and
+// never touch ~/Library/Application Support/QuokkaCode.
 export type Config = {
   home: string; // data dir
   port: number;
@@ -73,7 +73,7 @@ export type Config = {
   // guide's "Adding another login"), claude-N and codex-N as there.
   accountsDir?: string;
   // A Codex binary set by hand, used as is and never updated. Unset means
-  // Threadbear's own copy (<home>/tools/codex/current), or until there is
+  // Quokka Code's own copy (<home>/tools/codex/current), or until there is
   // one the codex next to the runner's Node; never ~/.local/bin/codex.
   codexPath?: string;
   codexArgs: string[]; // extra `codex app-server` arguments
@@ -81,7 +81,7 @@ export type Config = {
   tokenStatsLimitsFile: string; // Token Stats' limits.json, read only
   cliUpdates: CliUpdatesConfig;
   // Reads the CLIs' transcripts for the Usage panel's token counts
-  // (token-tally.ts). THREADBEAR_TOKEN_TALLY=off turns it off: a dev runner
+  // (token-tally.ts). QUOKKACODE_TOKEN_TALLY=off turns it off: a dev runner
   // would read every login's last 14 days (gigabytes) for nothing.
   tokenTally?: boolean;
   accountNotes: Record<string, string>;
@@ -93,7 +93,7 @@ export type Config = {
   pools?: unknown[];
   // A runner on a release builds and restarts onto main by itself
   // (src/update.ts). Off with followMain: false in runner.json or
-  // THREADBEAR_FOLLOW_MAIN=0.
+  // QUOKKACODE_FOLLOW_MAIN=0.
   followMain: boolean;
   // A turn's reply in the Mac app: end_turn's bullets, or (false) the
   // agent's own message, with the bullets only for previews.
@@ -111,7 +111,7 @@ export type Config = {
   models: { pool: string | null; privateFolders: string[] };
   // The Convex mirror (src/sync.ts): the project's URL, whether it's on,
   // the name the phone shows for this runner and its id (made once).
-  // THREADBEAR_SYNC=off turns it off for tests and dev runners.
+  // QUOKKACODE_SYNC=off turns it off for tests and dev runners.
   sync: { enabled: boolean; url?: string; name?: string; runnerId?: string; icon?: string; rpcUrl?: string; pastedPictures?: boolean; full?: boolean };
   // The silent on-device secret check (src/secret-check.ts): off unless asked.
   secretCheck?: boolean;
@@ -182,7 +182,7 @@ export type RunnerJson = {
 };
 
 export function defaultHome(): string {
-  return path.join(os.homedir(), 'Library', 'Application Support', 'Threadbear');
+  return path.join(os.homedir(), 'Library', 'Application Support', 'QuokkaCode');
 }
 
 export function expandHome(p: string): string {
@@ -204,7 +204,7 @@ export function writeRunnerJson(home: string, data: RunnerJson): void {
 }
 
 // The app finds the runner through runner.json, so it always names the port
-// the runner is actually listening on (THREADBEAR_PORT and port 0 included),
+// the runner is actually listening on (QUOKKACODE_PORT and port 0 included),
 // and shows the default folder so it's easy to change.
 export function recordListening(home: string, port: number, defaultCwd: string): void {
   const json = readRunnerJson(home);
@@ -221,7 +221,7 @@ export function recordListening(home: string, port: number, defaultCwd: string):
 export function adoptOldNames(env: NodeJS.ProcessEnv): void {
   for (const [k, v] of Object.entries(env)) {
     if (!k.startsWith('THREADBARE_') || v === undefined) continue;
-    const name = 'THREADBEAR_' + k.slice('THREADBARE_'.length);
+    const name = 'QUOKKACODE_' + k.slice('THREADBARE_'.length);
     if (env[name] === undefined) env[name] = v;
   }
 }
@@ -229,15 +229,15 @@ adoptOldNames(process.env);
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   adoptOldNames(env);
-  // THREADBEAR_DATA_DIR is the name the Mac app uses for the same override.
-  const home = path.resolve(expandHome(env.THREADBEAR_HOME || env.THREADBEAR_DATA_DIR || defaultHome()));
+  // QUOKKACODE_DATA_DIR is the name the Mac app uses for the same override.
+  const home = path.resolve(expandHome(env.QUOKKACODE_HOME || env.QUOKKACODE_DATA_DIR || defaultHome()));
   const json = readRunnerJson(home);
-  const port = Number(env.THREADBEAR_PORT || json.port || DEFAULT_PORT);
-  const idleMs = env.THREADBEAR_IDLE_MS
-    ? Number(env.THREADBEAR_IDLE_MS)
+  const port = Number(env.QUOKKACODE_PORT || json.port || DEFAULT_PORT);
+  const idleMs = env.QUOKKACODE_IDLE_MS
+    ? Number(env.QUOKKACODE_IDLE_MS)
     : (json.idleMinutes ?? 30) * 60_000;
-  const maxLive = Number(env.THREADBEAR_MAX_LIVE || json.maxLiveCLIs || DEFAULT_MAX_LIVE);
-  const codexPath = nonEmpty(env.THREADBEAR_CODEX_PATH) ?? nonEmpty(json.codexPath);
+  const maxLive = Number(env.QUOKKACODE_MAX_LIVE || json.maxLiveCLIs || DEFAULT_MAX_LIVE);
+  const codexPath = nonEmpty(env.QUOKKACODE_CODEX_PATH) ?? nonEmpty(json.codexPath);
   const models = providerMap(json.defaults?.models, nonEmpty);
   const efforts = providerMap(json.defaults?.efforts, (v) => (isEffortLevel(v) ? v : undefined));
   return {
@@ -245,8 +245,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     port,
     host: '127.0.0.1',
     maxLive: Number.isFinite(maxLive) && maxLive >= 1 ? Math.floor(maxLive) : DEFAULT_MAX_LIVE,
-    logFile: expandHome(env.THREADBEAR_LOG || path.join(os.homedir(), 'Library', 'Logs', 'threadbear-runner.log')),
-    claudePath: expandHome(env.THREADBEAR_CLAUDE_PATH || json.claudePath || '~/.local/bin/claude'),
+    logFile: expandHome(env.QUOKKACODE_LOG || path.join(os.homedir(), 'Library', 'Logs', 'quokkacode-runner.log')),
+    claudePath: expandHome(env.QUOKKACODE_CLAUDE_PATH || json.claudePath || '~/.local/bin/claude'),
     idleMs,
     defaults: {
       cwd: expandHome(json.defaults?.cwd || DEFAULT_CWD),
@@ -256,13 +256,13 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       ...(models ? { models } : {}),
       ...(efforts ? { efforts } : {}),
     },
-    claudeMainDir: expandHome(env.THREADBEAR_CLAUDE_MAIN_DIR || '~/.claude'),
-    claudeMainJson: expandHome(env.THREADBEAR_CLAUDE_MAIN_JSON || '~/.claude.json'),
+    claudeMainDir: expandHome(env.QUOKKACODE_CLAUDE_MAIN_DIR || '~/.claude'),
+    claudeMainJson: expandHome(env.QUOKKACODE_CLAUDE_MAIN_JSON || '~/.claude.json'),
     tokenStatsAccountsDir: expandHome(
-      env.THREADBEAR_ACCOUNTS_DIR || '~/Library/Application Support/Token Stats/Accounts',
+      env.QUOKKACODE_ACCOUNTS_DIR || '~/Library/Application Support/Token Stats/Accounts',
     ),
     accountsDir: path.join(home, 'accounts'),
-    followMain: env.THREADBEAR_FOLLOW_MAIN ? env.THREADBEAR_FOLLOW_MAIN !== '0' : json.followMain !== false,
+    followMain: env.QUOKKACODE_FOLLOW_MAIN ? env.QUOKKACODE_FOLLOW_MAIN !== '0' : json.followMain !== false,
     bulletReplies: json.bulletReplies !== false,
     // On unless runner.json turns it off (2 Nov: Mike found it the right
     // balance, and it's no longer in Settings).
@@ -271,37 +271,37 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     models: modelSettingsFrom(json),
     ...(codexPath ? { codexPath: expandHome(codexPath) } : {}),
     codexArgs: Array.isArray(json.codexArgs) ? json.codexArgs.filter((a): a is string => typeof a === 'string') : [],
-    codexMainDir: expandHome(env.THREADBEAR_CODEX_MAIN_DIR || '~/.codex'),
+    codexMainDir: expandHome(env.QUOKKACODE_CODEX_MAIN_DIR || '~/.codex'),
     tokenStatsLimitsFile: expandHome(
-      env.THREADBEAR_TOKEN_STATS_LIMITS || '~/Library/Application Support/Token Stats/limits.json',
+      env.QUOKKACODE_TOKEN_STATS_LIMITS || '~/Library/Application Support/Token Stats/limits.json',
     ),
-    cliUpdates: cliUpdatesConfig(json.cliUpdates, env.THREADBEAR_CLI_UPDATES),
-    tokenTally: env.THREADBEAR_TOKEN_TALLY !== 'off',
+    cliUpdates: cliUpdatesConfig(json.cliUpdates, env.QUOKKACODE_CLI_UPDATES),
+    tokenTally: env.QUOKKACODE_TOKEN_TALLY !== 'off',
     accountNotes: stringMap(json.accountNotes) ?? { ...DEFAULT_ACCOUNT_NOTES },
     poolFolders: folderMap(json.poolFolders) ?? { ...DEFAULT_POOL_FOLDERS },
     ...((sb) => (sb ? { sandbox: sb } : {}))(readSandbox(json.sandbox, expandHome)),
     ...(Array.isArray(json.pools) && json.pools.length ? { pools: json.pools } : {}),
     sync: syncConfig(json.sync, env),
     secretCheck: json.secretCheck?.enabled === true,
-    ...connectorsConfig(json.connectors, env, expandHome(env.THREADBEAR_CLAUDE_MAIN_JSON || '~/.claude.json')),
+    ...connectorsConfig(json.connectors, env, expandHome(env.QUOKKACODE_CLAUDE_MAIN_JSON || '~/.claude.json')),
   };
 }
 
-// THREADBEAR_CONNECTORS_URL wins (empty or "off" turns it off, for tests),
+// QUOKKACODE_CONNECTORS_URL wins (empty or "off" turns it off, for tests),
 // then runner.json, then the main login's `connectors` MCP server.
 function connectorsConfig(raw: RunnerJson['connectors'], env: NodeJS.ProcessEnv, claudeJson: string): Pick<Config, 'connectorsUrl' | 'connectorsClient'> {
-  const fromEnv = env.THREADBEAR_CONNECTORS_URL;
+  const fromEnv = env.QUOKKACODE_CONNECTORS_URL;
   const url = fromEnv !== undefined ? (fromEnv.trim() && fromEnv.trim() !== 'off' ? gatewayBase(fromEnv.trim()) : undefined) : findGateway(raw, claudeJson);
   if (!url) return {};
   const client = fromEnv !== undefined ? undefined : findGatewayClient(raw, claudeJson);
   return { connectorsUrl: url, ...(client ? { connectorsClient: client } : {}) };
 }
 
-// THREADBEAR_SYNC=off wins over runner.json; THREADBEAR_SYNC_URL points a
+// QUOKKACODE_SYNC=off wins over runner.json; QUOKKACODE_SYNC_URL points a
 // test or dev runner at its own deployment.
 function syncConfig(raw: RunnerJson['sync'], env: NodeJS.ProcessEnv): Config['sync'] {
-  const url = nonEmpty(env.THREADBEAR_SYNC_URL) ?? nonEmpty(raw?.url);
-  const out: Config['sync'] = { enabled: env.THREADBEAR_SYNC === 'off' ? false : raw?.enabled !== false };
+  const url = nonEmpty(env.QUOKKACODE_SYNC_URL) ?? nonEmpty(raw?.url);
+  const out: Config['sync'] = { enabled: env.QUOKKACODE_SYNC === 'off' ? false : raw?.enabled !== false };
   if (url) out.url = url;
   const name = nonEmpty(raw?.name);
   if (name) out.name = name;
@@ -345,7 +345,7 @@ function stringMap(raw: unknown): Record<string, string> | undefined {
   return Object.fromEntries(Object.entries(raw).filter((e): e is [string, string] => typeof e[1] === 'string'));
 }
 
-// THREADBEAR_CLI_UPDATES=off turns both off whatever runner.json says: tests
+// QUOKKACODE_CLI_UPDATES=off turns both off whatever runner.json says: tests
 // and dev runners must never install a CLI.
 function cliUpdatesConfig(raw: Partial<CliUpdatesConfig> | undefined, envValue: string | undefined): CliUpdatesConfig {
   const policy = (v: unknown, fallback: CliPolicy): CliPolicy =>
@@ -374,11 +374,11 @@ export function modelSettingsFrom(json: RunnerJson): Config['models'] {
   };
 }
 
-// Where a client (tb) finds the runner. THREADBEAR_PORT=0 tells a runner to
+// Where a client (tb) finds the runner. QUOKKACODE_PORT=0 tells a runner to
 // take any free port, and the CLIs a dev or sandbox runner starts inherit
 // it, so then the port it got, in runner.json, is the one to use.
 export function runnerUrl(cfg: Config, env: NodeJS.ProcessEnv = process.env): string {
-  if (env.THREADBEAR_URL) return env.THREADBEAR_URL;
+  if (env.QUOKKACODE_URL) return env.QUOKKACODE_URL;
   const port = cfg.port || readRunnerJson(cfg.home).port || DEFAULT_PORT;
   return `ws://127.0.0.1:${port}/rpc`;
 }

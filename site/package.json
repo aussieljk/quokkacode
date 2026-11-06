@@ -1,5 +1,5 @@
 {
-  "name": "threadbear-site",
+  "name": "quokkacode-site",
   "private": true,
   "type": "module",
   "description": "threadbear.mikecann.app, the landing page. Plain pages, no bundler and no dependencies.",

@@ -182,7 +182,7 @@ function readCapped(file: string): { bytes: Uint8Array } | { skip: string } {
 // A shared thread's pictures come only from its media folder in the data
 // dir (`threads/<id>/media`): its attachments and the pictures tools handed
 // back are copied there, and an agent that wants a picture on the page
-// copies it there on purpose (THREADBEAR_MEDIA_DIR). A path in assistant
+// copies it there on purpose (QUOKKACODE_MEDIA_DIR). A path in assistant
 // Markdown is only text the agent wrote, maybe at a repo's or a web page's
 // say, so it gives no authority to publish a file from anywhere else: not
 // the thread's folder, however new the file (pictures made there since the
@@ -272,7 +272,7 @@ export type ReplyImage = {
   pinned?: true; // the `pin` tool's, which goes under the turn's reply
 };
 
-export const PIN_TOOL = 'mcp__threadbear__pin';
+export const PIN_TOOL = 'mcp__quokkacode__pin';
 
 export function replyImagesInEvent(e: PersistedEvent, cwd: string | undefined, home = os.homedir()): ReplyImage[] {
   if (e.type === 'assistant.text') return markdownImages(e.text, home, replyMediaType).map(({ src, path }) => ({ seq: e.seq, path, src }));

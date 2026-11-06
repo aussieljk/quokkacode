@@ -605,7 +605,7 @@ test('changing account or folder starts a new native session with a handoff note
   assert.equal(s2.opts.account.id, 'claude-main');
   assert.equal(s2.opts.cwd, other);
   const sent = s2.sent[0].text;
-  assert.match(sent, /^\[Threadbear handoff\]/);
+  assert.match(sent, /^\[Quokka Code handoff\]/);
   assert.match(sent, /User: Fix the tests/);
   assert.match(sent, /Assistant: The tests pass now\./);
   assert.ok(sent.endsWith('Now commit it'));
@@ -1423,9 +1423,9 @@ test('panels.convexKey makes a deploy key in the project folder, for the panel o
 test('patch files give a thread actions; a command action runs in the folder and lands in the transcript', async () => {
   const root = tmpDir();
   const project = path.join(root, 'app');
-  fs.mkdirSync(path.join(project, '.threadbear/patches'), { recursive: true });
-  fs.writeFileSync(path.join(project, '.threadbear/patches/tools.ts'), `export default { actions: [
-    { title: "Say hi", run: "echo hi from $PWD; echo thread $THREADBEAR_THREAD_ID" },
+  fs.mkdirSync(path.join(project, '.quokkacode/patches'), { recursive: true });
+  fs.writeFileSync(path.join(project, '.quokkacode/patches/tools.ts'), `export default { actions: [
+    { title: "Say hi", run: "echo hi from $PWD; echo thread $QUOKKACODE_THREAD_ID" },
     { title: "Fail", run: "echo bad >&2; exit 2" },
     { title: "Explain", prompt: "Explain this folder." },
     { title: "Docs", url: "https://example.com/docs" },
@@ -1440,7 +1440,7 @@ test('patch files give a thread actions; a command action runs in the folder and
   const loaded = h.runner.get(thread.id);
   assert.deepEqual(checkSummary(loaded), []);
   assert.deepEqual(loaded.actions?.map((a) => a.id), ['tools.say-hi', 'tools.fail', 'tools.explain', 'tools.docs']);
-  assert.deepEqual(loaded.patches, [{ id: 'tools', source: 'project', file: path.join(project, '.threadbear/patches/tools.ts') }]);
+  assert.deepEqual(loaded.patches, [{ id: 'tools', source: 'project', file: path.join(project, '.quokkacode/patches/tools.ts') }]);
   // No note for patches found on the first read.
   assert.ok(!h.events(thread.id).some((e) => e.type === 'system.note'));
 
@@ -1491,8 +1491,8 @@ test('a patch file written later is noticed within the TTL and said in the trans
   await tick();
   await h.runner.patchesIdle();
   assert.equal(h.runner.get(thread.id).patches, undefined);
-  fs.mkdirSync(path.join(project, '.threadbear/patches'), { recursive: true });
-  fs.writeFileSync(path.join(project, '.threadbear/patches/slow.ts'), `export default { actions: [{ title: "Wait", run: "sleep 1" }], panels: [{ title: "Docs", url: "http://localhost:8000" }] };`);
+  fs.mkdirSync(path.join(project, '.quokkacode/patches'), { recursive: true });
+  fs.writeFileSync(path.join(project, '.quokkacode/patches/slow.ts'), `export default { actions: [{ title: "Wait", run: "sleep 1" }], panels: [{ title: "Docs", url: "http://localhost:8000" }] };`);
   h.clock.advance(16_000);
   h.runner.get(thread.id);
   await tick();
@@ -1508,9 +1508,9 @@ test('a patch file written later is noticed within the TTL and said in the trans
   assert.equal((await first).ok, true);
 
   // Broken later: said once, not on every read.
-  fs.writeFileSync(path.join(project, '.threadbear/patches/slow.ts'), `export default 42;`);
+  fs.writeFileSync(path.join(project, '.quokkacode/patches/slow.ts'), `export default 42;`);
   const later = new Date(Date.now() + 5000);
-  fs.utimesSync(path.join(project, '.threadbear/patches/slow.ts'), later, later);
+  fs.utimesSync(path.join(project, '.quokkacode/patches/slow.ts'), later, later);
   for (let i = 0; i < 2; i++) {
     h.clock.advance(16_000);
     h.runner.get(thread.id);
@@ -1525,10 +1525,10 @@ test('a patch file written later is noticed within the TTL and said in the trans
 test('live state: threads in the same folder share one run of a command, and a slow one is joined, not started again', async () => {
   const root = tmpDir();
   const project = path.join(root, 'app');
-  fs.mkdirSync(path.join(project, '.threadbear/patches'), { recursive: true });
+  fs.mkdirSync(path.join(project, '.quokkacode/patches'), { recursive: true });
   fs.writeFileSync(path.join(project, 'count'), '2');
   // Each run adds a line to runs, so the test can count them.
-  fs.writeFileSync(path.join(project, '.threadbear/patches/review.ts'), `
+  fs.writeFileSync(path.join(project, '.quokkacode/patches/review.ts'), `
     const count = async ({ sh }) => Number((await sh("echo run >> runs; cat count")).trim());
     export default { actions: [{ title: "Your turn", prompt: "Do my comments.", badge: count }] };`);
   const h = makeHarness(undefined, {}, { panelsRoot: root, actionShell: ['/bin/sh', '-c'], actionTimeoutMs: 5000 });
@@ -1553,10 +1553,10 @@ test('live state: threads in the same folder share one run of a command, and a s
 test('live state: a when chip comes and goes by itself on the poll, with its badge', async () => {
   const root = tmpDir();
   const project = path.join(root, 'app');
-  fs.mkdirSync(path.join(project, '.threadbear/patches'), { recursive: true });
+  fs.mkdirSync(path.join(project, '.quokkacode/patches'), { recursive: true });
   // A comment count in a file stands in for tandem comments --json.
   fs.writeFileSync(path.join(project, 'count'), '0');
-  fs.writeFileSync(path.join(project, '.threadbear/patches/review.ts'), `
+  fs.writeFileSync(path.join(project, '.quokkacode/patches/review.ts'), `
     const count = async ({ sh }) => Number((await sh("cat count")).trim());
     export default { actions: [{ title: "Your turn", prompt: "Do my comments.", when: async (c) => (await count(c)) > 0, badge: count }] };`);
   const h = makeHarness(undefined, {}, { panelsRoot: root, actionShell: ['/bin/sh', '-c'], actionTimeoutMs: 5000 });
@@ -1587,8 +1587,8 @@ test('live state: a when chip comes and goes by itself on the poll, with its bad
 test('a turn.end hook runs after a turn that edited a matching file, and a failure is told to the agent twice at most', async () => {
   const root = tmpDir();
   const project = path.join(root, 'app');
-  fs.mkdirSync(path.join(project, '.threadbear/patches'), { recursive: true });
-  fs.writeFileSync(path.join(project, '.threadbear/patches/checks.ts'), `export default { hooks: [
+  fs.mkdirSync(path.join(project, '.quokkacode/patches'), { recursive: true });
+  fs.writeFileSync(path.join(project, '.quokkacode/patches/checks.ts'), `export default { hooks: [
     { title: "Typecheck", on: "turn.end", run: "echo 'a.ts(1,1): error TS1' >&2; exit 1", edited: "**/*.ts" },
     { title: "Count", on: "turn.end", run: "echo counted", tell: "never" },
   ] };`);
@@ -1624,7 +1624,7 @@ test('a turn.end hook runs after a turn that edited a matching file, and a failu
   assert.match(typecheck.text, /error TS1/);
   let told = h.events(thread.id).filter((e) => e.type === 'user.message' && e.origin === 'runner');
   assert.equal(told.length, 1);
-  assert.match(told[0].text, /^\[Threadbear hook\] Typecheck \(patch checks\) ran after your turn and failed \(exit 1\):\n\n```\na\.ts\(1,1\): error TS1\n```/);
+  assert.match(told[0].text, /^\[Quokka Code hook\] Typecheck \(patch checks\) ran after your turn and failed \(exit 1\):\n\n```\na\.ts\(1,1\): error TS1\n```/);
   assert.equal(h.runner.get(thread.id).status, 'running', 'the hook message started a turn');
 
   // The agent "fixes" it, editing the file again; the hook fails again and
@@ -1656,8 +1656,8 @@ test('a turn.end hook runs after a turn that edited a matching file, and a failu
 test('hooks don\'t run after an interrupted or failed turn, or a turn the runner opened for background work', async () => {
   const root = tmpDir();
   const project = path.join(root, 'app');
-  fs.mkdirSync(path.join(project, '.threadbear/patches'), { recursive: true });
-  fs.writeFileSync(path.join(project, '.threadbear/patches/h.ts'), `export default { hooks: [{ title: "Every", on: "turn.end", run: "echo ran", tell: "never" }] };`);
+  fs.mkdirSync(path.join(project, '.quokkacode/patches'), { recursive: true });
+  fs.writeFileSync(path.join(project, '.quokkacode/patches/h.ts'), `export default { hooks: [{ title: "Every", on: "turn.end", run: "echo ran", tell: "never" }] };`);
   const h = makeHarness(undefined, {}, { panelsRoot: root, actionShell: ['/bin/sh', '-c'], actionTimeoutMs: 5000 });
   const { thread } = create(h, { cwd: project });
   await tick();
@@ -1676,7 +1676,7 @@ test('hooks don\'t run after an interrupted or failed turn, or a turn the runner
 });
 
 // docs/protocol.md, "Needs you".
-const END_TURN = 'mcp__threadbear__end_turn';
+const END_TURN = 'mcp__quokkacode__end_turn';
 
 function endTurnCall(s: ReturnType<typeof makeHarness>['adapter']['last'], itemId: string, input: Record<string, unknown>) {
   s.out({ kind: 'event', event: { type: 'tool.call', itemId, name: END_TURN, kind: 'mcp', title: 'end_turn', input } });
@@ -1965,7 +1965,7 @@ test('who started a thread: a row says so when it was not Mike, and end_turn say
 test('who started a thread: the runner and a schedule each say so', () => {
   const h = makeHarness();
   const notice = h.runner.noticeOnMac(undefined, 'A dialog', 'A dialog is waiting');
-  assert.deepEqual(h.runner.get(notice).startedBy, { kind: 'runner', label: 'Threadbear' });
+  assert.deepEqual(h.runner.get(notice).startedBy, { kind: 'runner', label: 'QuokkaCode' });
   const scheduled = create(h, { origin: 'schedule', scheduleId: 'sc1', title: 'Nightly' }).thread;
   assert.deepEqual(scheduled.startedBy, { kind: 'schedule', label: 'Schedule' });
 });

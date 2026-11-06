@@ -220,7 +220,7 @@ test('codex: the first start installs the latest into its own copy and activates
   assert.equal(fs.readlinkSync(path.join(t.tools, 'current')), '0.165.0');
   assert.equal(t.u.codexBinary(), path.join(t.tools, 'current'));
   const c = of(t.u.list(), 'codex');
-  assert.deepEqual([c.installedVersion, c.status, c.managedBy, c.update?.state, c.path], ['0.165.0', 'current', 'threadbear', 'succeeded', path.join(t.tools, 'current')]);
+  assert.deepEqual([c.installedVersion, c.status, c.managedBy, c.update?.state, c.path], ['0.165.0', 'current', 'quokkacode', 'succeeded', path.join(t.tools, 'current')]);
   assert.deepEqual(t.hooks.released.filter(([p]) => p === 'codex'), [['codex', '0.165.0']]);
   const state = JSON.parse(fs.readFileSync(path.join(t.tools, 'state.json'), 'utf8'));
   assert.equal(state.current, '0.165.0');
@@ -392,7 +392,7 @@ test('codex: a session running on the old binary carries on while the new versio
   assert.match(fs.realpathSync(resolve(t.u.codexBinary()).command), /\/0\.165\.0\//);
 });
 
-test('policies: the app\'s choice persists; THREADBEAR_CLI_UPDATES=off and a hand-set codexPath win', async () => {
+test('policies: the app\'s choice persists; QUOKKACODE_CLI_UPDATES=off and a hand-set codexPath win', async () => {
   const t = setup();
   t.u.setPolicy('codex', 'notify');
   assert.equal(of(t.make().list(), 'codex').policy, 'notify', 'kept in updates.json');
@@ -401,7 +401,7 @@ test('policies: the app\'s choice persists; THREADBEAR_CLI_UPDATES=off and a han
   assert.deepEqual(t.npm.installs(), [], 'notify only reports');
   assert.equal(of(t.u.list(), 'codex').status, 'missing');
 
-  const off = setup({ env: { PATH: '/usr/bin:/bin', THREADBEAR_CLI_UPDATES: 'off' } });
+  const off = setup({ env: { PATH: '/usr/bin:/bin', QUOKKACODE_CLI_UPDATES: 'off' } });
   off.u.setPolicy('claude', 'auto');
   assert.deepEqual(off.u.list().map((c) => c.policy), ['off', 'off']);
   // A copy installed earlier isn't used: tests and dev runners use the fallback.

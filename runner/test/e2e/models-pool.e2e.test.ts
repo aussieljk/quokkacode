@@ -32,12 +32,12 @@ async function startRunner(): Promise<void> {
     cwd: RUNNER_DIR,
     env: {
       ...process.env,
-      THREADBEAR_HOME: home,
-      THREADBEAR_PORT: '0',
-      THREADBEAR_LOG: path.join(root, 'runner.log'),
-      THREADBEAR_DEBUG: '1',
-      THREADBEAR_CLI_UPDATES: 'off', THREADBEAR_TOKEN_TALLY: 'off',
-      THREADBEAR_FOLLOW_MAIN: '0',
+      QUOKKACODE_HOME: home,
+      QUOKKACODE_PORT: '0',
+      QUOKKACODE_LOG: path.join(root, 'runner.log'),
+      QUOKKACODE_DEBUG: '1',
+      QUOKKACODE_CLI_UPDATES: 'off', QUOKKACODE_TOKEN_TALLY: 'off',
+      QUOKKACODE_FOLLOW_MAIN: '0',
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
@@ -63,7 +63,7 @@ describe('small jobs on a Claude pool, end to end', { concurrency: false }, () =
   before(async () => {
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'tb-e2e-models-pool-'));
     home = path.join(root, 'home');
-    assert.ok(!home.includes('Application Support/Threadbear'));
+    assert.ok(!home.includes('Application Support/QuokkaCode'));
     await startRunner();
   });
 

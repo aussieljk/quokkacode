@@ -298,7 +298,7 @@ public final class DockController {
 
     /// The panel showing at `point` (in `window`'s coordinates): the front
     /// panel of the group there, or the panel a window of its own holds.
-    /// Threadbear's activity log says where a click was with it.
+    /// Quokka Code's activity log says where a click was with it.
     public func panel(at point: CGPoint, in window: NSWindow) -> PanelID? {
         if let own = window as? DockPanelWindow { return own.panel }
         guard let anchor, anchor.window === window else { return nil }
@@ -323,7 +323,7 @@ public final class DockController {
     /// A panel that isn't in the layout, straight into a window of its own
     /// in the middle of the dock's window, at `size` within the usual
     /// limits. Put Back docks it down the right. One that's in the layout
-    /// already comes to the front instead. (Threadbear's show_panel, when an
+    /// already comes to the front instead. (Quokka Code's show_panel, when an
     /// agent asks for a window.)
     public func openInNewWindow(_ panel: PanelID, size: CGSize = CGSize(width: 560, height: 520)) {
         guard !layout.contains(panel) else { return show(panel) }
@@ -388,7 +388,7 @@ public final class DockController {
     }
 
     /// Past the edge of the window the dock's in, not just the dock (the
-    /// app may have more beside it, like Threadbear's rail).
+    /// app may have more beside it, like Quokka Code's rail).
     func isOutsideWindow(_ p: CGPoint) -> Bool {
         guard let anchor, let content = anchor.window?.contentView else { return !bounds.contains(p) }
         return !anchor.convert(content.bounds, from: content).contains(p)

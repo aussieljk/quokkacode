@@ -23,7 +23,7 @@ function write(folder: string, files: Record<string, string>): void {
   }
 }
 
-const patchIn = (folder: string, name = 'tools.ts') => path.join(folder, '.threadbear', 'patches', name);
+const patchIn = (folder: string, name = 'tools.ts') => path.join(folder, '.quokkacode', 'patches', name);
 
 // Follow options as patchHash gives them, for script-trust on its own.
 const follow = (folder: string) => ({
@@ -96,7 +96,7 @@ test("F10: a trusted patch's bare import that resolves through the repo's own pa
       // What `zod` was when the patch was trusted: a real package.
       'node_modules/zod/package.json': JSON.stringify({ name: 'zod', type: 'module', exports: './index.mjs' }),
       'node_modules/zod/index.mjs': 'export const list = 1;\n',
-      '.threadbear/patches/tools.ts': `import { list } from '${spec}';\nexport default { actions: [{ title: 'Go ' + list, run: 'true' }] };\n`,
+      '.quokkacode/patches/tools.ts': `import { list } from '${spec}';\nexport default { actions: [{ title: 'Go ' + list, run: 'true' }] };\n`,
     });
     const trust = new PatchTrust();
     // The hash never covered package.json, so the yes from before holds.
@@ -117,7 +117,7 @@ test("F10: a repo unpacked inside some node_modules/zod folder can't self-refere
     'package.json': JSON.stringify({ name: 'zod', type: 'module', exports: './scripts/x.mjs' }),
     'scripts/x.mjs': `import fs from 'node:fs';\nfs.writeFileSync(${JSON.stringify(ran)}, 'x');\nexport const list = 1;\n`,
     // .mjs: Node won't strip types under node_modules.
-    '.threadbear/patches/tools.mjs': "import { list } from 'zod';\nexport default { actions: [{ title: 'Go ' + list, run: 'true' }] };\n",
+    '.quokkacode/patches/tools.mjs': "import { list } from 'zod';\nexport default { actions: [{ title: 'Go ' + list, run: 'true' }] };\n",
   });
   const trust = new PatchTrust();
   assert.equal(trust.trustCurrent([patchIn(folder, 'tools.mjs')]).length, 1);
@@ -134,7 +134,7 @@ test('F10: a bare import of a real package in node_modules, or a builtin, still 
     'package.json': JSON.stringify({ name: 'repo', type: 'module' }),
     'node_modules/left-pad-x/package.json': JSON.stringify({ name: 'left-pad-x', type: 'module', exports: './index.mjs' }),
     'node_modules/left-pad-x/index.mjs': "export const title = 'Padded';\n",
-    '.threadbear/patches/tools.ts': "import path from 'path';\nimport { title } from 'left-pad-x';\nexport default { actions: [{ title: title + path.sep, run: 'true' }] };\n",
+    '.quokkacode/patches/tools.ts': "import path from 'path';\nimport { title } from 'left-pad-x';\nexport default { actions: [{ title: title + path.sep, run: 'true' }] };\n",
   });
   const trust = new PatchTrust();
   trust.trustCurrent([patchIn(folder)]);
@@ -154,7 +154,7 @@ test("F11: two different file sets that version 2's newline-joined encoding hash
   // The patch: a hook script that sources ./lib.sh if it's there, a
   // string naming the odd folder's k.sh, and ./z/k.sh.
   write(folder, {
-    '.threadbear/patches/tools.ts': `export default { hooks: [{ title: 'H', on: 'turn.end', run: './a-setup.sh' }], actions: [{ title: 'A', run: ${JSON.stringify(`'./${odd}/k.sh'`)} }], note: './z/k.sh' };\n`,
+    '.quokkacode/patches/tools.ts': `export default { hooks: [{ title: 'H', on: 'turn.end', run: './a-setup.sh' }], actions: [{ title: 'A', run: ${JSON.stringify(`'./${odd}/k.sh'`)} }], note: './z/k.sh' };\n`,
     'a-setup.sh': '#!/bin/sh\n[ -f ./lib.sh ] && . ./lib.sh\n',
   });
   const file = patchIn(folder);
@@ -162,7 +162,7 @@ test("F11: two different file sets that version 2's newline-joined encoding hash
   const v2 = (h: ReturnType<typeof patchHash>) => {
     const dir = path.dirname(h.root);
     const lines = h.deps.map((d) => `${path.relative(dir, d.path)} ${d.sha256 ?? 'missing'}`).sort();
-    return sha256(Buffer.from(['threadbear-patch-2', h.own, ...lines].join('\n')));
+    return sha256(Buffer.from(['quokkacode-patch-2', h.own, ...lines].join('\n')));
   };
 
   // Version A: k.sh in a folder named "lib.sh <hex>\nz", and no lib.sh.
@@ -171,9 +171,9 @@ test("F11: two different file sets that version 2's newline-joined encoding hash
   assert.ok(a.deps.some((d) => d.path.endsWith(`${odd}/k.sh`)), 'the odd path is followed');
   assert.match(a.incomplete ?? '', /newline or another control character/);
 
-  // Version B: that folder gone, .threadbear/patches/z/k.sh and an evil lib.sh.
+  // Version B: that folder gone, .quokkacode/patches/z/k.sh and an evil lib.sh.
   fs.rmSync(path.join(folder, odd), { recursive: true });
-  write(folder, { '.threadbear/patches/z/k.sh': 'true\n', 'lib.sh': evil });
+  write(folder, { '.quokkacode/patches/z/k.sh': 'true\n', 'lib.sh': evil });
   const b = patchHash(file);
   assert.equal(b.incomplete, undefined);
   assert.equal(v2(a), v2(b), "version 2's encoding couldn't tell them apart");
@@ -191,8 +191,8 @@ test('F11: no hash an earlier version stored trusts a patch now, with helpers or
   for (const withHelper of [false, true]) {
     const folder = path.join(root, withHelper ? 'helped' : 'solo');
     write(folder, {
-      '.threadbear/patches/tools.ts': withHelper ? "import { t } from '../lib/t.ts';\nexport default { actions: [{ title: t, run: 'true' }] };\n" : "export default { actions: [{ title: 'Solo', run: 'true' }] };\n",
-      '.threadbear/lib/t.ts': "export const t = 'Helped';\n",
+      '.quokkacode/patches/tools.ts': withHelper ? "import { t } from '../lib/t.ts';\nexport default { actions: [{ title: t, run: 'true' }] };\n" : "export default { actions: [{ title: 'Solo', run: 'true' }] };\n",
+      '.quokkacode/lib/t.ts': "export const t = 'Helped';\n",
     });
     const file = patchIn(folder);
     const now = patchHash(file);
@@ -200,7 +200,7 @@ test('F11: no hash an earlier version stored trusts a patch now, with helpers or
     const lines = now.deps.map((d) => `${path.relative(dir, d.path)} ${d.sha256}`).sort();
     // Version 1/2 for a helper-less patch: its own text's hash. Version 2
     // with helpers: the newline-joined lines.
-    const old = now.deps.length ? sha256(Buffer.from(['threadbear-patch-2', now.own, ...lines].join('\n'))) : now.own;
+    const old = now.deps.length ? sha256(Buffer.from(['quokkacode-patch-2', now.own, ...lines].join('\n'))) : now.own;
     const trustFile = path.join(tmpDir(), 'patch-trust.json');
     fs.writeFileSync(trustFile, JSON.stringify({ version: 2, folders: { [folderKey(file)]: [old] } }));
     const trust = new PatchTrust({ file: trustFile });
@@ -218,12 +218,12 @@ test("F11: an old trust file's hash of a patch whose text is a version 3 hash's 
   const folder = path.join(root, 'repo');
   const marks = tmpDir();
   const ran = path.join(marks, 'b.ran');
-  write(folder, { '.threadbear/patches/tools.ts': `import fs from 'node:fs';\nfs.writeFileSync(${JSON.stringify(ran)}, 'x');\nexport default { actions: [] };\n` });
+  write(folder, { '.quokkacode/patches/tools.ts': `import fs from 'node:fs';\nfs.writeFileSync(${JSON.stringify(ran)}, 'x');\nexport default { actions: [] };\n` });
   const file = patchIn(folder);
   const b = patchHash(file);
   // What a version 2 runner stored for a helper-less patch whose bytes
   // are B's version 3 preimage: their SHA-256, which is B's hash.
-  const oldBytes = JSON.stringify(['threadbear-patch-3', b.own, []]);
+  const oldBytes = JSON.stringify(['quokkacode-patch-3', b.own, []]);
   assert.equal(sha256(oldBytes), b.hash);
   const trustFile = path.join(tmpDir(), 'patch-trust.json');
   fs.writeFileSync(trustFile, JSON.stringify({ version: 2, folders: { [folderKey(file)]: [sha256(oldBytes), 'claude:' + 'a'.repeat(64)] } }));
@@ -253,8 +253,8 @@ test('F17: an .npmrc, .yarnrc or pnpm-workspace.yaml of a few hundred thousand n
     const folder = realTmp();
     const small = realTmp();
     const patch = "export default { actions: [{ title: 'I', run: 'npm install' }] };\n";
-    write(folder, { 'package.json': '{}', [rc]: body, '.threadbear/patches/tools.ts': patch });
-    write(small, { 'package.json': '{}', [rc]: '\n', '.threadbear/patches/tools.ts': patch });
+    write(folder, { 'package.json': '{}', [rc]: body, '.quokkacode/patches/tools.ts': patch });
+    write(small, { 'package.json': '{}', [rc]: '\n', '.quokkacode/patches/tools.ts': patch });
     // The parse itself, then the whole hash (oxc, the follow) around it,
     // against the same patch beside a one-line file.
     assertLinear(`${rc} parse`, pass(body), () => (rc === 'pnpm-workspace.yaml' ? yamlListItems(body) : rcConfig(rc, body)));
@@ -311,8 +311,8 @@ test('F18: a Makefile of a few hundred thousand blank lines (or unclosed `$(`s) 
     const folder = realTmp();
     const small = realTmp();
     const patch = "export default { actions: [{ title: 'M', run: 'make' }] };\n";
-    write(folder, { Makefile: body, '.threadbear/patches/tools.ts': patch });
-    write(small, { Makefile: '\n', '.threadbear/patches/tools.ts': patch });
+    write(folder, { Makefile: body, '.quokkacode/patches/tools.ts': patch });
+    write(small, { Makefile: '\n', '.quokkacode/patches/tools.ts': patch });
     const label = JSON.stringify(body.slice(0, 4));
     assertLinear(`${label} parse`, pass(body), () => body.split('\n').map((l) => [setsMakeShell(l), makeRecipeToShell(l)]));
     const out = assertLinear(label, () => (patchHash(patchIn(small)), pass(body)()), () => patchHash(patchIn(folder)), 20);
@@ -338,8 +338,8 @@ test("F18: a Makefile's own SHELL is still found a line at a time, after export 
 test("F19: a patch with `./` and a long run of dots is hashed in linear time, and a sentence's full stop still comes off a path", () => {
   const folder = realTmp();
   const plain = realTmp();
-  write(folder, { '.threadbear/patches/x.ts': `// ./${'.'.repeat(5_000_000)}x\nexport default { actions: [] };\n` });
-  write(plain, { '.threadbear/patches/x.ts': `// ${'a'.repeat(5_000_000)}\nexport default { actions: [] };\n` });
+  write(folder, { '.quokkacode/patches/x.ts': `// ./${'.'.repeat(5_000_000)}x\nexport default { actions: [] };\n` });
+  write(plain, { '.quokkacode/patches/x.ts': `// ${'a'.repeat(5_000_000)}\nexport default { actions: [] };\n` });
   // The report's 5 MB of dots, through the whole hash, against a patch
   // as big with nothing in it to follow (both about 15 ms at full speed).
   assertLinear('5 MB patch', () => patchHash(patchIn(plain, 'x.ts')), () => patchHash(patchIn(folder, 'x.ts')), 5);
@@ -377,19 +377,19 @@ test('pre-trust hashing: a script with a very long word is followed in linear ti
 
 test("F20: a folder whose .git is a symlink to a real worktree's .git doesn't take on its main checkout's trust, and its patch never runs", async () => {
   const root = tmpDir();
-  const main = path.join(root, 'threadbear');
+  const main = path.join(root, 'quokkacode');
   fs.mkdirSync(main);
   git(main, 'init', '-q', '-b', 'main');
   git(main, '-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-q', '--allow-empty', '-m', 'first');
-  const wt = path.join(root, 'threadbear-threads', 'slot-1');
+  const wt = path.join(root, 'quokkacode-threads', 'slot-1');
   git(main, 'worktree', 'add', '-q', '--detach', wt, 'main');
   const marks = tmpDir();
-  // The always-trusted checkout, as Threadbear's own is.
+  // The always-trusted checkout, as Quokka Code's own is.
   const trust = new PatchTrust({ always: [main] });
   for (const how of ['absolute', 'relative', 'hardlink'] as const) {
     const evil = path.join(root, `evil-${how}`);
     const ran = path.join(marks, `${how}.ran`);
-    write(evil, { '.threadbear/patches/x.ts': `import fs from 'node:fs';\nfs.writeFileSync(${JSON.stringify(ran)}, 'x');\nexport default { actions: [{ title: 'Evil', run: 'true' }] };\n` });
+    write(evil, { '.quokkacode/patches/x.ts': `import fs from 'node:fs';\nfs.writeFileSync(${JSON.stringify(ran)}, 'x');\nexport default { actions: [{ title: 'Evil', run: 'true' }] };\n` });
     const target = path.join(wt, '.git');
     if (how === 'absolute') fs.symlinkSync(target, path.join(evil, '.git'));
     else if (how === 'relative') fs.symlinkSync(path.relative(evil, target), path.join(evil, '.git'));
@@ -408,7 +408,7 @@ test("F20: a folder whose .git is a symlink to a real worktree's .git doesn't ta
   fs.mkdirSync(record, { recursive: true });
   execFileSync('mkfifo', [path.join(record, 'gitdir')]);
   write(fifoed, { '.git': `gitdir: ${record}\n` });
-  assert.equal(folderKey(path.join(fifoed, '.threadbear', 'patches', 'x.ts')), fs.realpathSync(fifoed));
+  assert.equal(folderKey(path.join(fifoed, '.quokkacode', 'patches', 'x.ts')), fs.realpathSync(fifoed));
 });
 
 // ---- F22: live state and list panels ----
@@ -421,7 +421,7 @@ async function liveRepo(files: Record<string, string> = {}, patch?: string) {
   const marks = tmpDir();
   write(repo, {
     '.git/HEAD': 'ref: refs/heads/main\n',
-    '.threadbear/patches/p.ts': `const n = async ({ sh }) => Number((await sh('./tools/count.sh')).trim());
+    '.quokkacode/patches/p.ts': `const n = async ({ sh }) => Number((await sh('./tools/count.sh')).trim());
 export default {
   panels: [
     { title: 'Status', url: 'http://localhost:3000', badge: n },
@@ -432,7 +432,7 @@ export default {
     'tools/count.sh': '#!/bin/sh\necho 3\n',
     'web/index.html': '',
     ...files,
-    ...(patch ? { '.threadbear/patches/p.ts': patch } : {}),
+    ...(patch ? { '.quokkacode/patches/p.ts': patch } : {}),
   });
   fs.chmodSync(path.join(repo, 'tools/count.sh'), 0o755);
   const trust = new PatchTrust();
@@ -451,7 +451,7 @@ export default {
   return { root, repo, thread, marks, trust, ctx, ran };
 }
 
-test("F22: a trusted patch's badge and list panel run its sh commands from the folder holding .threadbear/, not the thread's subfolder, so a pulled-in web/tools/count.sh never runs", async () => {
+test("F22: a trusted patch's badge and list panel run its sh commands from the folder holding .quokkacode/, not the thread's subfolder, so a pulled-in web/tools/count.sh never runs", async () => {
   const { root, repo, thread, marks, trust, ctx, ran } = await liveRepo();
   // A later pull adds R/web/tools/count.sh, which nothing hashed.
   const evil = path.join(marks, 'web-count.ran');
@@ -538,7 +538,7 @@ test("F22: a tool patch's live command can't run a script of the tool's own repo
   write(tool, {
     '.git/HEAD': 'ref: refs/heads/main\n',
     // The script's path is put together in code, so no string names it.
-    '.threadbear/patches/t.ts': `import path from 'node:path';
+    '.quokkacode/patches/t.ts': `import path from 'node:path';
 const script = path.resolve(import.meta.dirname, '..', '..', 'bin', 'badge' + '.sh');
 export default { appliesTo: ['*.foo'], panels: [{ title: 'Status', url: 'http://localhost:3000', badge: async ({ sh }) => Number(await sh(script)) }] };\n`,
     'bin/badge.sh': `#!/bin/sh\ntouch ${JSON.stringify(ran)}\necho 2\n`,
@@ -574,7 +574,7 @@ test('F28: a hook script that runs `sh /dev/stdin < ./steps.txt` (or reads its p
     const folder = path.join(tmpDir(), 'repo');
     write(folder, {
       '.git/HEAD': 'ref: refs/heads/main\n',
-      '.threadbear/patches/tools.ts': "export default { hooks: [{ title: 'Check', on: 'turn.end', run: './scripts/check.sh' }] };\n",
+      '.quokkacode/patches/tools.ts': "export default { hooks: [{ title: 'Check', on: 'turn.end', run: './scripts/check.sh' }] };\n",
       'scripts/check.sh': `#!/bin/sh\n${line}\n`,
       'scripts/steps.txt': 'echo looks like data\n',
     });
@@ -703,8 +703,8 @@ test('pre-trust hashing: a long first word with many words after it is linear, a
   write(folder, { 'a.sh': text });
   assertLinear('long first word', () => Array.from(text, (c) => ({ k: 'lit', s: c })), () => reachOf(path.join(folder, 'a.sh'), follow(folder)), 200);
   const big = realTmp();
-  fs.mkdirSync(path.join(big, '.threadbear/patches'), { recursive: true });
-  fs.writeFileSync(path.join(big, '.threadbear/patches/tools.ts'), "export default { actions: [{ title: 'S', run: 'node ./big.js' }], worktree: { setup: './s.sh' } };\n");
+  fs.mkdirSync(path.join(big, '.quokkacode/patches'), { recursive: true });
+  fs.writeFileSync(path.join(big, '.quokkacode/patches/tools.ts'), "export default { actions: [{ title: 'S', run: 'node ./big.js' }], worktree: { setup: './s.sh' } };\n");
   fs.writeFileSync(path.join(big, 's.sh'), 'node ./big.js\n');
   // Sparse: 40 MB on paper, nothing written.
   const fd = fs.openSync(path.join(big, 'big.js'), 'w');

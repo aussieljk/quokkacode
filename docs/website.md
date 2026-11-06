@@ -1,6 +1,6 @@
 # The website
 
-Threadbear in a browser, so a thread has a link you can paste anywhere:
+Quokka Code in a browser, so a thread has a link you can paste anywhere:
 `https://opulent-moose-249.ap-southeast-2.convex.site/t/<threadId>`.
 Built 28 Oct 2026 (thread 66935d23).
 
@@ -74,14 +74,14 @@ started, the model, the messages (with origin, summary and turn, so the
 page folds each turn as the apps do), the tool lines and the thread's
 pictures, and nothing else; or `gone` for a link that isn't shared.
 
-Whoever opens a shared link usually isn't using Threadbear, so the page
+Whoever opens a shared link usually isn't using Quokka Code, so the page
 reads as a short write-up rather than a chat: a big title, a byline
 (model, date, turns, time worked), then each turn as the ask set as a
 quote, its work folded to one "Worked for" line, and the answer, with the
 pictures from the work shown large after it. On a wide screen an outline
 of the asks sits on the left and marks the one you're reading; on a
 narrow one it's the "3 turns" menu in the top bar. Copy link is top
-right, and "Made with Threadbear" links to the landing page.
+right, and "Made with Quokka Code" links to the landing page.
 
 **Link previews.** Slack, X and Messages read a page's meta tags without
 running its script, so `/s/<slug>` is served by `convex/http.ts`: the
@@ -95,7 +95,7 @@ thread isn't shared, with `manage`, so his page keeps its controls.
 Pictures are in file storage (`shareImages`), uploaded by the runner only
 while the thread is shared and dropped when it stops, and only real
 pictures from the thread's media folder (attachments, tool pictures, and
-what the agent copies into `THREADBEAR_MEDIA_DIR`), never its working
+what the agent copies into `QUOKKACODE_MEDIA_DIR`), never its working
 folder or a temp folder (docs/protocol.md, "Sharing"). A picture written in
 a message's Markdown (`src`) takes the place of that Markdown image; the
 rest go after the row they came with. Mike's own thread page shows them
@@ -106,7 +106,7 @@ uploaded shows as its alt text, not a broken image.
 
 Sharing with specific people (an emailed code, through Resend) was built
 on 28 Oct and taken out on 29 Oct: Mike wanted a public link and nothing
-else for now, and it needed a Resend key Threadbear doesn't have.
+else for now, and it needed a Resend key Quokka Code doesn't have.
 
 ## Signing in
 

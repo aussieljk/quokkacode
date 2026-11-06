@@ -1,5 +1,5 @@
 // The requests Codex sends to the runner: approvals, questions, MCP
-// elicitations, Threadbear tool calls and the clock. This owns the pending
+// elicitations, Quokka Code tool calls and the clock. This owns the pending
 // map, the decision mapping, serverRequest/resolved and the "Always allow"
 // rules. Every request gets an answer: a card, a rule, or a refusal at once.
 import path from 'node:path';
@@ -39,7 +39,7 @@ export function refusal(method: string): Reply {
     case 'mcpServer/elicitation/request':
       return { result: { action: 'decline', content: null, _meta: null } };
     default:
-      return { error: { code: -32601, message: `Threadbear doesn't handle ${method} here.` } };
+      return { error: { code: -32601, message: `Quokka Code doesn't handle ${method} here.` } };
   }
 }
 
@@ -241,7 +241,7 @@ export type ApprovalsDeps = {
   // What the session saw of an item on item/started: the paths a fileChange
   // touches, for the card's title.
   itemPaths(itemId: string): string[] | undefined;
-  // Whether a file (absolute) is one Threadbear runs as code
+  // Whether a file (absolute) is one Quokka Code runs as code
   // (code-writes.ts): a patch that changes one always asks.
   runsAsCode(file: string): boolean;
   callTool(params: DynamicToolCallParams, o: { fromChild: boolean; signal: AbortSignal }): Promise<DynamicToolCallResponse>;
@@ -292,7 +292,7 @@ export class CodexApprovals {
         return this.deps.reply(id, { currentTimeAt: Math.floor(this.deps.now() / 1000) });
       default:
         this.deps.log.info('refused an unknown codex request', { threadId: this.deps.label, method });
-        return this.deps.replyError(id, -32601, `Threadbear doesn't handle ${method}.`);
+        return this.deps.replyError(id, -32601, `Quokka Code doesn't handle ${method}.`);
     }
   }
 
@@ -452,8 +452,8 @@ export class CodexApprovals {
   private elicitation(id: RequestId, p: McpServerElicitationRequestParams): void {
     const server = p.serverName || 'An MCP server';
     if (p.mode !== 'form') {
-      const what = p.mode === 'url' && p.url ? `to open ${p.url}` : `for input Threadbear can't show (${p.mode})`;
-      this.deps.note(`${server} asked ${what}${p.message ? `: ${firstLine(p.message)}` : ''}. Threadbear declined it.`);
+      const what = p.mode === 'url' && p.url ? `to open ${p.url}` : `for input Quokka Code can't show (${p.mode})`;
+      this.deps.note(`${server} asked ${what}${p.message ? `: ${firstLine(p.message)}` : ''}. Quokka Code declined it.`);
       this.deps.reply(id, { action: 'decline', content: null, _meta: null });
       return;
     }

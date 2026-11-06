@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-// Builds and tests Threadbear starts itself (the land's check, a new
+// Builds and tests Quokka Code starts itself (the land's check, a new
 // worktree's setup, turn hooks like the runner typecheck, the release
 // builds) run at macOS's background priority, as Mike asks of everything
 // heavy on his M5 ("Heavy compute" in his CLAUDE.md): `taskpolicy -b`

@@ -110,7 +110,7 @@ export const worktreesPart = {
   // checkout's files (an uncommitted edit, a script changed on main), and
   // setup runs by itself. So that copy, with the scripts it names as they
   // are in the worktree, must be a version Mike trusted (Daybreak, 5 Nov).
-  // Threadbear's own worktrees count as its checkout, so stay trusted.
+  // Quokka Code's own worktrees count as its checkout, so stay trusted.
   async worktreeSetup(this: Runner, copy: string, id: string): Promise<{ command?: string; run?: string } | { skip: string }> {
     let verdict;
     try {
@@ -162,7 +162,7 @@ export const worktreesPart = {
     this.tellActivity({ kind: 'moved', threadId: rec.id, from, to });
     const went = w.spare ? 'was handed on to other threads' : 'was removed';
     this.emit(st, { type: 'system.note', text: `This thread's worktree ${went} when it was archived, so it carries on in the main checkout, ${to}.` }, turnId);
-    return `[Threadbear] Your worktree at ${w.path} ${went} after its work landed on main. You're now in the main checkout, ${to}, which other threads share: stage your own files by name.`;
+    return `[QuokkaCode] Your worktree at ${w.path} ${went} after its work landed on main. You're now in the main checkout, ${to}, which other threads share: stage your own files by name.`;
   },
 
   // The Land chip, for a thread with a worktree of its own.
@@ -190,7 +190,7 @@ export const worktreesPart = {
   // At start (and when a thread is handed over): an archived thread whose
   // worktree and branch have gone (or whose folder another thread has
   // taken) but whose record never said so (a handover saved it mid-cleanup
-  // before 6 Nov, THREADBEAR-16, or the runner stopped there) is told now,
+  // before 6 Nov, QUOKKACODE-16, or the runner stopped there) is told now,
   // so it shows no Land chip and, brought back, never carries on in the
   // folder. Each check counts as the thread's cleanup, so a message sent
   // meanwhile waits for it (deliver).

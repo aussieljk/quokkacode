@@ -1,6 +1,6 @@
 // How many tokens each login has spent, by the hour, for the Usage panel's
 // charts (docs/protocol.md, "Usage history"). Read from the CLIs' own
-// transcripts, so turns run outside Threadbear count too: Claude's
+// transcripts, so turns run outside Quokka Code count too: Claude's
 // <configDir>/projects/**/*.jsonl and Codex's <configDir>/sessions and
 // archived_sessions. Only what's new since the last look is read, and the
 // hourly totals and where it got to in each file are kept in

@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 import { makeHarness, tick, tmpDir } from '../helpers/fakes.ts';
 import { Projects } from '../../src/projects.ts';
 import { FakeClock } from '../../src/clock.ts';
-import { buildThreadbearTools } from '../../src/threadbear-mcp.ts';
+import { buildQuokkaCodeTools } from '../../src/quokkacode-mcp.ts';
 import { CodexTools, type ToolDefinition } from '../../src/adapters/codex/tools.ts';
 import { Scheduler } from '../../src/schedules.ts';
 import { nullLogger } from '../../src/log.ts';
@@ -33,7 +33,7 @@ function setup(callerMode: PermissionMode, control?: (h: H) => H['runner']) {
   const other = start(h, 'Other work', 'full');
   const askOther = start(h, 'Careful work', 'ask');
   const me = start(h, 'Me', callerMode);
-  const list = buildThreadbearTools(control ? control(h) : h.runner, me.id, () => h.clock.now(), sched, projects, undefined, { scheduleChecks: () => true, sleep: async () => {} });
+  const list = buildQuokkaCodeTools(control ? control(h) : h.runner, me.id, () => h.clock.now(), sched, projects, undefined, { scheduleChecks: () => true, sleep: async () => {} });
   // The handler as the SDK runs it: what Claude's CLI does once its own
   // allowedTools rule (from a tool-wide "Always allow") or Auto's
   // classifier has let the call through.
@@ -177,11 +177,11 @@ for (const mode of ['ask', 'auto'] as const) {
       },
       cwd: () => '/tmp',
       mode: () => mode,
-      rules: () => ['mcp__threadbear__update_thread'],
+      rules: () => ['mcp__quokkacode__update_thread'],
       addRules: () => {},
     });
     const before = s.cards().length;
-    const p = codex.call({ threadId: 'n', turnId: 't', callId: 'c', namespace: 'threadbear', tool: 'update_thread', arguments: { permissionMode: 'full' } }, { fromChild: false, signal: new AbortController().signal });
+    const p = codex.call({ threadId: 'n', turnId: 't', callId: 'c', namespace: 'quokkacode', tool: 'update_thread', arguments: { permissionMode: 'full' } }, { fromChild: false, signal: new AbortController().signal });
     for (let i = 0; i < 50 && s.cards().length === before; i++) await tick();
     assert.equal(asked.length, 0, 'the tool-level rule let it past');
     const card = s.cards().at(-1);
@@ -191,7 +191,7 @@ for (const mode of ['ask', 'auto'] as const) {
     assert.equal(r.success, false);
     assert.equal(s.h.runner.get(s.me.id).permissionMode, mode);
     // A rename still goes through on the rule alone.
-    const renamed = await codex.call({ threadId: 'n', turnId: 't', callId: 'd', namespace: 'threadbear', tool: 'update_thread', arguments: { title: 'New name' } }, { fromChild: false, signal: new AbortController().signal });
+    const renamed = await codex.call({ threadId: 'n', turnId: 't', callId: 'd', namespace: 'quokkacode', tool: 'update_thread', arguments: { title: 'New name' } }, { fromChild: false, signal: new AbortController().signal });
     assert.equal(renamed.success, true);
     assert.equal(s.cards().length, before + 1);
   });

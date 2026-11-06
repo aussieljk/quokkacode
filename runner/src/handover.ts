@@ -24,7 +24,7 @@ import { ErrorCode, RpcError } from './protocol.ts';
 import type { PermissionMode, ThreadSummary } from './protocol.ts';
 import type { Notification, Runner } from './runner.ts';
 import type { UsageReading } from './usage.ts';
-import type { AgentApprovalRequest, ProjectControl, ScheduleControl, ThreadControl } from './threadbear-mcp.ts';
+import type { AgentApprovalRequest, ProjectControl, ScheduleControl, ThreadControl } from './quokkacode-mcp.ts';
 import type { ToolApprovalAnswer } from './adapters/types.ts';
 import type { Scheduler } from './schedules.ts';
 import type { CommandHost } from './sync.ts';
@@ -502,7 +502,7 @@ export function primaryElsewhere(link: PrimaryLink, runner: Pick<Runner, 'has'>)
   };
 }
 
-// What the agent tools drive (threadbear-mcp.ts's ThreadControl): this
+// What the agent tools drive (quokkacode-mcp.ts's ThreadControl): this
 // runner's own threads directly, the rest wherever they are.
 // What main.ts gives the router for other runners: cross-runner.ts's start.
 export type CrossRunnerHooks = { start(threadId: string, req: StartRequest): Promise<string | undefined> };
@@ -589,12 +589,12 @@ export class ThreadRouter implements ThreadControl {
   }
 
   // A thread on the other runner counts as having full access: this one
-  // can't see what its turn started with (threadbear-mcp.ts, "Raising access").
+  // can't see what its turn started with (quokkacode-mcp.ts, "Raising access").
   async accessOf(threadId: string): Promise<PermissionMode> {
     return this.away(threadId) ? 'full' : this.runner.accessOf(threadId);
   }
 
-  // Likewise for a threadbear tool's own card (threadbear-mcp.ts, "Raising access").
+  // Likewise for a quokkacode tool's own card (quokkacode-mcp.ts, "Raising access").
   requestAgentApproval(threadId: string, req: AgentApprovalRequest): Promise<ToolApprovalAnswer> {
     return this.runner.requestAgentApproval(threadId, req);
   }
@@ -710,7 +710,7 @@ export function projectRouter(
   // Where a change goes: the primary, once this runner knows where it is.
   const primary = (): Link | undefined => {
     const l = link();
-    if (!l && opts.draining()) throw new Error('Threadbear is starting its new runner; try the project tool again in a few seconds.');
+    if (!l && opts.draining()) throw new Error('Quokka Code is starting its new runner; try the project tool again in a few seconds.');
     return l;
   };
   const there = async <K extends DrainProjectOp>(l: Link, op: K, args: Parameters<Projects[K]>): Promise<Awaited<ReturnType<Projects[K]>>> => {

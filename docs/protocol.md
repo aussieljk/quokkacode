@@ -8,7 +8,7 @@ upgraded first. Times are ISO 8601 strings in UTC. Ids are strings.
 ## Auth
 
 The token is the contents of
-`~/Library/Application Support/Threadbear/secrets/runner-token` (another
+`~/Library/Application Support/QuokkaCode/secrets/runner-token` (another
 Mac's: the copy in `secrets/runners/<id>.token`, see Other runners). It
 never travels: the client proves it has it, and the runner proves the same
 back, so the client knows it reached the real runner before it trusts
@@ -147,7 +147,7 @@ type AccountUsage = {
 type CliStatus = {
   provider: Provider
   path: string          // the binary new sessions start
-  managedBy: "threadbear" | "cli" | "none" // Codex: Threadbear's own copies;
+  managedBy: "quokkacode" | "cli" | "none" // Codex: Quokka Code's own copies;
                         // Claude: its own installer; "none": codexPath set by
                         // hand, never updated
   installedVersion?: string // what new sessions start on
@@ -241,7 +241,7 @@ type ThreadSummary = {
                         // hibernating for a day.") Mirrored to the phone's
                         // row from backend API 13
   archivedAt?: string
-  archivedBy?: "mike" | "agent" | "threadbear" // who archived it; only
+  archivedBy?: "mike" | "agent" | "quokkacode" // who archived it; only
                         // while archivedAt is set (Who archived a thread)
   archiveVerdict?: "worked" | "didntWork" | "notNeeded" // how it went, Mike's
                         // pick from the done card's Archive menu
@@ -365,7 +365,7 @@ type PatchInfo = {
   file?: string         // the module, for home and project patches
   folder?: string       // set (with projectId) when it came from one of
                         // the thread's projects' folders rather than its
-                        // own: the folder holding `.threadbear/`, or a
+                        // own: the folder holding `.quokkacode/`, or a
                         // built-in's project folder
   projectId?: string
   error?: string        // the file couldn't be loaded, and gives nothing until it's fixed
@@ -507,8 +507,8 @@ type LibrarianEntry = {
   threadTitle: string
   reason: LibrarianReason
   outcome: "joined" | "created" | "updated" | "left" | "nothing" | "skipped" | "failed"
-  text: string          // "Put it in Threadbear", "Made Poddle and put it there",
-                        // "Threadbear's state", "No key", the model's error
+  text: string          // "Put it in Quokka Code", "Made Poddle and put it there",
+                        // "Quokka Code's state", "No key", the model's error
   projectIds?: string[]
   costUsd?: number
 }
@@ -597,7 +597,7 @@ type Schedule = {
   runRequestedAt?: string // a schedules.run for it waits for its runner
 }
 
-// A runner Threadbear knows of, from the backend (runners.list).
+// A runner Quokka Code knows of, from the backend (runners.list).
 type RunnerInfo = {
   id: string
   name: string          // "m5", "bruce": the Mac's hostname by default
@@ -766,7 +766,7 @@ the reply. A crash between that call and the marker may replay the reply
 after restart (at-least-once dispatch). Repeated `reviews.respond` requests
 with the same response never add another reply.
 
-Both Claude and Codex receive `threadbear.show_options` through the shared
+Both Claude and Codex receive `quokkacode.show_options` through the shared
 MCP tool definitions, bound to the calling thread. Its schema matches
 `reviews.create` without `threadId`; it returns the review ID and explains
 that the choice/notes will arrive as a later message. The existing URL
@@ -853,11 +853,11 @@ the summary and then the reply.
 | `threads.list` | `{ include?: ("inbox" \| "snoozed" \| "archived")[] }` (default `["inbox"]`) | `{ threads: ThreadSummary[] }` newest activity first |
 | `threads.search` | `{ query: string, limit?: number }` | `{ threads: ThreadSummary[] }` matches title and preview across all threads, archived included |
 | `threads.create` | `{ text: string, images?: ImageRef[], cwd?: string, accountId?: string, poolId?: string, model?: string, effort?: EffortLevel, permissionMode?: "full" \| "ask", title?: string, worktree?: boolean, startedBy?: { kind, label, icon?, threadId?, why? } }` | `{ thread: ThreadSummary }` (the first turn starts straight away). In a repo that asks for worktrees (see Worktrees) the thread gets one of its own before its first turn; `worktree: false` starts it in the folder as it is. The thread's `provider` is its account's. With no `model`, the thread gets `defaults.models[provider]` from `hello`, or `defaults.model` for Claude, or else the account's own default. With no `effort`, `defaults.efforts[provider]`, or else the model's own level. See "Models and effort across providers" |
-| `threads.samples` | `{ cwd: string, remove?: boolean }` | `{ threads: ThreadSummary[] }`. The app's first-run tour's sample threads (`runner/src/samples.ts`): made up exchanges written as finished turns with no CLI, in `cwd` (the app's `~/ThreadbearThreads/Welcome`, where it writes an example patch), with `sample: true`; the first needs you, with a card of asks, and one is left unread. Asking again deletes any there are and makes them afresh (writing the patch again if it's gone, and trusting it as written). `remove: true` deletes them all, archived and hibernating ones too, and returns none. `threads.send` to a sample is `-32602` |
+| `threads.samples` | `{ cwd: string, remove?: boolean }` | `{ threads: ThreadSummary[] }`. The app's first-run tour's sample threads (`runner/src/samples.ts`): made up exchanges written as finished turns with no CLI, in `cwd` (the app's `~/QuokkaCodeThreads/Welcome`, where it writes an example patch), with `sample: true`; the first needs you, with a card of asks, and one is left unread. Asking again deletes any there are and makes them afresh (writing the patch again if it's gone, and trusting it as written). `remove: true` deletes them all, archived and hibernating ones too, and returns none. `threads.send` to a sample is `-32602` |
 | `threads.send` | `{ threadId, text, images?: ImageRef[], answers?: AskAnswer[], origin?: "phone" }` | `{ turnId }`. `text` can place the `images` among its words with `[Picture N]` markers (Pictures in a message). `origin: "phone"` is only for a phone command the primary passes on to a draining runner (Sync, "Commands"), so the message keeps its origin there; any other `origin` is `-32602`. If a turn is running and its CLI is live, the message goes into that turn straight away (a `user.message` under the running `turnId`, which is returned): the agent takes it at its next step, or right after its reply if that was already finishing, and the turn doesn't complete until it has been answered. If the thread was moved to another login (usually another provider) during the running turn, a message from Mike (or the phone) doesn't steer into the old CLI: the turn is stopped (`system.note` "Stopped here so <model> can take over.") and the message starts the next turn on the new login, with the handoff, as T3 Code does. If the agent is waiting on a card for its own tool call (an approval or a question, with an `itemId`), a message from Mike declines that card first (`approval.resolved` with `deny` and a `message` telling the agent he wrote instead), as the CLI reads nothing else until the card is answered; a background subagent's card is left open. Otherwise (the CLI is still starting or leaving, messages are already waiting, a move or fresh CLI is due on the next turn, Stop has been pressed, or the turn is only an approval for a background subagent) the message is queued and starts its own turn when the running one ends |
 | `threads.interrupt` | `{ threadId }` | `{}` |
 | `threads.edit` | `{ threadId, seq, text, images?: ImageRef[], stopBackground?: boolean }` | `{ turnId, rewound: { seq, fromSeq, toSeq, files } }`. Replaces the message at `seq` and carries on from there (see Editing a message): stops any turn, cuts the conversation back to just before it, undoes the agent's file changes since, and sends `text` as a new turn. Answers once the new turn has started, which can take a few seconds. `-32602` with the reason when the message can't be edited; `-32020` while another edit of the thread is under way or the runner is handing over; `-32050` while the thread has background work running and `stopBackground` isn't `true` (see Editing a message) |
-| `threads.update` | `{ threadId, title?, titleBy?: "mike" \| "agent", cwd?, accountId?, poolId?: string \| null, model?: string \| null, effort?: EffortLevel \| null, permissionMode?, snoozedUntil?: string \| null, archived?: boolean, archivedBy?: "mike" \| "agent" \| "threadbear", verdict?: "worked" \| "didntWork" \| "notNeeded", starred?: boolean }` | `{ thread: ThreadSummary }`. `archivedBy` and `verdict` go with `archived: true`; see "Who archived a thread". `starred` sets or clears `starredAt`; starring a thread that's already starred keeps its place, and neither stops a turn. A `title` is Mike's unless `titleBy` is `"agent"` (the `update_thread` tool, unless the agent says Mike asked for it). Once Mike has named a thread, an agent's different title is `-32602` and nothing in the call changes, and no model title replaces it. `snoozedUntil` is an ISO time, or `"restart"` for until the runner next starts (any start: a planned restart, a crash, a reboot), when the thread wakes before the restart's resume is sent, so a thread put away while its own restart waited is still carried on. `"release"` is the same but only a start (or taking it over from a draining runner) on another release than this runner's wakes it, so a crash or a restart on the same build leaves it asleep (`snoozedUntilRelease`); a runner from a source checkout has no release to tell apart, so there it is `"restart"`. `update_thread`, `end_turn`'s `snooze` and `tb snooze` take it too. Snoozing or archiving releases the CLI (and archives a Codex thread in Codex too). Changing account or cwd takes effect on the next turn; an account change during a turn says so in a `system.note` ("<model> takes over from your next message, which stops this turn."), see `threads.send`. A model or effort change reaches a live Claude CLI straight away (`null` goes back to the default); on Codex it applies from the next turn, with a `system.note` if a turn is running. A folder change on the same Claude account copies the native session's transcript to the new folder and resumes it; on the same Codex account the session carries on in the new folder from the next turn. Otherwise (or if that fails) it starts a new native session with a handoff note: the thread so far under a 16,000-character budget (runner/src/handoff-history.ts, after T3 Code's): messages, tool calls with a little of their output, edited files and errors; the last user message, the last reply and the first message first, then newest to oldest, with gaps marked and a pointer to `read_thread` for the rest. An account of the other provider switches `provider`, resets `model` and `effort` to that provider's defaults unless the same call sets them, and clears the thread's "Always allow" rules. `model` and `effort` are checked as in "Models and effort across providers". `accountId` pins the thread to that login (clearing `poolId`). `poolId: null` pins it to its current login; a pool id puts it in that pool, and moves it onto one of the pool's logins at once (from the next turn) if its current one isn't in it; an unknown one is `-32602`. A move from one Claude login to another copies the session's transcript into the new login's config folder and resumes it there, as a folder move does |
+| `threads.update` | `{ threadId, title?, titleBy?: "mike" \| "agent", cwd?, accountId?, poolId?: string \| null, model?: string \| null, effort?: EffortLevel \| null, permissionMode?, snoozedUntil?: string \| null, archived?: boolean, archivedBy?: "mike" \| "agent" \| "quokkacode", verdict?: "worked" \| "didntWork" \| "notNeeded", starred?: boolean }` | `{ thread: ThreadSummary }`. `archivedBy` and `verdict` go with `archived: true`; see "Who archived a thread". `starred` sets or clears `starredAt`; starring a thread that's already starred keeps its place, and neither stops a turn. A `title` is Mike's unless `titleBy` is `"agent"` (the `update_thread` tool, unless the agent says Mike asked for it). Once Mike has named a thread, an agent's different title is `-32602` and nothing in the call changes, and no model title replaces it. `snoozedUntil` is an ISO time, or `"restart"` for until the runner next starts (any start: a planned restart, a crash, a reboot), when the thread wakes before the restart's resume is sent, so a thread put away while its own restart waited is still carried on. `"release"` is the same but only a start (or taking it over from a draining runner) on another release than this runner's wakes it, so a crash or a restart on the same build leaves it asleep (`snoozedUntilRelease`); a runner from a source checkout has no release to tell apart, so there it is `"restart"`. `update_thread`, `end_turn`'s `snooze` and `tb snooze` take it too. Snoozing or archiving releases the CLI (and archives a Codex thread in Codex too). Changing account or cwd takes effect on the next turn; an account change during a turn says so in a `system.note` ("<model> takes over from your next message, which stops this turn."), see `threads.send`. A model or effort change reaches a live Claude CLI straight away (`null` goes back to the default); on Codex it applies from the next turn, with a `system.note` if a turn is running. A folder change on the same Claude account copies the native session's transcript to the new folder and resumes it; on the same Codex account the session carries on in the new folder from the next turn. Otherwise (or if that fails) it starts a new native session with a handoff note: the thread so far under a 16,000-character budget (runner/src/handoff-history.ts, after T3 Code's): messages, tool calls with a little of their output, edited files and errors; the last user message, the last reply and the first message first, then newest to oldest, with gaps marked and a pointer to `read_thread` for the rest. An account of the other provider switches `provider`, resets `model` and `effort` to that provider's defaults unless the same call sets them, and clears the thread's "Always allow" rules. `model` and `effort` are checked as in "Models and effort across providers". `accountId` pins the thread to that login (clearing `poolId`). `poolId: null` pins it to its current login; a pool id puts it in that pool, and moves it onto one of the pool's logins at once (from the next turn) if its current one isn't in it; an unknown one is `-32602`. A move from one Claude login to another copies the session's transcript into the new login's config folder and resumes it there, as a folder move does |
 | `threads.retitle` | `{ dryRun?: boolean, threadIds?: string[] }` | `{ threads: { threadId, from: string, to?: string, reason?: string }[] }`. Gives a model title to every thread, archived and snoozed included, whose title is still its first message's first line and that nobody has named (`titleSet`); see "Titles" under "Settings and models". One entry per such thread: `to` when it was renamed, `reason` when it wasn't (no key, private folder, over budget, renamed meanwhile). With `threadIds`, those threads whatever their title (a poor model title can be asked for again), still never one named by hand. The model also gets the start of the thread's first reply. `dryRun` lists them without asking the model (`tb retitle`) |
 | `threads.delete` | `{ threadId }` | `{}`. Stops the thread's CLI and moves its folder to `trash/` in the data dir (a Codex thread is archived in Codex too). Every client gets `thread.deleted` |
 | `threads.events` | `{ threadId, afterSeq?: number, beforeSeq?: number, limit?: number }` (default: the newest 500) | `{ events: Event[], firstSeq, lastSeq, inProgress: { itemId, type: "assistant.text" \| "reasoning", text }[] }` |
@@ -873,7 +873,7 @@ the summary and then the reply.
 | `secrets.answer` | `{ threadId, approvalId, secret?: string, decline?: true }` | `{}`. Answers a `secret.requested` card (Secrets). The runner never logs, emits or mirrors `secret` |
 | `media.import` | `{ path: string }` | `{ image: ImageRef }` copies a file into `inbox/` and reads its size; HEIC becomes JPEG and TIFF or BMP becomes PNG |
 | `patches.trust` | `{ threadId, files: { file, hash }[] }` | `{ trusted: string[] }`. Trusts those versions of the thread's waiting patch files (each a `file` its `patches` lists with `untrusted`, and the `hash` given there), then every thread's patches are read again, so the answer comes once they have been. The `claude` entry's file trusts the folder's Claude Code settings the same way. `-32602` for a file the thread isn't waiting on, or one whose hash has moved on since (look again). See "Trusting a folder's patches" |
-| `actions.run` | `{ threadId, actionId }` | For a prompt action, `{ turnId }`: its prompt was sent as a message (as `threads.send`). For a url action (only an older client calls it for one), `{ ok: true, durationMs }` once the page is opened on the runner's Mac, with nothing in the transcript. For a command action, `{ ok, exitCode?, durationMs, seq }` once the command has finished, with its output in the transcript as the `action.run` event at `seq`. The command runs in the thread's folder through a login shell with the thread's variables (`THREADBEAR_THREAD_ID` and the rest) and is stopped after 10 minutes. `-32602` for an action the thread doesn't have, `-32020` while the same action is still running |
+| `actions.run` | `{ threadId, actionId }` | For a prompt action, `{ turnId }`: its prompt was sent as a message (as `threads.send`). For a url action (only an older client calls it for one), `{ ok: true, durationMs }` once the page is opened on the runner's Mac, with nothing in the transcript. For a command action, `{ ok, exitCode?, durationMs, seq }` once the command has finished, with its output in the transcript as the `action.run` event at `seq`. The command runs in the thread's folder through a login shell with the thread's variables (`QUOKKACODE_THREAD_ID` and the rest) and is stopped after 10 minutes. `-32602` for an action the thread doesn't have, `-32020` while the same action is still running |
 | `panels.render` | `{ threadId, panelId }` | `{ image?: ImageRef, items?: PanelItem[], note?: string }` draws an `image` panel or fills a `list` panel now. For `xcode.simulator`, a screenshot of the booted simulator (`xcrun simctl io booted screenshot`), written to the same file each time under the thread's `panels/`; with no device booted (or another failure) there's only `note`. For a `list` panel, the rows its patch's `items` function returned (at most 200), or `note` with the error when it threw or took over 20 seconds. Slow: it waits for the screenshot or the function. `-32602` for a panel the thread doesn't have |
 | `panels.convexDeployments` | `{ threadId, panelId, refresh?: boolean }` | `{ deployments: { deployment, deploymentUrl, label }[], note?: string }`. The configured cloud deployment and the project's Development and Production deployments, resolved through the runner's own Convex CLI, run in the project's folder, with read-only queries of `process.env.CONVEX_CLOUD_URL`. Duplicate names are combined; `note` explains unavailable choices. Cached for one minute; `refresh` bypasses the cache. Makes no deploy keys and changes no project settings. `-32602` for a missing or non-cloud panel |
 | `panels.convexKey` | `{ threadId, panelId, deployment?: string, renew?: boolean }` | `{ deployment, deploymentUrl, adminKey }`, a deploy key for a panel with `convex`, for Convex's embedded dashboard. `deployment` defaults to the panel's configured deployment; any other name must be one returned by `panels.convexDeployments` for this panel's project. The runner makes it the first time (`convex deployment token create` in the project's folder, with the runner's own Convex CLI, so an older `convex` package in the project doesn't matter, on Mike's Convex CLI login) and keeps it in `secrets/convex-panels/<deployment>.json`; `renew` deletes that one from Convex and makes a fresh one. A kept key is first checked with the deployment's `/api/check_admin_key` (only at its own `<name>[.<region>].convex.cloud` address), and one Convex says no to (revoked) is replaced the same way; an unclear answer keeps it. Slow the first time. `-32602` for a panel the thread doesn't have or one without `convex`; `-32040` when the runner's Convex CLI isn't signed in (or its login expired), `-32041` when its login can't reach the deployment, otherwise `-32000` with the CLI's message, each in plain words |
@@ -996,7 +996,7 @@ type RunnerUpdates = {
   oldRunners: { version: string; threads: string[] }[]
   // The LaunchAgent is behind main in a way only install-runner.sh fixes:
   // launch.mjs on main differs from the installed one, the plist still
-  // runs node rather than Threadbear Runner.app, or the app was built
+  // runs node rather than Quokka Code Runner.app, or the app was built
   // from older runner/launcher/ sources than main's.
   launcherChanged?: true
   // Which of those, in a sentence (for tb status and the Updates panel).
@@ -1009,12 +1009,12 @@ type RunnerUpdates = {
 
 ### Mike's releases
 
-A copy of Threadbear that's someone's fork follows Mike's releases
+A copy of Quokka Code that's someone's fork follows Mike's releases
 (`runner/src/upstream.ts`, docs/setup-and-updates.md section 2.3). Every six
 hours, and a couple of minutes after the release is marked good, the runner
-fetches `upstream`'s `release/*` tags into `refs/threadbear/upstream-incoming/*`
+fetches `upstream`'s `release/*` tags into `refs/quokkacode/upstream-incoming/*`
 in its checkout, unchecked. Each one that verifies is copied to
-`refs/threadbear/upstream/*`, and the newest there is the release. Verified
+`refs/quokkacode/upstream/*`, and the newest there is the release. Verified
 means: the tag object is `object`, `type commit`, `tag <the name it came
 in as>` and `tagger` headers, a message, and exactly one SSH signature
 block at the end, with no other armor at the start of any line; and
@@ -1022,7 +1022,7 @@ block at the end, with no other armor at the start of any line; and
 before it, for a principal in `<home>/upstream-signers`. It never uses
 `git verify-tag`, which would hand a PGP or X.509 signature to gpg. Each
 check first (before the fetch, so a failing upstream can't stop it)
-removes any ref in `refs/threadbear/upstream/*` that doesn't verify (a
+removes any ref in `refs/quokkacode/upstream/*` that doesn't verify (a
 runner from before this check fetched straight into it). A tag object over
 1 MB is never read and doesn't verify. Only tag objects
 whose names are a date (`release/YYYY-MM-DD`, as Mike's runner makes
@@ -1031,7 +1031,7 @@ release already kept, are looked at, newest first, stopping at the first
 that verifies, and at most 20 not read before per check, so a flood of
 tags upstream costs a check almost nothing. Each tag object's answer is
 remembered while the runner runs; a read or an ssh-keygen that fails to
-run fails the check instead, and is tried again next time. A name in `refs/threadbear/upstream/*` keeps the tag it verified
+run fails the check instead, and is tried again next time. A name in `refs/quokkacode/upstream/*` keeps the tag it verified
 with: a different tag served later under that name is left out and logged. `release.commit` is the commit
 the verified tag names, and that is what a bring-in merges. It never
 changes main: bringing a release in is a thread (docs/bringing-in-updates.md).
@@ -1066,7 +1066,7 @@ type UpstreamStatus = {
 After each check that finds a release main doesn't have, the runner may
 start a thread to bring it in (`runner/src/bring-in.ts`), as Bring Them In
 would: titled "Bring in Mike's release of 6 Nov", in the release's checkout,
-full access, `startedBy` `{ kind: "runner", label: "Threadbear" }`. It does
+full access, `startedBy` `{ kind: "runner", label: "Quokka Code" }`. It does
 so once `releases.bringIn` days have passed since the last one started (or
 since it first looked), straight away for a release with an important commit
 it hasn't acted on, and never with `"off"`. While the last thread it
@@ -1162,7 +1162,7 @@ build by itself once Mike leaves it idle, or sooner if he picks Restart to
 Update. The agent wants to know when it has, to check the change in the
 running app. The app's `hello` carries its `build` (`commit`, `short`, and
 `tree`, the app/ and dock/ trees as `BuildInfo.appTree`; a dev build sends
-none, and only `client: "threadbear-mac"` counts). The runner keeps the
+none, and only `client: "quokkacode-mac"` counts). The runner keeps the
 last build it saw and the threads waiting, in `app-restart.json` in the
 data dir, so both outlast its own restarts.
 
@@ -1174,9 +1174,9 @@ data dir, so both outlast its own restarts.
   closing "What I need from you" says it, for when end_turn was refused
   and the asks ended up in the reply's text.
 - When the app says `hello` with a `tree` other than the one a thread
-  remembered, that thread gets a `system.note` "Threadbear app restarted:
+  remembered, that thread gets a `system.note` "Quokka Code app restarted:
   <old short> to <new short>" and a message with `origin: "runner"`: "The
-  Threadbear app has restarted onto <short> (<commit>), as you asked to
+  Quokka Code app has restarted onto <short> (<commit>), as you asked to
   hear." and its `text`, or "Check your change in the running app.". Then
   it's off the list. The same build again (the app reconnecting to a
   restarted runner) changes nothing.
@@ -1189,7 +1189,7 @@ data dir, so both outlast its own restarts.
 ### Handovers
 
 A runner started by `launch.mjs` as a supervised child
-(`THREADBEAR_SUPERVISED=1`, docs/dev-tools.md) doesn't make an idle
+(`QUOKKACODE_SUPERVISED=1`, docs/dev-tools.md) doesn't make an idle
 restart wait for busy threads. It hands over instead:
 
 - If no thread is busy, it restarts as above.
@@ -1233,7 +1233,7 @@ restart wait for busy threads. It hands over instead:
   nothing, the draining runner exits.
 - A request for a thread the draining runner has already let go answers
   `-32030` ("moved"), and the primary handles it itself.
-- The threadbear tools in a kept thread's session reach the primary over
+- The quokkacode tools in a kept thread's session reach the primary over
   the runner's port for anything about other threads, its schedules and
   its projects.
 - Projects belong to the primary, which owns `projects.json`. A kept
@@ -1354,7 +1354,7 @@ CLI too, as it would never read the next message. Codex threads aren't
 looked at.
 
 The prompt itself is about the runner: macOS blames the LaunchAgent's
-program, `Threadbear Runner.app`, for everything under it, CLI included, so
+program, `Quokka Code Runner.app`, for everything under it, CLI included, so
 answering once holds across CLI updates. Full Disk Access for that app stops
 the folder prompts altogether, which a Mac nobody sits at needs.
 
@@ -1374,7 +1374,7 @@ So `sample` now runs in a sandbox that refuses those paths (`sampleSandbox`).
 Agents' own commands still set prompts off, on a Mac without Full Disk Access.
 
 So the installed runner (mac-screen.ts, a dev runner only with
-`THREADBEAR_MAC_SCREEN=on`, and `off` stops it) does two things, on every
+`QUOKKACODE_MAC_SCREEN=on`, and `off` stops it) does two things, on every
 start and every 2 minutes:
 
 - Counts UserNotificationCenter's dialog windows with `osascript`. That's who
@@ -1389,7 +1389,7 @@ start and every 2 minutes:
 - Checks for Full Disk Access by opening macOS's permissions database,
   `~/Library/Application Support/com.apple.TCC/TCC.db`, and closing it. It's
   never read. Without the access macOS refuses at once, with no prompt. A Mac
-  without it and without `Threadbear.app` gets one note in the same thread:
+  without it and without `QuokkaCode.app` gets one note in the same thread:
   that's the Mac nobody sits at, and granting it is the actual fix. Once
   the access is there, a later note says so and archives the thread, on the
   same terms as a dialog going, and unless a dialog it told of is still up
@@ -1528,7 +1528,7 @@ type UsageStats = {
 }
 ```
 
-- **Tokens** come from the CLIs' own transcripts, not just Threadbear's
+- **Tokens** come from the CLIs' own transcripts, not just Quokka Code's
   threads, so turns run in a terminal or another app count too: Claude's
   `<configDir>/projects/**/*.jsonl` (assistant lines, each message id
   counted once at its biggest, as Claude Code writes a message several
@@ -1539,7 +1539,7 @@ type UsageStats = {
   each file in `<data dir>/token-tally.json`, so a restart doesn't read
   everything again. The first read goes back 14 days and takes a while
   (`ready: false` until it's done). Hours older than 15 days are dropped.
-  `THREADBEAR_TOKEN_TALLY=off` turns the reading off (dev runners and the
+  `QUOKKACODE_TOKEN_TALLY=off` turns the reading off (dev runners and the
   e2e tests set it): `tokens` stays empty and `ready` false.
 - **Limit readings** are whatever `accounts.updated` would show, sampled
   as above into `<data dir>/usage-history.json`, kept for 8 days.
@@ -1549,7 +1549,7 @@ type UsageStats = {
 ## Sandboxed threads
 
 An experiment (6 Nov 2026, runner/src/sandbox.ts), off unless a runner's
-`runner.json` has `sandbox: { folders: ["~/sandboxed"], image: "threadbear-sandbox",
+`runner.json` has `sandbox: { folders: ["~/sandboxed"], image: "quokkacode-sandbox",
 docker?: "docker" }`. A Claude thread whose folder is under one of `folders`
 runs its CLI inside `docker run -i --rm --init` from `image`, as the runner's
 own user, with only these mounted in, each at the same path as on the
@@ -1559,7 +1559,7 @@ any other path it's handed as an argument, read-only. Nothing else of the
 machine is there (the runner, its data folder and secrets, other repos), so
 an agent with full access can change only its own folder. The runner, its
 transcripts, Convex sync, pools and schedules don't change, and the
-threadbear tools and hooks reach the CLI over its stdin and stdout as
+quokkacode tools and hooks reach the CLI over its stdin and stdout as
 always. Model and command probes, and Codex threads, run as before.
 
 The container lasts as long as the CLI: when the runner stops a thread's
@@ -1773,7 +1773,7 @@ digits, `.`, `_`, `:` or `-`, then a space, a line break or nothing) is a
 slash command; `/Users/mike` isn't one. The text in `user.message` is what
 was typed, and the runner decides (`runner/src/slash-commands.ts`):
 
-- **Threadbear's own, both providers.** `/model [model]` and `/effort
+- **Quokka Code's own, both providers.** `/model [model]` and `/effort
   [level|default]` are `threads.update` of the thread's model or effort,
   so the change outlives the CLI. A model is matched by picker id, full
   id or title (and for Claude, its aliases). With no argument, or one that
@@ -1782,7 +1782,7 @@ was typed, and the runner decides (`runner/src/slash-commands.ts`):
 - **Claude.** Everything else goes to the CLI as typed, which runs its own
   commands and skills and answers the ones it can't ("isn't available in
   this environment"). `/help`, `/rewind`, `/resume`, `/login`, `/logout`,
-  `/permissions`, `/exit` and `/quit` get a note on Threadbear's way
+  `/permissions`, `/exit` and `/quit` get a note on Quokka Code's way
   instead. `/clear` gets a note too; the CLI's new session id comes in its
   next `init` and the runner follows it.
 - **Codex.** `/compact` is `thread/compact/start` and `/review [text]` is
@@ -1801,7 +1801,7 @@ command sent during a turn waits in the queue rather than steering into
 it, and nothing goes in front of its text (the phone's line, project news
 wait for the next message).
 
-`threads.commands` lists what the picker shows: Threadbear's (`/model`,
+`threads.commands` lists what the picker shows: Quokka Code's (`/model`,
 `/effort`, and Codex's mapped ones), then the CLI's for the thread's login
 and folder, with Claude's terminal-only ones left out. Claude's come from
 the live session's `supportedCommands()`, or a CLI started with no prompt
@@ -1813,7 +1813,7 @@ type SlashCommand = {
   name: string;              // without the slash: "compact", "code-review"
   description?: string;
   argumentHint?: string;     // "[model]", "<file>"
-  source: 'threadbear' | 'cli' | 'skill';  // the CLI's own, or Mike's or the folder's
+  source: 'quokkacode' | 'cli' | 'skill';  // the CLI's own, or Mike's or the folder's
   aliases?: string[];        // other names that run it ("cost", "stats" for /usage)
   // Where it was defined: 'user' (the login's own), 'project' (the
   // folder's), 'plugin' (with `plugin` naming it), 'claude.ai' (synced
@@ -1905,7 +1905,7 @@ idea why it exists. `ThreadSummary.startedBy` says who did; his own threads
 | `thread` | "Agent" | `create_thread`, or `tb new` from inside a thread; `threadId` and `threadTitle` name it |
 | `schedule` | "Schedule" | a schedule; `ThreadSummary.schedule` has the details |
 | `librarian` | "Librarian" | the librarian's fix threads, which it no longer starts (see No fix threads); older threads keep it. `threadId` and `threadTitle` name the thread Mike said it in |
-| `runner` | "Threadbear" | a notice from the runner itself, such as a dialog left on a Mac's screen |
+| `runner` | "Quokka Code" | a notice from the runner itself, such as a dialog left on a Mac's screen |
 
 The row marks such a thread with the kind's symbol (the tool's `icon`) before
 its project or folder, which every row names, and the symbol's tooltip says
@@ -1922,14 +1922,14 @@ API 22, and to another runner's sidebar row on a Mac from API 23.
 
 A thread archived on purpose looks the same as one cleared out of the way
 unless something says so, and a sweep (the nightly retro, an agent tidying
-up) can't tell a thread Mike confirmed from one an agent or Threadbear put
+up) can't tell a thread Mike confirmed from one an agent or Quokka Code put
 away. So every archive records who did it, as `archivedBy`:
 
 | `archivedBy` | From |
 | --- | --- |
 | `mike` | the default: the Mac app (the done card, ⌘E, a row's box, a swipe), the phone, the website, `tb archive` at a terminal |
 | `agent` | `update_thread`, `end_turn`'s `archive`, `tb archive` from inside a thread |
-| `threadbear` | the runner itself, such as a dialog notice archiving itself once it's gone |
+| `quokkacode` | the runner itself, such as a dialog notice archiving itself once it's gone |
 
 An archive can also carry a `verdict` (`worked`, `didntWork`,
 `notNeeded`), kept as `archiveVerdict` and said in the thread as a
@@ -1977,7 +1977,7 @@ to do what he was asked. The stuck-job check (Stuck background jobs) wakes
 the thread if a sub-agent stalls, so an ask can't stay hidden for good.
 
 - **The tool.** Every thread's own agent (not its sub-agents) has
-  `end_turn` in the `threadbear` tools: `{ needs?: "you" | "nothing",
+  `end_turn` in the `quokkacode` tools: `{ needs?: "you" | "nothing",
   summary?: string[], asks?: { action, reply?, why?, options?,
   suggested?, links? }[], next?: string[], archive?: boolean,
   byline?: string }`. `byline` is under "Who started a thread".
@@ -2135,7 +2135,7 @@ the thread if a sub-agent stalls, so an ask can't stay hidden for good.
   the summary; else the summary; else its last `assistant.text`. A
   `narration: true` text never beats the summary, as it's only the API's
   paraphrase of what the agent wrote (30 Oct 2026: one about a list of
-  names showed instead of the bullets). A step is a tool call outside the `threadbear` tools and `ToolSearch`,
+  names showed instead of the bullets). A step is a tool call outside the `quokkacode` tools and `ToolSearch`,
   counted from its `tool.result` too (a message written while it ran
   isn't after it); a `user.message` sent into the turn counts as one, and only an
   `end_turn` after it ends the answer (30 Oct 2026: the runner's "app
@@ -2234,7 +2234,7 @@ the thread if a sub-agent stalls, so an ask can't stay hidden for good.
   "you"`, is taken too, and adds only that; the first card stands.
 - **A reply first.** `end_turn` is refused (an error result) until the
   turn has replied to Mike: a `summary` in the call itself, or an own `assistant.text` after the turn's last
-  `tool.result` from a tool outside the `threadbear` server, and after
+  `tool.result` from a tool outside the `quokkacode` server, and after
   its last `user.message`. The thread's own tools (`pin`,
   `update_project`, a refused `end_turn`) and `ToolSearch` (which loads
   a deferred tool's schema, often `end_turn`'s own) say nothing he has
@@ -2262,7 +2262,7 @@ the thread if a sub-agent stalls, so an ask can't stay hidden for good.
   turn, so nothing can be called after it. Told to call `end_turn` after
   its final message, Codex never once did, and GPT-6.1-Sol wrote the call
   into its answer instead, raw tool-call tokens and all (28 Oct 2026). So
-  a Codex thread's `end_turn` (`buildThreadbearTools`' `provider:
+  a Codex thread's `end_turn` (`buildQuokkaCodeTools`' `provider:
   "codex"`) asks for it as the last tool call, just before the final
   answer. It is never refused for want of a reply, as the reply comes
   next, and its result doesn't start like an accepted one, so the runner
@@ -2326,7 +2326,7 @@ the thread if a sub-agent stalls, so an ask can't stay hidden for good.
   now), in the schedule's folder (a thread schedule's thread's folder),
   in its own process group, for at most 60 seconds (or the schedule's
   `checkTimeoutSecs`, a whole number from 1 to 300), with
-  `THREADBEAR_SCHEDULE_ID` and `THREADBEAR_CHECK_STATE` (a file of its
+  `QUOKKACODE_SCHEDULE_ID` and `QUOKKACODE_CHECK_STATE` (a file of its
   own under `<home>/schedule-checks/`) set. Exit 0 with nothing printed:
   the run is skipped (`lastRun: { outcome: "skipped", note: "Its check
   found nothing new." }`, `runs` unchanged) and its next time planned.
@@ -2387,7 +2387,7 @@ the thread if a sub-agent stalls, so an ask can't stay hidden for good.
   `review: true` in thread.json). The review's reply (up to 12,000
   characters) comes back as an `origin: "runner"` message asking it to
   fix what holds up, naming any files the review edited, and the review
-  thread is archived (`archivedBy: "threadbear"`). With no login to
+  thread is archived (`archivedBy: "quokkacode"`). With no login to
   review on, a note says so, once until the next message. A runner that
   is draining (Handovers), restarting or stopping makes no threads, so it records
   `labReviewOwed: { turnId, seq, reply? }` in thread.json instead (`seq`:
@@ -2525,7 +2525,7 @@ a token had to stop and ask in its reply, and whatever Mike typed back
 went into the transcript, the phone's mirror and Agent Archive. Codex's
 own secret questions were declined (Codex approvals). Now:
 
-- **The tool.** `ask_secret` (a threadbear tool, Claude and Codex alike)
+- **The tool.** `ask_secret` (a quokkacode tool, Claude and Codex alike)
   takes `label` (the card's title, "Mac administrator password"),
   `reason` (what it's for and where to find it), `placeholder?` and
   `timeoutMinutes?` (default 10, at most 60). It puts a card up and
@@ -2616,7 +2616,7 @@ own secret questions were declined (Codex approvals). Now:
 ## Patches
 
 A thread's folder can give it panels (shown beside the transcript) and
-actions (chips above the composer); see docs/threadbear-design/README.md.
+actions (chips above the composer); see docs/quokkacode-design/README.md.
 The runner works them out from the folder (`src/patches.ts`), nothing is
 stored, and they come in the summary's `panels`, `actions` and `patches`,
 so a client learns of them like any other change. The runner reads the
@@ -2630,15 +2630,15 @@ to be trusted after the first read is said in the transcript as a
 
 Patches are found by walking up from the thread's folder to the home
 folder (so a thread in a package of a monorepo gets the project's), plus
-`~/.threadbear/patches/` for every folder, plus every folder of every
+`~/.quokkacode/patches/` for every folder, plus every folder of every
 project the thread is in (see Projects). Two kinds:
 
-**Patch files**: `.threadbear/patches/<name>.ts` (or `.js`, `.mjs`). The
+**Patch files**: `.quokkacode/patches/<name>.ts` (or `.js`, `.mjs`). The
 runner imports the module (Node runs TypeScript as it is; a changed mtime
 loads it again) and reads its default export:
 
 ```ts
-// .threadbear/patches/reseed.ts
+// .quokkacode/patches/reseed.ts
 export default {
   actions: [
     { title: "Reseed dev DB", run: "npx convex run seed:reset && npx convex import --replace fixtures/dev.zip" },
@@ -2683,7 +2683,7 @@ panel: rows drawn natively, with no page to serve.
 `items` gets `{ cwd, threadId, sh }`, where `sh(command)` runs a command
 in `cwd` through a login shell and resolves with what it printed (it
 rejects on a non-zero exit). For a project's patch trusted by its hash,
-`sh` runs from the folder holding `.threadbear/` instead, and only what
+`sh` runs from the folder holding `.quokkacode/` instead, and only what
 trusting it covers (see "Trusting a folder's patches"); `cwd` is still
 where the thread is. It returns `PanelItem`s (or a promise of
 them). Give rows a `section` to group them under headings (rows of one
@@ -2733,7 +2733,7 @@ them, like `"*.tandem"`) belongs to a tool, not a place. It applies to a
 thread only where a folder from the thread's own up to home (else from
 one of its projects' folders) holds a matching name, and runs in that
 folder, whichever folder the patch file came from. Besides the usual
-places, the runner looks for tool patches in the `.threadbear/patches/`
+places, the runner looks for tool patches in the `.quokkacode/patches/`
 of every project's folders, so a tool's repo can carry its patch: Tandem's
 lives in Tandem's repo, and any video folder with a `.tandem` file gets
 it. The patch's `matched` lists the paths that made it apply, and
@@ -2774,7 +2774,7 @@ Code and Claude Code ask before running a folder's code. Until then it's
 in `patches` with `untrusted` and `hash`, and gives nothing: no actions,
 panels or hooks, no live functions, and no worktree for new threads.
 
-- Trust is kept per folder (the one holding `.threadbear/`) as the
+- Trust is kept per folder (the one holding `.quokkacode/`) as the
   SHA-256 hashes of the patch files trusted there, in `patch-trust.json`
   in the data dir. `untrusted` is `"new"` when nothing from that folder
   is trusted and `"changed"` when an earlier version was: a pull brought
@@ -2793,7 +2793,7 @@ panels or hooks, no live functions, and no worktree for new threads.
   code"). The mode is the one the call went through on, recorded with
   it, not the thread's when the result comes, so switching to Full access
   after approving an edit in Ask doesn't trust it. Only the thread
-  folder's own patches (its `.threadbear/patches`) and files inside that
+  folder's own patches (its `.quokkacode/patches`) and files inside that
   folder count: another project's patch, a tool patch, or a repo's under
   a thread in a folder above it (`~`, `~/dev`) waits too.
   Only an edit the CLI says it made counts, when its
@@ -2817,7 +2817,7 @@ panels or hooks, no live functions, and no worktree for new threads.
   result doesn't say what bytes it wrote, so a command could have
   replaced the file before the runner read it. One written another way,
   like a shell heredoc or a `git pull`, waits.
-- Always trusted: `~/.threadbear/patches` and Threadbear's own checkout
+- Always trusted: `~/.quokkacode/patches` and Quokka Code's own checkout
   (the release's `checkout`, else the one the runner runs from).
 - `patches.trust` trusts what the app showed, by hash. Clients show a
   waiting patch with a way to read its file and trust it.
@@ -2830,13 +2830,13 @@ theirs in turn (specifiers starting `./`, `../` or `/`), so a pull that
 changes only a helper is asked about too, and `helpers` lists them so the
 app can say what else would run. It also covers any existing file the
 patch or a helper names in a path starting `./` or `../`, anywhere in its
-text, from the patch's own folder or the folder holding `.threadbear/`
+text, from the patch's own folder or the folder holding `.quokkacode/`
 (where commands run), each place that has it: the script a worktree
 `setup`, `check`, hook or action `run` calls, so a pull that changes only
 that script asks again. What a named script runs in turn is followed
 and hashed too (below, "What a script runs"), and a named file that
 isn't there yet changes the hash when it turns up. The hash is SHA-256
-over the JSON of `["threadbear-patch-3", <the patch file's SHA-256>,
+over the JSON of `["quokkacode-patch-3", <the patch file's SHA-256>,
 [[<path from the patch's folder>, <its SHA-256 or "missing">], ...]]`,
 sorted by path, for every patch, helpers or not: JSON quotes each
 string, so no two sets of files read the same. (Version 2 joined
@@ -2934,7 +2934,7 @@ thread starts in the worktree anyway.
 and its hooks run without anyone pressing anything, so the hash has to
 cover what they run, and it can only see a path written in the patch.
 So each must be one script and plain words: a `./` or `../` path from
-the folder holding `.threadbear/`, to an existing file inside the repo
+the folder holding `.quokkacode/`, to an existing file inside the repo
 (the git toplevel) that the hash covered, then arguments made only of
 letters, digits and `_ @ % + = : , . / -`. Anything a shell would work
 out first (`cd scripts && ./setup.sh`, `FOO=1 ./x`, `sh -c`, `bash x.sh`,
@@ -2943,11 +2943,11 @@ worked out in code) could run a file the hash never saw, so the patch
 isn't loaded at all, trusted or not: its `error` starts `Not run:`,
 names the command and says to put the steps in a script. The runner then
 runs the script by its absolute path (a hook's `exec`), every word
-quoted, from the folder holding `.threadbear/` (`cd '<folder>' &&
+quoted, from the folder holding `.quokkacode/` (`cd '<folder>' &&
 '<script>' ...`), so it's the hashed file that runs, and the folder its
 own relative paths were followed from: a hook in a thread in a subfolder
 runs the patch folder's `./scripts/x.sh` from the patch folder, not the
-subfolder's. Home's patches and Threadbear's own checkout are trusted
+subfolder's. Home's patches and Quokka Code's own checkout are trusted
 whatever they hold, so their commands run as written.
 
 **What a script runs.** A trusted `./setup.sh` that runs `./helper.sh`
@@ -3039,12 +3039,12 @@ the command. But what it runs is hashed however it names it, not only
 past a `./` path: every string in the patch and its helpers (an
 action's `run`, `sh("node scripts/stats.mjs")` in a live function, the
 fixed parts of a template) is followed as a shell command from the
-folder holding `.threadbear/`, as above, and every file of the repo's it
+folder holding `.quokkacode/`, as above, and every file of the repo's it
 runs or loads goes in the hash (a data file it only names doesn't), so `node scripts/deploy.mjs` asks again when
 only `scripts/deploy.mjs` or one of its imports changes (Daybreak
 verify-fix, 5 Nov). A command that can't be followed (`eval`, say)
 still loads; what it names is hashed. A trusted-by-hash patch's command
-actions run from the folder holding `.threadbear/` (the action's
+actions run from the folder holding `.quokkacode/` (the action's
 `folder`), where they were followed from, and one whose command is
 worked out in code (`'node ' + f`) and reaches a file the hash didn't
 cover refuses the whole patch: its `error` starts `Not run: its action`,
@@ -3055,7 +3055,7 @@ the same way. A live function (`items`, `when`, `badge`, `summary`) is
 the patch's own code, hashed with it, and `sh` runs what that code says,
 but by itself, every few seconds, so a trusted-by-hash patch's `sh` is
 held as a hook is, short of the one-script rule (its commands are worked
-out in code by design). It runs from the folder holding `.threadbear/`,
+out in code by design). It runs from the folder holding `.quokkacode/`,
 where the hash followed commands from, whichever folder the thread is in
 (a tool patch's from the folder it applies in, as before). Just before
 it runs, the patch is hashed afresh and must still be the version
@@ -3119,7 +3119,7 @@ patch trust's store and rules.
   no `env` or grants hash as they did before those counted, so trusting
   them holds. It's kept in `patch-trust.json` in the folder's list, as `claude:<hash>`,
   under the same folder key, so a worktree counts as its main checkout and
-  Threadbear's own checkout is always trusted.
+  Quokka Code's own checkout is always trusted.
 - What the hash can't cover can't be trusted, whatever's stored: a
   command that runs code it can't follow (`python -m x`, `node .`, `curl
   ... | sh`, a command in a variable, a dynamic `import()` in a script it
@@ -3144,7 +3144,7 @@ patch trust's store and rules.
   read key by key, more than 300 files, or more than 20,000 folders to
   look through for agents, skills and commands (nested skills, outside
   git, or through a link to a folder). Nor can an allow rule (or `allowed-tools`) that covers
-  Threadbear's own tools (`mcp__threadbear...`, `mcp__*`, `*`, or
+  Quokka Code's own tools (`mcp__quokkacode...`, `mcp__*`, `*`, or
   bypassing permissions: `defaultMode` or an agent's `permissionMode`), in
   a thread that asks first. JavaScript a hook reaches that runs commands
   itself (`child_process`, `Bun.spawn`) is one too: what it runs isn't
@@ -3199,9 +3199,9 @@ patch trust's store and rules.
 **Agent writes that run as code** (`src/code-writes.ts`). Outside Full
 access, permission to edit a file isn't permission to run it, so an Edit,
 MultiEdit or Write by a Claude thread in Ask or Auto, or a Codex patch
-outside Full access, of a file Threadbear runs by itself always asks: a patch file anywhere (`.threadbear/patches`,
+outside Full access, of a file Quokka Code runs by itself always asks: a patch file anywhere (`.quokkacode/patches`,
 home's included, which is trusted whatever it holds), anything under
-`~/.threadbear`, a file a patch the runner has hashed covers (a helper, a
+`~/.quokkacode`, a file a patch the runner has hashed covers (a helper, a
 script it names, one it names that isn't there yet), `.claude/settings*.json`
 (home's too), an `.mcp.json`, a script the thread folder's Claude settings
 name, the runner's own data dir (`patch-trust.json` is the trust itself),
@@ -3211,7 +3211,7 @@ from them points at) and the paths their commands and the thread folder's
 settings' name, there yet or not, from the login's folder or the thread's
 (where hooks run), with what each command reaches as a shell runs it (the
 script, quoted names included, and what it imports or runs in turn), and
-for patches that load without trust (home's, Threadbear's own checkout's)
+for patches that load without trust (home's, Quokka Code's own checkout's)
 what each is a link to, imports and names, absolute or `~/` paths in it,
 and what each of its strings reaches as a command from the thread's
 folder, where its commands run; one of those whose code can't all be
@@ -3226,7 +3226,7 @@ a link to a file not there yet included, and without case, as macOS names
 a file either way). The runner's PreToolUse hook answers `ask` for these,
 which reaches the approval card whatever an "Always allow" rule, the
 user's own allow rules or Auto's classifier would have said. The card's
-`title` ends "(Threadbear runs this file as code)", its `options` have no
+`title` ends "(Quokka Code runs this file as code)", its `options` have no
 `allowAlways`, and an `allowAlways` answer counts as `allow` once (Codex:
 the thread's file-change rule is passed over for it, and isn't added). What
 it writes still isn't trusted (above): Mike trusts it in Patches. On Full
@@ -3272,7 +3272,7 @@ keep showing the configured deployment.
 A deploy key is admin of its one deployment, so it never goes into a
 thread's events, the summary, the log or the Convex mirror: only
 `panels.convexKey`'s answer, on the local connection. The runner makes
-one per deployment, named `threadbear-panel-<host>-<6 hex>` (names are unique on a deployment), and Mike can revoke
+one per deployment, named `quokkacode-panel-<host>-<6 hex>` (names are unique on a deployment), and Mike can revoke
 it in the deployment's settings on the Convex dashboard (the runner notices
 the next time the panel opens and makes another; the panel's "New deploy
 key" button does it at once).
@@ -3369,8 +3369,8 @@ export default {
 ```
 
 The first patch in the thread's own folder chain with a `worktree` wins;
-`~/.threadbear/patches/` and project folders never count. The repo is the
-git toplevel of the folder holding `.threadbear/`, and its main checkout
+`~/.quokkacode/patches/` and project folders never count. The repo is the
+git toplevel of the folder holding `.quokkacode/`, and its main checkout
 is the one with `main` checked out. A malformed `worktree` (not an object,
 or a `setup` or `check` that isn't a command) is the file's `error`.
 
@@ -3386,7 +3386,7 @@ can't be made (a leftover folder or branch of that name, no checkout on
 `main`), a `system.note` says why and the thread starts in the folder
 asked for. The summary carries `worktree` from then on.
 
-`tb land` takes an OS lock at `threadbear-land.lock` in the repo's common
+`tb land` takes an OS lock at `quokkacode-land.lock` in the repo's common
 git directory before reading or rebasing either branch, and holds it through
 the check and fast-forward. The CLI reads the patch's check after rebasing.
 Other landings of that repo wait, even from
@@ -3421,7 +3421,7 @@ panel rather than a file or a link (those are `pin` with `show`). It opens
 the panel, or brings it to the front wherever Mike put it. It never moves
 or resizes a panel that's open: Mike's layout is his.
 
-`panel` is `highlights`, `browser` (`threadbear.browser`) or `patches` (the thread's own; Patches only when
+`panel` is `highlights`, `browser` (`quokkacode.browser`) or `patches` (the thread's own; Patches only when
 it has patches), one of the thread's `panels` by id or title (any case),
 or `usage`, `updates` or `connectors` (the app's Usage, Updates and
 Connectors panels). `where`
@@ -3533,7 +3533,7 @@ an ask (below).
 the base is used), else the `connectors` MCP server's `url` in the main
 login's `~/.claude.json` (only that field is read). `connectors.url: ""`
 or `connectors.enabled: false` turns it off, as does
-`THREADBEAR_CONNECTORS_URL=off` (tests); `THREADBEAR_CONNECTORS_URL`
+`QUOKKACODE_CONNECTORS_URL=off` (tests); `QUOKKACODE_CONNECTORS_URL`
 set to a URL wins over both.
 
 **Status.** The runner asks the gateway's open `GET <base>/health` every
@@ -3617,7 +3617,7 @@ thread can be in several projects, and it keeps `goals`, `state` and
 the librarian and the agents do. Kept in `projects.json` in the data dir;
 which projects a thread is in is kept with the thread.
 
-**Patches.** A thread loads patches from, in this order: `~/.threadbear/`,
+**Patches.** A thread loads patches from, in this order: `~/.quokkacode/`,
 each folder of each of its projects (the built-in ones and the patch
 files found walking up from it, each folder once), then its own folder
 as before. Anything from a project folder has `folder` and `projectId`
@@ -3638,7 +3638,7 @@ folders, goals and state, at most about 2,000 characters in all, and that
 prompt, Codex as developer instructions. A live or resumed session (Claude
 Code ignores new instructions on a resume) hears about a project it hasn't
 been told about at the start of its next message, in a line beginning
-`[Threadbear project]`; a session from before projects existed gets the
+`[Quokka Code project]`; a session from before projects existed gets the
 whole brief that way. An agent that joined a project itself isn't told.
 
 **The librarian** is the runner's own background job that keeps projects
@@ -3677,7 +3677,7 @@ two days with a finished turn it hasn't looked at since (`first-turn` or
 A thread its own agent or Mike has put in a project (`by` other than
 `"librarian"`) is theirs to file: its looks still keep its line and the
 state of its projects, but never add or take out a project. Every
-thread's agent is told, in the Threadbear tools' instructions, to
+thread's agent is told, in the Quokka Code tools' instructions, to
 `join_project` early and keep the state current with `update_project`.
 
 One look at a time, the soonest due first. A look sends the model the
@@ -3687,7 +3687,7 @@ in, and gets back the projects the thread belongs in with a short reason
 for each, a new project when none fits, and a new `state` for a project
 the thread moved on. What it decides takes effect straight away: the
 thread gets `projects` (`by: "librarian"`, `why` the reason, replaced by a
-later look's) and a `system.note` saying so ("Put in Threadbear"), and
+later look's) and a `system.note` saying so ("Put in Quokka Code"), and
 Mike can take it out (`threads.setProjects`), after which it's never put
 back. It never takes out a pinned project or one an agent added.
 A project the thread isn't in yet needs a reason that says it fits: an
@@ -3820,7 +3820,7 @@ A thread's Highlights lists up to 4 open cards under each of its
 projects: the one whose Thread is this thread first, then those in an
 In progress column, then To do; more opens the project page.
 
-Threadbear only shows the board; cards are moved in Notion, by people
+Quokka Code only shows the board; cards are moved in Notion, by people
 or by agents with the Notion tools. `read_project` lists the open cards,
 and a thread's brief has one line saying the board is there and how many
 are open. With no gateway, `error` says so.
@@ -3886,7 +3886,7 @@ kept in `schedules.json` in the data dir.
   gone (`scheduleGone`, kept a day), asking again from 5 seconds before the
   newest row it heard. A claim doesn't count as a write for this. An older
   runner goes on using `sync:schedules`.
-- **Agents** make and change schedules with the `threadbear` tools
+- **Agents** make and change schedules with the `quokkacode` tools
   (`schedule_message`, `list_schedules`, `update_schedule`,
   `delete_schedule`); `createdBy` is their thread. By default an agent's
   schedule sends to its own thread ("check the deploy again in 20
@@ -3918,7 +3918,7 @@ runner itself. Runners never talk to each other.
   `sync:otherRunnersThreads` (every runner but itself, with its threads)
   and gives the result to clients as `remoteThreads.list` and
   `remoteThreads.updated`. It watches only while a Mac app is connected
-  (`hello`'s client `threadbear-mac`), and for two minutes after the last
+  (`hello`'s client `quokkacode-mac`), and for two minutes after the last
   one goes, since every re-run reads all the other runners' rows; a
   `remoteThreads.list` starts the watch at once, and the answer follows as
   `remoteThreads.updated`. Until then the list is what was last heard.
@@ -4125,7 +4125,7 @@ runner that's this one is the usual create.
   why; the backend keeps it in `runnerRequests` under the card's id, from
   a thread of its own whose id is only letters, digits, `-` and `_`, and
   nothing can change it after), then shows an `approval.requested` in the
-  asking thread named `threadbear.start_thread`, with the request as its
+  asking thread named `quokkacode.start_thread`, with the request as its
   `input`, and waits up to an hour, like `ask_secret`. A message from Mike
   in that thread declines it. Its thread row's card has no `options` and
   says to answer it on the Mac: the phone can't start it.
@@ -4174,7 +4174,7 @@ the most it can start is what he read and allowed.
 
 ## Sync
 
-The runner mirrors the phone's view of its threads to Threadbear's Convex
+The runner mirrors the phone's view of its threads to Quokka Code's Convex
 project (docs/convex-backend.md, shape A: the runner owns the state,
 Convex mirrors it, the phone asks through it). It's best effort: nothing
 the runner or the Mac app does waits on it, and the runner never reads
@@ -4184,9 +4184,9 @@ the mirror back as state. The Mac app doesn't use it.
   `https://<name>.convex.cloud`) and `secrets/convex-key` (0600) holds the
   key the deployment's `RUNNER_KEY` was set to (the main Mac) or this
   runner's own runner key (any other; see Runner keys). `sync.enabled: false`
-  turns it off; so does `THREADBEAR_SYNC=off` in the environment, which
+  turns it off; so does `QUOKKACODE_SYNC=off` in the environment, which
   check.sh sets so no test runner writes to the real project.
-  `THREADBEAR_SYNC_URL` points a dev or test runner at its own deployment.
+  `QUOKKACODE_SYNC_URL` points a dev or test runner at its own deployment.
   `sync.name` is what the phone calls this runner (default: the Mac's
   hostname without `.local` or `.localdomain`); `sync.runnerId` is made
   once and written back to `runner.json`, so a data dir stays one runner
@@ -4540,7 +4540,7 @@ schedule on it, and mint phone tokens. Now there are two kinds of key, and
 - **A joining Mac has no admin power.** A deploy key or a Convex CLI login
   can do anything to the deployment (read `RUNNER_KEY`, issue phone
   tokens, deploy other functions), so a Mac with one has the owner's power
-  whatever key its runner holds. `threadbear setup --existing`, or setup
+  whatever key its runner holds. `quokkacode setup --existing`, or setup
   run again on a Mac whose `secrets/convex-key` is a runner key, makes no
   Convex login or deploy key and deploys nothing; it never writes or sets
   `RUNNER_KEY` (`scripts/runner-key-plan.mjs`), and ends by saying to run
@@ -4734,7 +4734,7 @@ schedule on it, and mint phone tokens. Now there are two kinds of key, and
   prints is stripped of control characters and escape sequences and never
   put in a command it tells you to run; a runner key's schedule ids must be
   UUIDs, and a panel key's name is used only if it looks like one
-  Threadbear made. `--finish` refuses unless this Mac's key is the one in
+  Quokka Code made. `--finish` refuses unless this Mac's key is the one in
   `RUNNER_KEY_NEXT`, and setup won't copy or set `RUNNER_KEY` while it's set.
 - **The main Mac comes first.** A heartbeat with the owner key marks the
   runner's row `byOwner`; making a runner key clears it for that runner at
@@ -4888,7 +4888,7 @@ type ThreadShare = {
   Anything else stays on the Mac with a line in the runner log and shows
   on the page as its alt text. An agent that wants a picture on a shared
   page copies it into the media folder, which every CLI the runner starts
-  is told as `THREADBEAR_MEDIA_DIR` (`mkdir -p` it first; it may not be
+  is told as `QUOKKACODE_MEDIA_DIR` (`mkdir -p` it first; it may not be
   there yet), and writes that path in its Markdown.
 - The thread's row on the mirror has `share: { access, slug }` (backend
   API 8). An older backend gets the row without it, and gets it once a
@@ -4911,12 +4911,12 @@ type ThreadShare = {
 ## Tools for agents
 
 Every CLI the runner starts knows which thread it belongs to, two ways: the
-`threadbear` MCP server for the agent itself, and environment variables for
+`quokkacode` MCP server for the agent itself, and environment variables for
 the commands it runs (`tb`, the deploy script). Both name the same thread.
 
-Every session, Claude or Codex, gets an MCP server called `threadbear`
-(`runner/src/threadbear-mcp.ts`), bound to its own thread, so an agent can
-drive Threadbear itself: `list_threads`, `read_thread`, `list_accounts`,
+Every session, Claude or Codex, gets an MCP server called `quokkacode`
+(`runner/src/quokkacode-mcp.ts`), bound to its own thread, so an agent can
+drive Quokka Code itself: `list_threads`, `read_thread`, `list_accounts`,
 `create_thread`, `send_message`, `update_thread`, `move_thread`,
 `interrupt_thread`, `delete_thread`, `schedule_message`,
 `list_schedules`, `update_schedule` and `delete_schedule` (see Schedules),
@@ -4997,11 +4997,11 @@ only.
 
 | Variable | Value |
 |---|---|
-| `THREADBEAR_THREAD_ID` | the id of the thread the CLI belongs to |
-| `THREADBEAR_HOME` | the runner's data dir, where `tb` looks for a runner (agents may point it at a dev runner) |
-| `THREADBEAR_RUNNER_HOME` | the runner's data dir too, which agents never change: the scripts' guards against restarting the runner a thread runs on go by it |
-| `THREADBEAR_RUNNER_VERSION` | the runner's version, as in `hello` |
-| `THREADBEAR_MEDIA_DIR` | the thread's media folder (`<data dir>/threads/<id>/media`): the only place a shared page's pictures come from (see "Sharing") |
+| `QUOKKACODE_THREAD_ID` | the id of the thread the CLI belongs to |
+| `QUOKKACODE_HOME` | the runner's data dir, where `tb` looks for a runner (agents may point it at a dev runner) |
+| `QUOKKACODE_RUNNER_HOME` | the runner's data dir too, which agents never change: the scripts' guards against restarting the runner a thread runs on go by it |
+| `QUOKKACODE_RUNNER_VERSION` | the runner's version, as in `hello` |
+| `QUOKKACODE_MEDIA_DIR` | the thread's media folder (`<data dir>/threads/<id>/media`): the only place a shared page's pictures come from (see "Sharing") |
 
 The runner also puts its own `bin/` (the release's, or the checkout's for a
 runner run from source) at the front of `PATH`, so a bare `tb` in a thread

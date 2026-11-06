@@ -8,7 +8,7 @@ import { inBackground, TASKPOLICY } from '../../src/background.ts';
 import { runCommand } from '../../src/patches.ts';
 import { land } from '../../src/worktrees.ts';
 
-// Builds and tests Threadbear spawns itself run at background priority on
+// Builds and tests Quokka Code spawns itself run at background priority on
 // a Mac (a land's check held Mike's M5 above load 24 on 6 Nov).
 
 test('inBackground: taskpolicy -b on a Mac that has it, the command as it is elsewhere', () => {
@@ -59,8 +59,8 @@ test('runner: a turn hook runs at background priority unless the runner is told 
     const root = tmpDir();
     const project = path.join(root, 'app');
     fs.mkdirSync(path.join(project, '.git'), { recursive: true });
-    fs.mkdirSync(path.join(project, '.threadbear', 'patches'), { recursive: true });
-    fs.writeFileSync(path.join(project, '.threadbear', 'patches', 'hooks.ts'), `export default { hooks: [{ title: "Pri", on: "turn.end", run: "${PRI}", tell: "never" }] };\n`);
+    fs.mkdirSync(path.join(project, '.quokkacode', 'patches'), { recursive: true });
+    fs.writeFileSync(path.join(project, '.quokkacode', 'patches', 'hooks.ts'), `export default { hooks: [{ title: "Pri", on: "turn.end", run: "${PRI}", tell: "never" }] };\n`);
     const h = makeHarness(undefined, {}, { panelsRoot: root, actionShell: ['/bin/sh', '-c'], actionTimeoutMs: 20_000, backgroundJobs });
     const { thread } = h.runner.create({ text: 'hi', accountId: 'claude-3', cwd: project });
     await new Promise((r) => setImmediate(r));

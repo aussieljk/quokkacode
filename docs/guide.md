@@ -1,4 +1,4 @@
-# Using Threadbear
+# Using Quokka Code
 
 <!-- Each `## ` section is also a page on the website, at
      threadbear.mikecann.app/docs/<slug>, named by the slug comment on the
@@ -6,7 +6,7 @@
      app links to some of those pages (site/app-doc-slugs.json lists them),
      so keep a section's slug when you rename its heading. -->
 
-Threadbear is a Mac app for running AI agent threads. It drives the official
+Quokka Code is a Mac app for running AI agent threads. It drives the official
 Claude Code and Codex command line tools on your own logins. A small program
 called the runner keeps every agent going in the background, so quitting or
 updating the app never stops a thread. Your threads are also copied to a
@@ -88,7 +88,7 @@ At the right of the row:
 - A grey spinner with something like "2 sub-agents": the turn has ended
   but helpers or jobs it started are still going.
 - A time: the thread is idle, or the blue dot on the left says it's
-  waiting on you. After a while Threadbear stops an idle
+  waiting on you. After a while Quokka Code stops an idle
   thread's agent to save memory, and your next message starts it again
   where it left off.
 - **Failed**: the last turn ended with an error. Read the thread to see why,
@@ -97,7 +97,7 @@ At the right of the row:
   because your internet went.
   It carries on by itself once the connection is back, so there's no need
   to tell it to continue. A thread cut off mid-turn because the Mac or
-  Threadbear restarted carries on by itself too, once it's back up.
+  Quokka Code restarted carries on by itself too, once it's back up.
 - **Stopped**: the runner restarted while the thread was busy.
 - **Waiting for room**, with a time: every login it could use has hit its
   limit (see [Accounts, pools and Usage](#accounts)). It carries on by
@@ -125,7 +125,7 @@ thread opens that thread.
 
 An agent can draw a diagram or a small page in its reply: a ```` ```mermaid ````
 block shows as the diagram (drawn with [Pele](https://pele.run/), in
-Threadbear's colours, light or dark), and an ```` ```html ```` block as the
+Quokka Code's colours, light or dark), and an ```` ```html ```` block as the
 page, each in a box with the language on the left. Its Diagram / Source
 switch (Preview / Source for a page) flips it to the code, the copy button
 copies the code, and the arrows open it full size in the side pane. A
@@ -213,7 +213,7 @@ When the agent needs you to do something in a page, handoff opens this thread's
 Browser panel with Your turn and Done, even if it was closed. It opens straight
 away when you're looking at that thread, or when you next open it; your selected
 thread stays yours. The agent waits for Done or the page to settle after your step.
-Normal browsing by the agent doesn't open the panel. If Threadbear isn't available
+Normal browsing by the agent doesn't open the panel. If Quokka Code isn't available
 or can't display that tab, handoff opens Chrome's own window instead.
 A passkey, a file picker or a password manager's popup belongs
 to Chrome itself: press the window button beside the address to use Chrome's
@@ -261,13 +261,13 @@ shown on the composer (the box you type in) and changed by clicking it.
 
 - **Full access** (the default): the agent edits files and runs commands
   without asking. It can do anything your Mac user account can do, in any
-  folder, including deleting files. This is how Threadbear is meant to be
+  folder, including deleting files. This is how Quokka Code is meant to be
   used day to day, and it's fine for a folder you trust it with.
 - **Ask before edits**: the agent stops for your OK before it edits a file
   or runs a command. A card shows in the thread with Allow, Always allow and
   Deny. Always allow only lasts for that thread. A Codex thread in this mode
   can read files but not change them unless you agree. It also asks before
-  it does anything to Threadbear itself: messaging or starting another
+  it does anything to Quokka Code itself: messaging or starting another
   thread, changing this one, schedules, projects, pins, panels and the
   Pocket. Reading threads, asking you for a secret and ending its turn
   never ask.
@@ -281,9 +281,9 @@ shown on the composer (the box you type in) and changed by clicking it.
   the thread had before. Send back, or just writing what you'd change, has
   it plan again. Once it's working, the same card ticks off its steps.
 
-In Ask before edits and Auto, an edit to a file Threadbear runs by itself
+In Ask before edits and Auto, an edit to a file Quokka Code runs by itself
 (a patch, a file a patch uses, or Claude Code's settings) always asks, with
-no Always allow, and the card says Threadbear runs the file as code. Even
+no Always allow, and the card says Quokka Code runs the file as code. Even
 once you allow it, the patch waits for you to trust it in Patches.
 
 The mode belongs to one thread. A new thread starts on Full access again
@@ -316,7 +316,7 @@ not the same as hiding it from the agent. A command that prints the file
 would put it in the transcript, so only give a secret to a thread you'd
 trust with it.
 
-If a key does end up in a thread's words, Threadbear takes out what it can
+If a key does end up in a thread's words, Quokka Code takes out what it can
 recognise before the text reaches your phone or the website, which show
 `[REDACTED]` there; the Mac keeps every word. It goes by the shapes keys
 usually have and the values in your `.env` files, so it won't catch
@@ -330,15 +330,15 @@ thread as leaked and replace it, since the AI provider has seen it too.
 Press ⌘N, or click New thread (the pencil beside the search at the top of
 the list), type a message and press Return.
 
-New threads start in the `ThreadbearThreads` folder in your home folder
-(`~/ThreadbearThreads`), which setup makes for you. You can pick another folder for
+New threads start in the `QuokkaCodeThreads` folder in your home folder
+(`~/QuokkaCodeThreads`), which setup makes for you. You can pick another folder for
 one thread from the composer's + menu, or change the default in Settings
 (⌘,).
 
 A safe first message is one that only reads, such as "What's in this
 folder?" or "Explain what you can do for me here." When you're ready for it
 to make something, try "Make a file called hello.txt that says hi" and watch
-it appear in `~/ThreadbearThreads`.
+it appear in `~/QuokkaCodeThreads`.
 
 Return sends and Shift-Return adds a new line. In a list, Shift-Return
 starts the next item ("2. " after "1. milk", "- " after "- milk"), and
@@ -402,14 +402,14 @@ own commands and your skills (`/compact`, `/context`, `/cost`, `/clear`,
 uncommitted changes, or what you write after it), `/clear` or `/new`,
 `/status`, and `/` with the name of one of your Codex skills.
 
-Two are Threadbear's own, on both: `/model` and `/effort` change the
+Two are Quokka Code's own, on both: `/model` and `/effort` change the
 thread's model and effort level, the same as the menus under the message
 box, so the change sticks. On their own they say what the thread is on and
 what you can pick. `/clear` starts the agent on a fresh session; the
 transcript above stays for you to read.
 
 Type `/` in a thread's message box and a palette opens above it with
-every command the thread can run: Threadbear's, the CLI's and your
+every command the thread can run: Quokka Code's, the CLI's and your
 skills, with Recent for the ones you picked lately. What you type narrows
 it, and the one picked is described on the right: how to use it, its
 other names, what `/model` and `/effort` are set to now, and where it
@@ -464,7 +464,7 @@ follows Swipe between pages in System Settings > Trackpad (two or three
 fingers). Over a thread's row a swipe left still archives it.
 
 Hibernating or archiving a thread that's partway through a turn stops
-that turn. From the row's hover buttons, Threadbear asks first.
+that turn. From the row's hover buttons, Quokka Code asks first.
 
 You can also ask a thread to do it to itself ("hibernate this until
 Thursday", "archive this when you're done"). It finishes its reply first,
@@ -525,7 +525,7 @@ Panel.
 
 The View menu has the rest: Show or Hide Threads (⌃⌘S) for the list,
 Show or Hide Panels (⌥⌘P) for the panels beside the thread, and Reset
-Panel Layout, which puts everything back how it started. Threadbear remembers your
+Panel Layout, which puts everything back how it started. Quokka Code remembers your
 layout between launches.
 
 ## Highlights
@@ -567,7 +567,7 @@ From the top, and only when there's something to show:
   opens to the code it changed.
 
 Click a heading to fold that section away, and again to bring it back. A
-folded heading shows how many rows it's hiding. Threadbear remembers what
+folded heading shows how many rows it's hiding. Quokka Code remembers what
 you've folded, between launches and for every thread: fold Sub-agents once
 and it stays folded everywhere. A project's heading folds for that project.
 
@@ -669,7 +669,7 @@ folded one shows how many are under it. Its page
 says what's coming up next with a few numbers: how many are on, due in the
 next day, repeating, set by threads, paused, and how often they've run.
 
-If you run Threadbear on more than one Mac (or on a Linux server as well,
+If you run Quokka Code on more than one Mac (or on a Linux server as well,
 INSTALL.md section 6), a schedule that starts a new
 thread can run on any of them: pick the Mac under Runs on. It runs there
 even while this one is asleep, in that Mac's folder (leave the folder
@@ -693,7 +693,7 @@ everything, as before: that needs that Mac to be on and its key and host
 copied to this one (run `tb pair` on that Mac and it prints the two files
 to make here and how). To add a Mac, give it a key of its own from this one: `tb runner
 add <name> --ssh <that Mac>` writes it there, and its runner uses it from
-its next restart. Set that Mac up with `./threadbear setup --existing`, which
+its next restart. Set that Mac up with `./quokkacode setup --existing`, which
 leaves out the Convex login and deploy key (either could do anything to your
 backend) and ends by telling you to run that command; `tb runner check` there
 says if an older setup left them behind.
@@ -738,7 +738,7 @@ window can be seen; a runner too old to send them says so.
 ## Accounts, pools and Usage
 <!-- slug: accounts -->
 
-Threadbear uses the Claude Code and Codex logins already on your Mac: the
+Quokka Code uses the Claude Code and Codex logins already on your Mac: the
 Claude Code login in `~/.claude` and the Codex login in `~/.codex`. It never
 reads their passwords or tokens. The account and model a thread runs on are
 small menus on the composer. Whatever you picked last is what the next
@@ -752,12 +752,12 @@ tokens used out of the window, the model and login the thread really ran
 on, and what it has cost so far.
 
 To add another login, such as a second Claude subscription, give it a
-folder of its own under `accounts` in Threadbear's data folder, named
+folder of its own under `accounts` in Quokka Code's data folder, named
 `claude-1` (then `claude-2` and so on, or `codex-1` for Codex), and sign in
 there in Terminal:
 
 ```
-CLAUDE_CONFIG_DIR=~/Library/Application\ Support/Threadbear/accounts/claude-1 claude
+CLAUDE_CONFIG_DIR=~/Library/Application\ Support/QuokkaCode/accounts/claude-1 claude
 ```
 
 then type `/login` (for Codex, `CODEX_HOME=<the folder> codex login`). It
@@ -806,14 +806,14 @@ never that Mac's.
 Usage, near the bottom of the left-hand rail, shows how much room each login
 has left before it hits its limits: the weekly one, and the 5-hour one for
 logins that still have it (Claude Team does, Max plans don't any more).
-Threadbear learns these numbers from the threads it runs, so a login's bars
+Quokka Code learns these numbers from the threads it runs, so a login's bars
 fill in once it has run something.
 
 At the top it shows what you've spent: tokens today (and what a usual day
 had spent by this time), in the last hour and over the last 7 days, with a
 chart by the hour or by the day, each login in its own colour. Hover a bar
 to see who spent what. The tokens are read from the Claude and Codex
-transcripts on your Mac, so work done outside Threadbear counts too; the
+transcripts on your Mac, so work done outside Quokka Code counts too; the
 first read takes a minute or so after the runner updates.
 
 Below that, each pool is a card, with each login in it: what it's spent
@@ -835,7 +835,7 @@ meter seems to count that traffic as more per token than the same work typed
 into `claude` in a terminal. People have measured anywhere from about 1.6 to
 2.9 times as much ([anthropics/claude-code#97074](https://github.com/anthropics/claude-code/issues/97074)),
 while weekly limits come out about the same in most of their tests. Some apps
-change the label the SDK sends to get around it. Threadbear leaves the label
+change the label the SDK sends to get around it. Quokka Code leaves the label
 as it is for now.
 
 ## Keyboard shortcuts
@@ -852,7 +852,7 @@ instead. If another command already has the key, it asks whether to give it to
 this one, which leaves the other with no key. Keys that something else needs,
 like ⌘C for Copy or ⌘← for moving the cursor, can't be used.
 
-The keys you've changed are in `shortcuts.json` in Threadbear's data folder, so
+The keys you've changed are in `shortcuts.json` in Quokka Code's data folder, so
 you can ask an agent to change them too, and a change to the file shows straight
 away. It holds only what you've changed, by the names below, and `null` means no
 key:
@@ -895,7 +895,7 @@ to `f20`.
 
 Some new features start as experiments: off unless you turn them on, while
 they're tried out. Each has a switch under `experiments` in `runner.json`
-in Threadbear's data folder, read at every turn, so there's nothing to
+in Quokka Code's data folder, read at every turn, so there's nothing to
 restart:
 
 ```json
@@ -903,11 +903,11 @@ restart:
 ```
 
 Once an experiment has proved itself it becomes a standard part of
-Threadbear, and its switch goes.
+Quokka Code, and its switch goes.
 
 - **Review by another lab** (`labReview`, since 6 Nov 2026). When a turn
   that changed code (five lines or more, not counting docs) finishes with
-  nothing for you to do, Threadbear starts a review thread in the same
+  nothing for you to do, Quokka Code starts a review thread in the same
   folder on your other provider: Codex reviews a Claude thread's change,
   and Claude a Codex one's. It's told to try to break the change and not
   to edit anything. It runs with the same permissions as the thread it
@@ -941,7 +941,7 @@ Threadbear, and its switch goes.
   stops below 15% battery when you're not plugged in, and closing the lid
   on battery still puts the Mac to sleep.
 - **Diagrams and pages in replies** (`richBlocks`, since 6 Nov 2026). Tells
-  agents that Threadbear draws ```` ```mermaid ```` and ```` ```html ````
+  agents that Quokka Code draws ```` ```mermaid ```` and ```` ```html ````
   blocks (Reading a reply, above), so they use one when a picture explains
   better than words. The apps draw those blocks either way; this is only
   whether agents are told.
@@ -978,7 +978,7 @@ the thread runs on.
 <!-- slug: macos-prompts -->
 
 - **Notifications.** The first time the app opens, macOS asks whether
-  Threadbear may send notifications. Either answer is fine: with them on,
+  Quokka Code may send notifications. Either answer is fine: with them on,
   the app tells you when a thread needs you and you aren't looking at it,
   which helps most when your threads run on Full access and you've
   wandered off. You can change it later in System Settings >
@@ -988,23 +988,23 @@ the thread runs on.
   Click Allow if you want agents working there, or Don't Allow if not. You
   can change your mind later in System Settings > Privacy & Security >
   Files and Folders. iCloud Drive and removable drives ask too. The prompt
-  names Threadbear Runner when an agent asked, and Threadbear when the app
+  names Quokka Code Runner when an agent asked, and Quokka Code when the app
   itself opens something there for you, such as a pinned picture on your
-  Desktop. Starting threads in `~/ThreadbearThreads` keeps these prompts
+  Desktop. Starting threads in `~/QuokkaCodeThreads` keeps these prompts
   away until you choose a folder that needs them.
 - **A Mac nobody's sitting at.** The agent waits for that answer, so on a
   second Mac a folder prompt can hold a thread up with nobody there to click.
-  Give Threadbear Runner Full Disk Access on that Mac, in System Settings >
+  Give Quokka Code Runner Full Disk Access on that Mac, in System Settings >
   Privacy & Security, and the prompts stop. Do this when you set the Mac up:
   a waiting prompt can also hold up other apps using the same drive until
   someone answers it. The trade-off is that agents there can read everything
   your account can. If a thread does get stuck like this, it
   says so after a minute or two and goes in Needs you. Five minutes later
-  Threadbear stops the turn, and your next message carries on from there.
-- **A thread called "... needs someone at its screen".** Threadbear starts one
+  Quokka Code stops the turn, and your next message carries on from there.
+- **A thread called "... needs someone at its screen".** Quokka Code starts one
   when a macOS dialog has been waiting on a Mac for 5 minutes, or when a Mac
-  without the Threadbear app doesn't have Full Disk Access yet. Open Screen
-  Sharing to that Mac and answer the dialog, or turn on Threadbear Runner in
+  without the Quokka Code app doesn't have Full Disk Access yet. Open Screen
+  Sharing to that Mac and answer the dialog, or turn on Quokka Code Runner in
   Full Disk Access there. When the dialog's gone or the access is on, the
   thread says so within a couple of minutes and archives itself, unless
   you've written in it.
@@ -1012,7 +1012,7 @@ the thread runs on.
 ## Your phone and a browser
 <!-- slug: phone-and-browser -->
 
-The Threadbear iPhone app is for when you're away from the Mac: ask a
+The Quokka Code iPhone app is for when you're away from the Mac: ask a
 thread a question, steer it, answer the ones that need you, start new
 ones, and see how they're all getting on. Its inbox sorts threads the
 way the Mac's does, into Starred, Inbox, Running, Hibernating and
@@ -1037,7 +1037,7 @@ terminal command setup used to print still works too:
     swift ios/scripts/pair-qr.swift --prod --url <your deployment URL>
 
 If you have them on, notifications reach your phone only while you're away
-from the Mac by default. Threadbear counts you as at the Mac when the app is open and you've
+from the Mac by default. Quokka Code counts you as at the Mac when the app is open and you've
 used the keyboard or mouse in the last two minutes, and as away when the Mac
 is asleep. On the iPhone, Settings > Notify me changes it to Always or Never.
 
@@ -1048,7 +1048,7 @@ about it soon and releasing it then. Until then, any server that speaks
 [Ask's small protocol](https://github.com/mikecann/threadbear/blob/main/docs/ask-server.md)
 works. Set it up in the iPhone's Settings > Ask (the server's address and
 a token from it; the phone has to be able to reach it, over Tailscale for
-one on your own Mac), then set the Action button to Threadbear's Ask
+one on your own Mac), then set the Action button to Quokka Code's Ask
 shortcut. The waveform button in the inbox does the same.
 Each answer is kept as a thread in your default folder, with the question,
 the answer and a note that Ask answered it. It shows as done and already
@@ -1081,7 +1081,7 @@ The Librarian view lists what it did.
 
 Your threads also have a website, on your own Convex deployment. To sign a
 browser in, Settings > Phone & browser > Open signed in opens it in your
-browser (or run `npm run web:sign-in` from your Threadbear folder). Each
+browser (or run `npm run web:sign-in` from your Quokka Code folder). Each
 thread has its own link. Open on the web in a thread's ... menu on the Mac
 takes you there, and the Copy link button on the website copies it. It works
 anywhere you're signed in. Its sidebar works
@@ -1134,9 +1134,9 @@ at the end, which lists them.
 Each panel has a button on the right-hand rail, with a small badge in its
 bottom corner (and on the panel's tab) saying where it came from: the project's own icon when it came
 from one of the thread's projects' folders, a folder for the thread's own
-folder, a house for `~/.threadbear`, a wrench for a tool patch (one that's
+folder, a house for `~/.quokkacode`, a wrench for a tool patch (one that's
 there because of a file, like a video's `.tandem`) and a box for one built
-into Threadbear. Hover over the button to see it in words.
+into Quokka Code. Hover over the button to see it in words.
 
 A thread in a Convex project gets a built-in Convex panel: the
 deployment's own dashboard (data, functions, logs and so on), with a menu
@@ -1150,8 +1150,8 @@ else switches to one that can.
 
 You don't need to write one yourself. In a thread in that folder, ask
 "add a button that runs the tests" or "add a panel showing localhost:3000",
-and the agent writes the patch into the folder's `.threadbear/patches/`
-(the format is under "Patches" in `docs/protocol.md`, in your Threadbear
+and the agent writes the patch into the folder's `.quokkacode/patches/`
+(the format is under "Patches" in `docs/protocol.md`, in your Quokka Code
 folder). It shows up within a few seconds. A patch is code that runs on your
 Mac, so keep only the ones you'd be happy to run.
 
@@ -1180,7 +1180,7 @@ too, so a change to any of them asks again. A script that runs something
 worked out as it runs (`eval`, `bash -c "$x"`, `curl ... | sh`, a command
 in a variable) can't be covered, so a setup or hook naming it never runs,
 and Patches says which line. A patch's badges and list panels run their
-commands from the folder holding its `.threadbear/`, and only while it's
+commands from the folder holding its `.quokkacode/`, and only while it's
 the version you trusted, with only the files trusting it covered. A
 thread's worktree counts as its repo, and patches that were already in
 your folders when this arrived are trusted for you. Patches you trusted
@@ -1206,23 +1206,23 @@ skills, agents and slash commands, and CLAUDE.md files in the folders
 above it, wait too. Trust them and your next message starts Claude afresh
 with all of it, carrying on the same conversation. A change to them, or
 to a script they run, asks again; ones the agent writes for you on Full
-access are trusted as it wrote them, as patches are. Ones that run something Threadbear can't
+access are trusted as it wrote them, as patches are. Ones that run something Quokka Code can't
 check (a package by name with `npx`, `python -m`, a formatter or test
 runner that loads its own config and tests, a script that imports code by
-a name worked out as it runs), or allow Threadbear's own tools,
+a name worked out as it runs), or allow Quokka Code's own tools,
 can't be trusted at all, and Patches says why. Settings with none of this
 in them never ask.
 
 A project's page has its own panels and Patches on the right-hand rail:
 the ones its folders give its threads.
 
-## Changing Threadbear itself
-<!-- slug: changing-threadbear -->
+## Changing Quokka Code itself
+<!-- slug: changing-quokkacode -->
 
-You can change Threadbear by asking a thread to. Start one in your
-Threadbear folder (your fork, the copy setup ran from) and say what you'd
+You can change Quokka Code by asking a thread to. Start one in your
+Quokka Code folder (your fork, the copy setup ran from) and say what you'd
 like different. If a setting or a patch would do it, the agent uses that
-rather than changing Threadbear's own code, so Mike's updates come in
+rather than changing Quokka Code's own code, so Mike's updates come in
 cleanly later. A thread there gets its own copy of the code to work in, and when
 the change is ready and its checks pass, the agent lands it on your `main`
 branch. When several threads are ready together, their landings wait for
@@ -1232,7 +1232,7 @@ landed work.
 The same goes for settings. The Settings window (⌘,) shows what's set and has
 controls for only a few common things, and the ⓘ beside each section says
 what it is and what to ask your agent. Click it to read it, or hover for a
-quick look. Most settings live in `runner.json` in Threadbear's data folder,
+quick look. Most settings live in `runner.json` in Quokka Code's data folder,
 and an agent can change them or set up anything more involved, so ask one
 first.
 
@@ -1240,7 +1240,7 @@ Updates then arrive by themselves. Within a few minutes of a change landing
 on `main`, the runner builds it and switches over without cutting off any
 thread that's partway through a turn, and the app builds its new version in
 the background. The app swaps in the new version when you next quit it, when
-you choose Restart to Update in the Threadbear menu, or by itself when you've
+you choose Restart to Update in the Quokka Code menu, or by itself when you've
 left it alone for a while with nothing typed. The window stays where it is
 while it does: the new version opens the same thread underneath and takes
 over, so you shouldn't see it go.
@@ -1269,7 +1269,7 @@ own changes, and changes nothing until you say. From a thread, `tb updates`
 says the same, and `tb updates check` looks again now.
 
 You don't have to remember to look. Every 5 days, if Mike has a release
-your copy doesn't have, Threadbear starts that thread for you: it does the
+your copy doesn't have, Quokka Code starts that thread for you: it does the
 merge and runs the checks first, so it reaches your inbox with one
 question, whether to land it. There's only ever one; if you leave it open,
 a newer release goes into the same thread. A release Mike marks important
@@ -1279,7 +1279,7 @@ turn it off, in Settings (⌘,) > General > Updates from Mike.
 ### The activity log
 
 Turn on Keep an activity log in Settings (⌘,) > General and the app notes
-down what you do in it, so the agents working on Threadbear can see how you
+down what you do in it, so the agents working on Quokka Code can see how you
 really use it: what you click, which threads and pages you open, the menu
 items and shortcuts you use, the tooltips you stop to read, and when you
 send a message or answer a prompt. It never notes what you type or the
@@ -1289,8 +1289,8 @@ title in it). An agent reads it with `tb activity`, or
 `tb activity --summary` for what's used most.
 
 It's off until you turn it on. It's kept in the `activity` folder of
-Threadbear's data folder, a file a day, and each file is deleted after 30
-days. Threadbear never sends it anywhere, though once an agent has read
+Quokka Code's data folder, a file a day, and each file is deleted after 30
+days. Quokka Code never sends it anywhere, though once an agent has read
 some of it, that's part of its thread like anything else it reads.
 
 ## Privacy
@@ -1310,14 +1310,14 @@ A thread you share can be read by anyone with its link, pictures included,
 and only that thread. The pictures are uploaded only while it's shared,
 and only real pictures from its own media folder: your attachments, the
 screenshots its tools took, and pictures the agent copies in there on
-purpose (it's told where, as `THREADBEAR_MEDIA_DIR`). One an agent points
+purpose (it's told where, as `QUOKKACODE_MEDIA_DIR`). One an agent points
 at anywhere else, the thread's own folder or a temp folder included,
 stays on your Mac and the page shows its caption instead.
 Notifications to your phone go through a small relay Mike runs, because
 Apple only delivers notifications for his app through his key. The text is
 locked with a key only your phone and your deployment have, so the relay
 never sees what a notification says. The activity log (see
-[Changing Threadbear itself](#changing-threadbear)) is off unless
+[Changing Quokka Code itself](#changing-quokkacode)) is off unless
 you turn it on, and it stays on your Mac.
 
 ## Getting help
@@ -1328,7 +1328,7 @@ you turn it on, and it stays on your Mac.
 - Ask a thread to run `tb status`, which says what the runner is doing:
   its version, the threads that are busy, and any restart or update on the
   way.
-- `threadbear` in Terminal opens the app, and quitting it with ⌘Q is always
+- `quokkacode` in Terminal opens the app, and quitting it with ⌘Q is always
   safe, since your threads keep running without it. If the app says it
   can't reach the runner, click Start runner.
 
@@ -1338,11 +1338,11 @@ you turn it on, and it stays on your Mac.
 The first time the app opens it shows you round the window, one part at a
 time, with a few made-up sample threads to try things on: you hibernate one,
 archive another, move a panel, and press an example patch's button, Roll a
-die (it lives in `~/ThreadbearThreads/Welcome`). Then it opens your first
+die (it lives in `~/QuokkaCodeThreads/Welcome`). Then it opens your first
 thread with the message written for you, asking the agent for a patch with
 a hello button of your own, and you send it. The samples are deleted when
 the tour ends. Help > Take the Tour runs it again, and that time you can
-skip it. A Mac that joined a Threadbear you already use (setup's
+skip it. A Mac that joined a Quokka Code you already use (setup's
 `--existing`) skips it.
 
 While that first thread works, Finish setting up shows what's left after
@@ -1357,4 +1357,4 @@ setup:
 Each item ticks itself off once it's done, and the list's icon on the
 left-hand rail goes once they all have. Hide this list puts it away, and
 Help > Finish Setting Up brings it back. The phone and website items only
-show when your Threadbear has a Convex deployment for them to use.
+show when your Quokka Code has a Convex deployment for them to use.

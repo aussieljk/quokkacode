@@ -1,6 +1,6 @@
-# Threadbear for Mac
+# Quokka Code for Mac
 
-The Mac app for Threadbear: a native window onto the threads the runner
+The Mac app for Quokka Code: a native window onto the threads the runner
 (`../runner`) keeps going. It holds no agent state of its own. Quitting or
 updating the app never stops a turn; the runner owns every CLI.
 
@@ -14,26 +14,26 @@ You need macOS 26, Xcode 27 (Swift 6.2 or later) and Python 3 for the
 launcher. Node is only needed for the mock runner and the fixture tools.
 
 ```bash
-bash install.sh        # release build into ~/Applications/Threadbear.app, links ~/.local/bin/threadbear
-threadbear             # open it
-threadbear restart     # debug rebuild and relaunch
-threadbear stop        # quit the app (the runner and its agents keep going)
+bash install.sh        # release build into ~/Applications/QuokkaCode.app, links ~/.local/bin/quokkacode
+quokkacode             # open it
+quokkacode restart     # debug rebuild and relaunch
+quokkacode stop        # quit the app (the runner and its agents keep going)
 ```
 
 The scripts:
 
-- `build-app.sh` builds and stages `~/Applications/Threadbear.app` (or
-  `THREADBEAR_APP_DIR`), swapping the old bundle out in two renames.
-  `THREADBEAR_BUILD_CONFIGURATION=debug` for a debug build.
+- `build-app.sh` builds and stages `~/Applications/QuokkaCode.app` (or
+  `QUOKKACODE_APP_DIR`), swapping the old bundle out in two renames.
+  `QUOKKACODE_BUILD_CONFIGURATION=debug` for a debug build.
 - It signs with the first "Apple Development" identity in your keychain
-  (override with `THREADBEAR_SIGN_IDENTITY`), so the app keeps one identity
+  (override with `QUOKKACODE_SIGN_IDENTITY`), so the app keeps one identity
   across rebuilds and notification permission sticks. Without one it signs ad
   hoc and pins the designated requirement to the bundle id
-  `com.mikerosoft.threadbear`, because an ad hoc requirement is the binary's
+  `com.lucasknight.quokkacode`, because an ad hoc requirement is the binary's
   hash and changes every build.
 - `restart.sh`, `kill.sh` and `install.sh` work like Token Stats'. `kill.sh`
   only matches the staged app's own binary path.
-- `icons/threadbear.png` becomes the app icon if it's there.
+- `icons/quokkacode.png` becomes the app icon if it's there.
 - The bundle records what it was built from in `Contents/Resources/build.json`
   (commit, the tree hash of `app/`, the checkout), and carries
   `stage-update.sh`.
@@ -42,15 +42,15 @@ The installed app then keeps itself current (`AppUpdate.swift`). Every five
 minutes it reads main's tree hash for `app/` in the checkout it was built
 from; when that differs from what's running it builds the commit in the
 background with `stage-update.sh` (release, `nice`d, from a clone of main
-under `~/Library/Caches/Threadbear/update`, so an agent's half-done edits
-in the working tree are never built) into `~/Applications/.Threadbear.app.next`.
+under `~/Library/Caches/QuokkaCode/update`, so an agent's half-done edits
+in the working tree are never built) into `~/Applications/.QuokkaCode.app.next`.
 Quitting swaps the staged bundle into place, so the next launch is the new
 app; a launch that finds one staged (the app was killed rather than quit)
 swaps it in and relaunches; "Restart to Update to <commit>" in the app
 menu does it right away. It also restarts by itself, checked every second,
 once it's connected with the threads loaded, no composer has unsent text or
 images and no schedule editor is open, and either another app is in front
-(it comes back behind, with `open -g` if it can't hand over) or Threadbear
+(it comes back behind, with `open -g` if it can't hand over) or Quokka Code
 is in front, hasn't had a key, a click or a scroll for five seconds, and
 can hand over (below) with the main window the one in use. Running threads
 don't hold it up: the runner keeps the turn. There's no countdown first,
@@ -72,16 +72,16 @@ new one takes over when it sees it go; if the new app doesn't start, the
 old one restarts the old way. The automation's `handover` does the same
 with a dev app's own bundle. The
 build's output goes to
-`~/Library/Logs/threadbear-update.log`; the app's own log says what it
+`~/Library/Logs/quokkacode-update.log`; the app's own log says what it
 decided. Only the installed bundle path does this, not a dev app, perf or
 screenshot run, and `--no-update` turns it off for a launch. An app built
 before `build.json` existed stays as it is until `install.sh` or
 `restart.sh` is run once.
 
 The app finds the runner through its data folder,
-`~/Library/Application Support/Threadbear/` (`runner.json` for the port,
+`~/Library/Application Support/QuokkaCode/` (`runner.json` for the port,
 `secrets/runner-token` for the token). `--data-dir <path>` or
-`THREADBEAR_DATA_DIR` points it somewhere else, which is how the mock runner
+`QUOKKACODE_DATA_DIR` points it somewhere else, which is how the mock runner
 and the perf run stay away from the real one. Install the runner itself with
 `../runner/scripts/install-runner.sh` (a LaunchAgent; see the runner's README).
 
@@ -131,7 +131,7 @@ and the perf run stay away from the real one. Install the runner itself with
 - **The tour.** The first time the app connects to a runner it dims the
   window and lights up its parts one at a time with a card beside each. It
   asks the runner for three sample threads (`threads.samples`: made up,
-  finished, no turn) in `~/ThreadbearThreads/Welcome`, where it writes an example
+  finished, no turn) in `~/QuokkaCodeThreads/Welcome`, where it writes an example
   patch, and has you hibernate one, archive another, drag a panel (done
   when the dock's layout changes) and press the patch's Roll a die chip,
   between cards on the threads and Highlights. It ends on
@@ -140,7 +140,7 @@ and the perf run stay away from the real one. Install the runner itself with
   ends, the samples are deleted. The first run has no Skip; Next turns up
   on a hands-on step after 20 seconds in case it won't take. Help > Take
   the Tour runs it again, skippable. `setup --existing` marks it seen, so a
-  Mac joining a Threadbear you already use doesn't get it.
+  Mac joining a Quokka Code you already use doesn't get it.
 - **Finish setting up.** While anything's left after setup, an icon on
   the activity bar (with a count) opens a short checklist under the
   threads: start your first thread (which shows the login works), pair
@@ -189,7 +189,7 @@ and the perf run stay away from the real one. Install the runner itself with
   after it restarted" over its text, not a bubble of yours.
 - If the runner isn't running you get "Can't reach the runner." with
   **Start runner** (`launchctl kickstart` of
-  `com.mikerosoft.threadbear.runner`; only shown when the app uses the
+  `com.lucasknight.quokkacode.runner`; only shown when the app uses the
   installed runner's data folder, never against the mock or a dev runner)
   and Try again; the reason is in its tooltip. A dropped connection says "Lost the connection to the runner.
   Reconnecting…". The app reconnects on its own with backoff (0.25 s
@@ -218,7 +218,7 @@ turn footer (duration and cost), a note or an error.
   with One reply's final message, doesn't: that's the reply, and the edits
   are in its folded work.
 
-- `ThreadbearCore` turns protocol events into rows (`TranscriptModel`), keeps
+- `QuokkaCodeCore` turns protocol events into rows (`TranscriptModel`), keeps
   live events in seq order and spots gaps (`ThreadFeed`), splits markdown into
   blocks (`MarkdownBlocks`) and builds diffs (`DiffBuilder`). It has no AppKit
   or SwiftUI, so it's all unit tested.
@@ -321,8 +321,8 @@ said it showed.
 
 ```bash
 (cd Tools/mock-runner && npm install)
-threadbear mock              # the app against the mock, in a temp data folder
-threadbear mock --filler 16  # plus 16 synthetic filler threads
+quokkacode mock              # the app against the mock, in a temp data folder
+quokkacode mock --filler 16  # plus 16 synthetic filler threads
 ```
 
 It never touches the real runner's data folder (it refuses to).
@@ -346,7 +346,7 @@ Row counts use the same rules as the app's reducer, images included. On
 ## Perf runs
 
 ```bash
-bash Tools/perf-run.sh                       # or: threadbear perf
+bash Tools/perf-run.sh                       # or: quokkacode perf
 bash Tools/perf-run.sh --stream-seconds 10   # shorter streaming step
 ```
 
@@ -374,7 +374,7 @@ filler threads, then runs the app with `--perf-run`:
    the whole run.
 
 It ends with each bar from the plan marked met or NOT MET. Intervals are
-also marked with `os_signpost` (subsystem `com.mikerosoft.threadbear`,
+also marked with `os_signpost` (subsystem `com.lucasknight.quokkacode`,
 category `perf`) for Instruments. The report prints and is saved to
 `.fixtures/perf/`. `--perf-debug` adds the transcript's cells, layer tree and
 memory regions after each open; `--perf-hold <seconds>` keeps the app open at
@@ -408,7 +408,7 @@ of a freshly signed build), older page fetch 13 ms and merge 9 ms (median).
 
 ## Screenshots
 
-`Threadbear --data-dir <mock data dir> --screenshots <folder>` opens the demo
+`Quokka Code --data-dir <mock data dir> --screenshots <folder>` opens the demo
 threads and saves window-only captures (`screencapture -l` with the window's
 id, never the full screen). `--only 2` takes just one. Run the mock with
 `--fixtures Tools/mock-runner/fixtures` so only the synthetic threads are
@@ -455,8 +455,8 @@ mistake. Its mock runner runs in a session of its own: started from an
 agent's command it used to share that command's process group, which the
 live runner stops when it restarts, leaving the app with no runner.
 
-Instances belong to whoever started them: the Threadbear thread
-(`THREADBEAR_THREAD_ID`) and the checkout the script is in. Several threads
+Instances belong to whoever started them: the Quokka Code thread
+(`QUOKKACODE_THREAD_ID`) and the checkout the script is in. Several threads
 can be using dev apps at once, so without `--id` a command means the
 caller's newest running instance, never another thread's or another
 checkout's (it says whose they are if you have none); `stop --all` stops
@@ -511,7 +511,7 @@ traffic lights are approximate, the rest matches.
 
 A build that fails prints just its errors (no colour codes or compiler
 command lines) and keeps the whole log in
-`$TMPDIR/threadbear-dev-app/build-logs/`. `rebuild` leaves the running app
+`$TMPDIR/quokkacode-dev-app/build-logs/`. `rebuild` leaves the running app
 alone when the build fails.
 
 The commands (`do`), each a JSON object with `cmd`. Rows and threads can be
@@ -577,14 +577,14 @@ is an error. Commands marked "the open thread" act on `id` when it's given
 | `page-scroll` | `dy` (points a frame, 14), `steps` (120), `back` (default true), `updates` (a second, 0) | scrolls the scroll view under the middle of the window (the transcript, or a page like Projects) down and back, as a trackpad would, optionally with that many stand-in thread updates a second, and says how the frames went. Needs `front` |
 | `action` | `id`, `timeout` | runs that action chip of the selected thread and waits for a command to finish (default 60 s); `dump` lists the actions |
 | `trust` | `id` | does what Patches' Trust button does, for the selected thread's waiting patches (`id` for one) |
-| `panel` | `id`, `show` | the selected thread's pane sections, each a panel in the window's dock: `id` opens or brings up that section (`threadbear.highlights`, a panel's id, or `threadbear.patches`; an error names the ones it has), `show` false closes every section and true opens them again (Highlights if none), neither toggles; `dump` lists the sections, the active one starred, and what Highlights has, and its `dock:` line is the whole layout |
+| `panel` | `id`, `show` | the selected thread's pane sections, each a panel in the window's dock: `id` opens or brings up that section (`quokkacode.highlights`, a panel's id, or `quokkacode.patches`; an error names the ones it has), `show` false closes every section and true opens them again (Highlights if none), neither toggles; `dump` lists the sections, the active one starred, and what Highlights has, and its `dock:` line is the whole layout |
 | `folder` | `open`, `select`, `click` (`count`), `expand`, `up`, `mode`, `sort` (`ascending`), `hidden`, `key` (`command`, `shift`, `characters`), `crumb`, `pathBar`, `menu`, `choose` (`row`), `quickLook` | the folder browser showing in the pane (FolderBrowser.swift): `open` is what a double-click does to that row, `select` picks it, `click` presses it through the window (`count` 2 for a double-click), `expand` is its triangle, `up` is ⌘↑, `mode` is `list` or `icons`, `sort` a column (`name`, `modified`, `size`), `hidden` is ⌘⇧., `key` a key code on the view showing, `crumb` a folder in the path bar; says the rows, and `pathBar` its words, `menu` a row's right-click menu (`""` the empty space's), `choose` picks an item of it (`row`, or the empty space's), `quickLook` what the space bar would show. `dump`'s preview line has the same summary |
 | `preview` | `path`, `url`, `close`, `back`, `edit`, `insert` | opens a file, folder or page in the selected thread's pane, as a click on a highlight does (a web URL goes to the browser); `close` goes back to the section, `back` is the bar's Back. Over a text file, `edit` true or false is the bar's pencil or Done, and `insert` types text at the end of the editor (`wait` false returns before the save), `resolve` (`file` or `mine`) presses the conflict bar's button; `dump`'s preview line says `(editing)` |
 | `waitFor` | `row`, `kind`, `status` (and `thread`), `text`, `banner` (`""` for none), `connection`, `loaded`, `ready`, `not`, `timeout` | until every condition given holds (default 10 s) |
 | `dump` | `format` (`json`, `text`), `out` | |
 | `screenshot` | `path`, `inProcess` | `screencapture -l`, or drawn in-process when that gives no image; a dev-app instance always draws in-process (`shot` runs screencapture itself). `out` and `path` are refused under ~/Desktop, ~/Documents and ~/Downloads, where macOS would ask Mike to let the temp bundle in; `shot` and `dump` write in the instance's folder and move the file |
 | `window` | `panel`, `settings`, `sheet`, `popover` | the window's id (for `screencapture -l`) and size, once anything pending is drawn; with `panel`, that panel's window of its own; with `popover`, the popover that's up (an ⓘ's: open one with `click`'s `tip` and `settings`) |
-| `float` | `id`, `back` | opens a dock panel (`threadbear.highlights`, say) in a window of its own, kept behind Mike's work, as its menu's Open in New Window does; `back` puts it back in the dock. Says the layout |
+| `float` | `id`, `back` | opens a dock panel (`quokkacode.highlights`, say) in a window of its own, kept behind Mike's work, as its menu's Open in New Window does; `back` puts it back in the dock. Says the layout |
 | `settings` | `tab` (`general`, `models`, `pools`, `runners`, `devices`, `keyboard`), `pair` (true: shows the pairing code on the devices tab), `close` | opens the Settings window (behind Mike's windows) on that tab, or closes it; says its window number and what it shows (the devices tab's paired list, site and reason among it). `shot <file> --settings`, and `window` and `screenshot` with `"settings": true`, capture it; add `--sheet` (or `"sheet": true`) for the pairing code over it |
 | `shortcuts` | `record` (a command, as in shortcuts.json), `press` (`cmd+e`, through the recorder), `answer` (`use`, `cancel`), `reset` (a command or `all`), `post` (`keyCode`, `characters`, `modifiers`: a real key press through this app's own event queue, so its monitors and menus see it and nothing reaches any other app) | Settings > Keyboard: says what's listening, the outcome of the last press and what's changed |
 | `review` | `id` (optional), `mode` (`All`, `Single`), `show` (zero-based option, enlarges it) with `shot` (zero-based, which of its shots), `actual` (true zooms to 100%, false fits the image), `peek` (true shows the first reference option, today's version, over the shot on show, as holding Space does), `pick` (option ID or a list of them, each toggles), `none` (true toggles none of them), `reply` (the reply box's text), `notes` (object keyed by ID), `save`, `submit`, `cancel`, `close` | opens a review from the selected thread in a window of its own, kept behind Mike's work, as a click on its card does; edits and sends through the same session as the UI. Returns the draft, status and the window number. `window` and `screenshot` with `"review": "<review ID>"` target its window |
@@ -602,7 +602,7 @@ dev runner's cheap model), checks what each lights up and what it changed,
 then the samples' removal and Help's replay. Shots of each step go in
 `--shots DIR` (default a temp folder). It exits 1 on a failed check.
 
-`Tools/drive.sh` posts commands without waiting (`THREADBEAR_AUTOMATION_ID`
+`Tools/drive.sh` posts commands without waiting (`QUOKKACODE_AUTOMATION_ID`
 picks an instance). The integration run on 2026-10-26 used it against the
 real runner with a debug build that replaced Mike's app in `~/Applications`;
 that's his call, never an agent's, and now needs `--automation-allow-live`.
@@ -614,7 +614,7 @@ Its window-only captures are in `../docs/screenshots/`.
 swift test
 ```
 
-`ThreadbearCoreTests` covers the protocol models (including events in
+`QuokkaCodeCoreTests` covers the protocol models (including events in
 shapes the strict decoders used to reject), the JSON-RPC client over a fake
 transport (request order, timeouts), the reducer and feed (streaming across
 earlier finished turns, gaps and unfillable holes, paging and moved rows,
@@ -623,8 +623,8 @@ headers, the Markdown export, the runner restart's states, messages sent by
 the runner, and which events each row came from ("Copy debug info").
 `MockRunnerTests` runs the real WebSocket client against the mock runner,
 its restart included (skipped if node or the mock's `npm install` is
-missing, except under `THREADBEAR_REQUIRE_MOCK=1`, which `../check.sh` sets
-after installing the mock's packages). `ThreadbearAppTests` tests the app target itself: typing into the
+missing, except under `QUOKKACODE_REQUIRE_MOCK=1`, which `../check.sh` sets
+after installing the mock's packages). `QuokkaCodeAppTests` tests the app target itself: typing into the
 composer, question answers, incremental streaming heights against a full
 measure, the render cache, sliced tall text, drafts kept when a send fails,
 the restart banner, the runner's message as a note, and the automation
@@ -641,7 +641,7 @@ streams) and text typed into the composer reaching the draft.
   blank for a moment, and they're decoded again on each pass.
 - The app target is still in Swift 5 language mode (its TextKit measuring
   runs off the main thread with non-Sendable objects kept to one thread
-  each); `ThreadbearCore` is Swift 6.
+  each); `QuokkaCodeCore` is Swift 6.
 - No syntax colouring in code blocks yet.
 - The model picker lists the CLI's own rows once the runner has asked each
   account (a few seconds after it starts); until then it offers opus, sonnet

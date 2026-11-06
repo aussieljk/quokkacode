@@ -139,7 +139,7 @@ export function fingerprint(p: string): string {
 }
 
 export type FollowOptions = {
-  folder: string; // where the command starts: the folder holding .threadbear/
+  folder: string; // where the command starts: the folder holding .quokkacode/
   top: string; // the repo's top; only files inside it are the repo's to change
   home?: string;
   // From patch-trust.ts, passed in so the two don't import each other.

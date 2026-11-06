@@ -44,7 +44,7 @@ export function clean(s: unknown, max = 160): string {
 // What the Convex panel names its deploy keys (convex-keys.ts make): only a
 // name like this from another Mac goes into a command, anything else is
 // shown as unrecognised.
-const PANEL_KEY = /^threadbear-panel-[a-z0-9-]{1,40}-[0-9a-f]{6}$/;
+const PANEL_KEY = /^quokkacode-panel-[a-z0-9-]{1,40}-[0-9a-f]{6}$/;
 const DEPLOYMENT = /^[a-z0-9-]{1,64}$/;
 
 // As convex/runnerAccess.ts RUNNER_ID and validRunnerId (a unit test keeps
@@ -64,7 +64,7 @@ function adminAdvice(a: Admin, where: string, url: string): string {
   const deployment = deploymentOf(url);
   const good = a.panels.filter((n) => PANEL_KEY.test(n));
   const odd = a.panels.length - good.length;
-  const have = [a.deployEnv && "setup's deploy key (secrets/convex-deploy.env, named threadbear-runner-<that Mac's name>)", ...good.map((n) => `the Convex panel's deploy key ${n}`), odd && `${odd} panel key file${odd === 1 ? '' : 's'} with an unrecognised name (secrets/convex-panels/)`, a.cliLogin && 'a Convex CLI login (~/.convex/config.json)', a.teamToken && 'a Convex team access token (secrets/convex-team-token, which reaches every project on the team)'].filter(Boolean);
+  const have = [a.deployEnv && "setup's deploy key (secrets/convex-deploy.env, named quokkacode-runner-<that Mac's name>)", ...good.map((n) => `the Convex panel's deploy key ${n}`), odd && `${odd} panel key file${odd === 1 ? '' : 's'} with an unrecognised name (secrets/convex-panels/)`, a.cliLogin && 'a Convex CLI login (~/.convex/config.json)', a.teamToken && 'a Convex team access token (secrets/convex-team-token, which reaches every project on the team)'].filter(Boolean);
   const settings = deployment ? `https://dashboard.convex.dev/d/${deployment}/settings` : "the deployment's settings in the Convex dashboard";
   const commands = deployment && good.length ? `, or from this Mac: ${good.map((n) => `npx convex deployment token delete ${n} --deployment ${deployment}`).join('; ')}` : '';
   return [
@@ -88,7 +88,7 @@ function deploymentOf(url: string): string | undefined {
 // GET /v1/deployments/<name>/list_deploy_keys), so rotate-owner doesn't take
 // another Mac's word for what it has. It needs a team access token, which
 // Mike makes in the Convex dashboard's team settings and gives this one run
-// as CONVEX_TEAM_TOKEN: never kept on disk, and Threadbear never reads the
+// as CONVEX_TEAM_TOKEN: never kept on disk, and Quokka Code never reads the
 // Convex CLI's own login. Undefined without one; an answer in any other
 // shape than a list of { name, creationTime } is an error, never "no keys".
 export async function listDeployKeys(url: string, token: string | undefined, fetchFn: typeof fetch = fetch): Promise<DeployKey[] | undefined> {
@@ -118,7 +118,7 @@ export function madeDeployKeys(home: string): Set<string> {
 // One look on the other Mac. "checked" at the end, so a look cut short (ssh
 // failing, a timeout) is never taken for a clean one.
 export const REMOTE_ADMIN_CHECK = [
-  'd="$HOME/Library/Application Support/Threadbear/secrets"',
+  'd="$HOME/Library/Application Support/QuokkaCode/secrets"',
   '[ -e "$d/convex-deploy.env" ] && echo deploy-env',
   '[ -e "$HOME/.convex/config.json" ] && echo cli-login',
   '[ -e "$d/convex-team-token" ] && echo team-token',
@@ -160,8 +160,8 @@ function localAdmin(home: string, userHome: string): Admin {
 // there could use a forwarded ssh agent to log back in here).
 export const SSH_OPTIONS = ['-o', 'BatchMode=yes', '-o', 'ConnectTimeout=10', '-o', 'ForwardAgent=no', '-o', 'ClearAllForwardings=yes', '-o', 'ForwardX11=no'];
 
-// Threadbear's data dir on the other Mac, as that Mac's shell sees it.
-const REMOTE_HOME = '"$HOME/Library/Application Support/Threadbear"';
+// Quokka Code's data dir on the other Mac, as that Mac's shell sees it.
+const REMOTE_HOME = '"$HOME/Library/Application Support/QuokkaCode"';
 
 // The Convex CLI won't run `env` outside a folder whose package.json lists
 // convex (rotate-owner failed from the data folder, 5 Nov 2026). The repo's
@@ -227,7 +227,7 @@ export async function runnerKeysCommand(cfg: Pick<Config, 'home' | 'sync'>, args
   };
   const url = cfg.sync.url;
   const key = readSyncKey(cfg.home);
-  if (!url || !key) return fail("This Mac doesn't mirror to Convex (no sync.url in runner.json, or no secrets/convex-key), so it has no runner keys to manage. Run ./threadbear setup first.");
+  if (!url || !key) return fail("This Mac doesn't mirror to Convex (no sync.url in runner.json, or no secrets/convex-key), so it has no runner keys to manage. Run ./quokkacode setup first.");
   const post = deps.post ?? convexPoster(url);
   const call = async (kind: 'query' | 'mutation', fn: string, a: Record<string, unknown>) => {
     try {
@@ -291,7 +291,7 @@ async function add(name: string | undefined, f: Flags, call: (kind: 'query' | 'm
   let runnerId = asked;
   if (f.ssh) {
     const r = ssh(f.ssh, `cat ${REMOTE_HOME}/runner.json`);
-    if (!r.ok) return fail(`Couldn't read Threadbear's runner.json on ${f.ssh} over ssh: ${clean(r.err || 'no answer')}. Is Threadbear set up there?`);
+    if (!r.ok) return fail(`Couldn't read Quokka Code's runner.json on ${f.ssh} over ssh: ${clean(r.err || 'no answer')}. Is Quokka Code set up there?`);
     let json: { sync?: { runnerId?: string; url?: string } } & Record<string, unknown>;
     try {
       json = JSON.parse(r.out);
@@ -334,7 +334,7 @@ async function add(name: string | undefined, f: Flags, call: (kind: 'query' | 'm
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, made.key + '\n', { mode: 0o600 });
     fs.chmodSync(file, 0o600);
-    print(`Made a key for runner ${made.runnerId} (${name.trim()}) and wrote it to ${file}. Put it on that Mac as secrets/convex-key in Threadbear's data folder (owner only), then delete this copy and restart that runner (tb restart there).`);
+    print(`Made a key for runner ${made.runnerId} (${name.trim()}) and wrote it to ${file}. Put it on that Mac as secrets/convex-key in Quokka Code's data folder (owner only), then delete this copy and restart that runner (tb restart there).`);
     return 0;
   }
   // stdin, never the command line, so it's in no process list on either Mac.
@@ -346,7 +346,7 @@ async function add(name: string | undefined, f: Flags, call: (kind: 'query' | 'm
   }
   print(
     [
-      `Made a key for runner ${made.runnerId} (${name.trim()}) and wrote it to ${f.ssh}:~/Library/Application Support/Threadbear/secrets/convex-key.`,
+      `Made a key for runner ${made.runnerId} (${name.trim()}) and wrote it to ${f.ssh}:~/Library/Application Support/QuokkaCode/secrets/convex-key.`,
       'Its runner reads the key when it starts: restart it there once no thread is busy (tb restart on that Mac waits for them).',
       `Any runner key ${made.runnerId} had before is revoked, and the main key no longer acts as ${made.runnerId}. A copy of the main key that Mac had still works for everything else until you rotate it: tb runner rotate-owner.`,
       `It gets no logins' usage readings from this Mac until you say which it's signed in to: tb runner logins ${made.runnerId} <provider:email>... (tb runner logins lists what it says it has once it's running).`,
@@ -411,7 +411,7 @@ function check(cfg: Pick<Config, 'home'>, key: string, f: Flags, ssh: Ssh, print
     const a = remoteAdmin(ssh, f.ssh);
     if (!a) return fail(`Couldn't look on ${f.ssh} over ssh, so this says nothing about it: check ssh reaches it, then run this again.`);
     if (hasAdmin(a)) return fail(adminAdvice(a, f.ssh, url));
-    print(`${f.ssh} has no deploy key or panel keys in its Threadbear data folder and no Convex login.`);
+    print(`${f.ssh} has no deploy key or panel keys in its Quokka Code data folder and no Convex login.`);
     return 0;
   }
   if (!key.startsWith('tbr_')) {

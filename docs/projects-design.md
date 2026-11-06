@@ -8,16 +8,16 @@ agents themselves create and update them. And a project is the unit of
 patching: the patches a thread loads come from every folder of every
 project it's in, so switching threads switches the UI.
 
-This replaces the line in `threadbear-design/README.md` that said
+This replaces the line in `quokkacode-design/README.md` that said
 "multiple projects isn't a thread concept". It is now.
 
 ## What a project is
 
 ```ts
 type Project = {
-  id: string            // "p_threadbear"
-  title: string         // "Threadbear"
-  folders: string[]     // ["~/dev/me/threadbear", "~/dev/me/threadbear-notes"]
+  id: string            // "p_quokkacode"
+  title: string         // "Quokka Code"
+  folders: string[]     // ["~/dev/me/quokkacode", "~/dev/me/quokkacode-notes"]
   goals: string         // a few lines: what it's for, what done looks like
   state: string         // a few lines: where it's up to, what's next, what's blocked
   notes: string         // longer markdown: decisions, gotchas, commands, links
@@ -61,11 +61,11 @@ folder often works on a repo with nothing but Bash. It answers with which
 projects the thread belongs to, a new project if none fits, and a short
 `state` update when the thread moved things on. Most of the signal is
 cheap and doesn't need the model at all: a thread that edits files in
-`~/dev/me/threadbear` from a thread in `~/dev/me/misc` is almost
-certainly about Threadbear. A call is a few thousand tokens in, so well
+`~/dev/me/quokkacode` from a thread in `~/dev/me/misc` is almost
+certainly about Quokka Code. A call is a few thousand tokens in, so well
 under a cent; with the daily budget spent it just stops until tomorrow.
 
-**The agents**, through the `threadbear` MCP server every session gets:
+**The agents**, through the `quokkacode` MCP server every session gets:
 
 - `list_projects`, `read_project` (goals, state, notes, folders, threads)
 - `update_project` (goals, state, notes; append a note)
@@ -82,7 +82,7 @@ it) and edit any field, in the project page. He never has to.
 ## What a thread gets from its projects
 
 1. **Patches.** Today a thread loads patches by walking up from its own
-   folder, plus `~/.threadbear/patches/`. With projects it also loads
+   folder, plus `~/.quokkacode/patches/`. With projects it also loads
    them from every folder of every project it's in, deduplicated, in the
    order: home, each project's folders, then the thread's own folder
    chain (closest wins a clash, as now). Each patch keeps the folder it
@@ -93,7 +93,7 @@ it) and edit any field, in the project page. He never has to.
    it's clear why a chip is there.
 
    The ids get the folder's name in front when two folders have a patch
-   of the same name (`threadbear:checks`, `poddle:checks`).
+   of the same name (`quokkacode:checks`, `poddle:checks`).
 
 2. **A short brief in context.** When a session starts, the project's
    title, goals and state (a few hundred words at most, all projects
@@ -118,7 +118,7 @@ it) and edit any field, in the project page. He never has to.
 - The thread header shows its projects as small chips; click to open
   the project, right-click to remove the thread or pin it.
 - A thread the librarian has just put in a project shows that once in
-  the transcript as a `system.note` ("Put in Threadbear"), so a wrong
+  the transcript as a `system.note` ("Put in Quokka Code"), so a wrong
   guess is noticed and one click undoes it.
 
 ## Protocol

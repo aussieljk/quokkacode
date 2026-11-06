@@ -2,7 +2,7 @@
 
 29 Oct 2026, thread 0ee93bb5. Decided the same day (section 3); nothing built yet.
 
-What Mike asked: should the Connectors gateway be part of Threadbear's onboarding,
+What Mike asked: should the Connectors gateway be part of Quokka Code's onboarding,
 explaining why someone would want it, and optional? And the gateway itself should be a
 public repo so other people can run it easily.
 
@@ -14,12 +14,12 @@ public repo so other people can run it easily.
   Notion, Sentry, Cloudflare, DeepWiki, and Gmail plus Google Calendar through Mike's own
   Google Cloud project (`connectors-513022`). Each agent login is wired to it by
   `scripts/install-clients.sh`.
-- **Threadbear** knows about it only at the edges: the Connectors panel (the plug icon)
+- **Quokka Code** knows about it only at the edges: the Connectors panel (the plug icon)
   reads the gateway's `/health`, found through the `connectors` entry in
   `~/.claude.json`, and `end_turn` nudges an agent that hit a sign-in error to hand Mike
   the link. Without a gateway the panel says there isn't one, and everything else works
   as before.
-- **Setup** (`./threadbear setup`, docs/setup-and-updates.md) doesn't mention
+- **Setup** (`./quokkacode setup`, docs/setup-and-updates.md) doesn't mention
   connectors. A new user gets claude.ai's connectors on each login, as in plain
   Claude Code.
 - **Mike-only parts of the gateway:** admin access is checked against Mike's Tailscale
@@ -39,12 +39,12 @@ not have your Gmail depending on where it lands. That's exactly what happened to
 29 Oct.
 
 By default it runs on the same Mac as the runner, on localhost, installed and updated
-with Threadbear. A second always-on machine (Mike's Bruce) is an option, not a
+with Quokka Code. A second always-on machine (Mike's Bruce) is an option, not a
 requirement. Setting it up is a thread, like the agent-driven install: the user says
 yes, the agent installs it, wires each login and hands over Connect buttons.
 
-The gateway becomes a public repo of its own, so people can run it without Threadbear
-too, and Threadbear installs a pinned version of it.
+The gateway becomes a public repo of its own, so people can run it without Quokka Code
+too, and Quokka Code installs a pinned version of it.
 
 ### 2.1 Where it's offered
 
@@ -68,12 +68,12 @@ too, and Threadbear installs a pinned version of it.
 
 The runner already supervises itself with a LaunchAgent; the gateway gets its own
 LaunchAgent, installed by setup, and follows the same update path as the runner
-(pinned version, rebuilt when Threadbear updates).
+(pinned version, rebuilt when Quokka Code updates).
 
 ### 2.3 What the setup thread does
 
 1. Installs the gateway (from the pinned public release) and its LaunchAgent.
-2. Adds an agent entry and token for each login Threadbear knows about (the Accounts
+2. Adds an agent entry and token for each login Quokka Code knows about (the Accounts
    list), and wires each login's `.claude.json`, and Codex's config, the way
    `install-clients.sh` does now.
 3. Opens the Connectors panel, where the user presses Connect for the services they
@@ -124,16 +124,16 @@ picks:
 - Google is left out of the first version and added later as a guided step (2.4).
 - The public repo gets a less generic name than `connectors` (to pick when it's
   published) and the MIT licence. It goes public once the cleanup in 2.5 is done, which
-  can be before Threadbear's own install is ready, since it's useful on its own.
+  can be before Quokka Code's own install is ready, since it's useful on its own.
 
 ## 4. A rough order to build it in
 
 1. Gateway: config out of the code, local (loopback) admin mode, examples, README.
-2. Gateway: fresh public repo, release tags Threadbear can pin.
-3. Threadbear setup: install the gateway and its LaunchAgent, wire the logins (behind
+2. Gateway: fresh public repo, release tags Quokka Code can pin.
+3. Quokka Code setup: install the gateway and its LaunchAgent, wire the logins (behind
    the Finish setting up item).
 4. Connectors panel: "Set up" when there's no gateway; the claude.ai nudge.
 5. Google as an optional guided step.
 
 This fits after the own-deployment install work (docs/setup-and-updates.md, steps 3
-to 5), since it's only useful once other people can install Threadbear.
+to 5), since it's only useful once other people can install Quokka Code.

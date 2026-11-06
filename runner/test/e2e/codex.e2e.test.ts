@@ -57,13 +57,13 @@ async function startRunner(): Promise<void> {
     cwd: RUNNER_DIR,
     env: {
       ...process.env,
-      THREADBEAR_HOME: home,
-      THREADBEAR_PORT: '0',
-      THREADBEAR_LOG: path.join(root, 'runner.log'),
-      THREADBEAR_IDLE_MS: String(IDLE_MS),
-      THREADBEAR_DEBUG: '1',
+      QUOKKACODE_HOME: home,
+      QUOKKACODE_PORT: '0',
+      QUOKKACODE_LOG: path.join(root, 'runner.log'),
+      QUOKKACODE_IDLE_MS: String(IDLE_MS),
+      QUOKKACODE_DEBUG: '1',
       // Never install a CLI: Codex runs from the npm copy next to Node.
-      THREADBEAR_CLI_UPDATES: 'off', THREADBEAR_TOKEN_TALLY: 'off',
+      QUOKKACODE_CLI_UPDATES: 'off', QUOKKACODE_TOKEN_TALLY: 'off',
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
@@ -247,7 +247,7 @@ describe('Codex threads end to end (real codex app-server)', { concurrency: fals
     work = path.join(root, 'work');
     fs.mkdirSync(home, { recursive: true });
     fs.mkdirSync(work, { recursive: true });
-    assert.ok(!home.includes('Application Support/Threadbear'));
+    assert.ok(!home.includes('Application Support/QuokkaCode'));
     fs.writeFileSync(
       path.join(home, 'runner.json'),
       JSON.stringify({ codexArgs: CODEX_ARGS, defaults: { cwd: work, models: { codex: MODEL }, efforts: { codex: EFFORT } } }, null, 2),
@@ -397,22 +397,22 @@ describe('Codex threads end to end (real codex app-server)', { concurrency: fals
 
   let words: { id: string; turnId: string };
 
-  test('a Threadbear tool call, then resume after an idle release remembers a word', async () => {
-    words = await createThread({ text: 'Remember the word pineapple. Then call the threadbear list_threads tool and reply with only: ok' });
+  test('a Quokka Code tool call, then resume after an idle release remembers a word', async () => {
+    words = await createThread({ text: 'Remember the word pineapple. Then call the quokkacode list_threads tool and reply with only: ok' });
     const done = await turnDone(words.id, words.turnId);
     assert.equal(done.outcome, 'completed', done.error);
-    const call = turnEvents(words.id, words.turnId).find((e) => e.type === 'tool.call' && e.name === 'mcp__threadbear__list_threads');
+    const call = turnEvents(words.id, words.turnId).find((e) => e.type === 'tool.call' && e.name === 'mcp__quokkacode__list_threads');
     assert.ok(call, 'list_threads was called');
     const result = turnEvents(words.id, words.turnId).find((e) => e.type === 'tool.result' && e.itemId === call.itemId);
     assert.equal(result.ok, true);
     const before = await idle(words.id);
     await waitFor('idle release', () => summaries.get(words.id)?.live === false, IDLE_MS + 30_000);
     await new Promise((r) => setTimeout(r, 1000));
-    const turnId = await send(words.id, 'Call the threadbear list_threads tool again, then tell me the word I asked you to remember. Reply with the word only.');
+    const turnId = await send(words.id, 'Call the quokkacode list_threads tool again, then tell me the word I asked you to remember. Reply with the word only.');
     const done2 = await turnDone(words.id, turnId);
     assert.equal(done2.outcome, 'completed', done2.error);
     assert.match(replyText(words.id, turnId).toLowerCase(), /pineapple/);
-    assert.ok(turnEvents(words.id, turnId).some((e) => e.type === 'tool.call' && e.name === 'mcp__threadbear__list_threads'), 'the dynamic tool survives the resume');
+    assert.ok(turnEvents(words.id, turnId).some((e) => e.type === 'tool.call' && e.name === 'mcp__quokkacode__list_threads'), 'the dynamic tool survives the resume');
     const after = await idle(words.id);
     assert.equal(after.nativeSessionId, before.nativeSessionId, 'the same Codex thread, resumed');
     assertProtocol(words.id);

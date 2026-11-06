@@ -1,7 +1,7 @@
 import BearDock
 import SwiftUI
 
-/// Stand-ins for Threadbear's panels: enough texture to see what's where.
+/// Stand-ins for Quokka Code's panels: enough texture to see what's where.
 struct MockPanel: View {
     let panel: PanelID
 
@@ -24,8 +24,8 @@ private let faint = Color(white: 0.42)
 
 private struct ThreadsMock: View {
     let rows = [
-        ("Docking library and demo app", "threadbear", "now"),
-        ("Mobile app for Threadbear", "threadbear", "1m"),
+        ("Docking library and demo app", "quokkacode", "now"),
+        ("Mobile app for Quokka Code", "quokkacode", "1m"),
         ("Tidy the pool settings screen", "misc", "8m"),
         ("Resume Convex state machine work", "convex-native-v7", "14h"),
         ("Next video after Nippon", "tandem", "15h"),
@@ -98,7 +98,7 @@ private struct TranscriptMock: View {
 private struct HighlightsMock: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Building a docking library with a demo app, so dragging panels can be tuned before it goes into Threadbear.")
+            Text("Building a docking library with a demo app, so dragging panels can be tuned before it goes into Quokka Code.")
                 .font(.system(size: 12.5)).foregroundStyle(dim).lineSpacing(2)
             Label("Changes", systemImage: "arrow.triangle.branch").font(.system(size: 12, weight: .semibold)).foregroundStyle(dim).padding(.top, 6)
             ForEach(["DockLayout: tree, moves, tidy-up", "Ghost, preview and compass", "Demo app with mock panels"], id: \.self) { line in

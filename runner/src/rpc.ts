@@ -220,7 +220,7 @@ export class RpcServer {
 
   // Whether the Mac app itself is connected (hello's client), for presence.ts.
   appConnected(browserPanel = false): boolean {
-    for (const c of this.conns) if (c.authed && c.client === 'threadbear-mac' && (!browserPanel || c.browserPanel) && c.ws.readyState === WebSocket.OPEN) return true;
+    for (const c of this.conns) if (c.authed && c.client === 'quokkacode-mac' && (!browserPanel || c.browserPanel) && c.ws.readyState === WebSocket.OPEN) return true;
     return false;
   }
 
@@ -461,7 +461,7 @@ export class RpcServer {
     // A local tool needs to know whether its handoff can reach the Mac app.
     // Check on the primary, before forwarding to the runner owning the thread.
     if (method === 'threads.showPanel' && !this.opts.onlyOwn) {
-      const browser = ['browser', 'threadbear.browser'].includes(String(p.panel).trim().toLowerCase());
+      const browser = ['browser', 'quokkacode.browser'].includes(String(p.panel).trim().toLowerCase());
       if (!this.appConnected(browser)) return { available: false };
     }
     const tid = typeof p.threadId === 'string' ? p.threadId : undefined;
@@ -483,7 +483,7 @@ export class RpcServer {
         conn.browserPanel = p.browserPanel === true;
         // Only the Mac app's own builds: a dev build has none.
         const build = p.build as Record<string, unknown> | undefined;
-        if (conn.client === 'threadbear-mac' && build && typeof build === 'object'
+        if (conn.client === 'quokkacode-mac' && build && typeof build === 'object'
           && typeof build.commit === 'string' && typeof build.short === 'string' && typeof build.tree === 'string' && build.tree) {
           this.opts.appHello?.({ commit: build.commit, short: build.short, tree: build.tree });
         }
@@ -572,7 +572,7 @@ export class RpcServer {
           upd.archived = p.archived;
         }
         if (p.archivedBy !== undefined) {
-          if (p.archivedBy !== 'mike' && p.archivedBy !== 'agent' && p.archivedBy !== 'threadbear') throw bad('archivedBy must be "mike", "agent" or "threadbear"');
+          if (p.archivedBy !== 'mike' && p.archivedBy !== 'agent' && p.archivedBy !== 'quokkacode') throw bad('archivedBy must be "mike", "agent" or "quokkacode"');
           upd.archivedBy = p.archivedBy;
         }
         if (p.verdict !== undefined) {

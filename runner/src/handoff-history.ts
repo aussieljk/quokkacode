@@ -37,7 +37,7 @@ export function historyItems(events: PersistedEvent[], skipTurnId?: string): Ite
     } else if (e.type === 'assistant.text') {
       if (e.text.trim() && lastText.get(e.itemId) === e.seq) items.push({ seq: e.seq, role: 'assistant', text: `Assistant: ${clip(e.text, MESSAGE_CHARS)}` });
     } else if (e.type === 'tool.call') {
-      // Threadbear's own end_turn says nothing about the work.
+      // Quokka Code's own end_turn says nothing about the work.
       if (e.name.endsWith('end_turn')) continue;
       const item: Item = { seq: e.seq, role: 'work', text: `Tool: ${clip(e.title, 200)}` };
       calls.set(e.itemId, item);

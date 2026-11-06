@@ -22,7 +22,7 @@ export class StepFailed extends Fail {
 // (r.error: EAGAIN with too many processes, ENOENT) or was killed (r.signal)
 // writes nothing to its log, so without this the cause was lost: on 4 Nov the
 // self-update's unit tests "failed" in 0.1s with an empty log and nothing said
-// why (Sentry THREADBEAR-M).
+// why (Sentry QUOKKACODE-M).
 export function whyFailed(r, cmd) {
   const what = path.basename(cmd);
   if (r.error) return `${what} couldn't run: ${r.error.message}`;
@@ -45,7 +45,7 @@ export function step(name, cmd, args, opts, io = {}) {
   const { say = console.log, write = (s) => process.stdout.write(s), error = console.error, spawn = spawnSync, tmpdir = os.tmpdir() } = io;
   write(`${name}... `);
   const started = Date.now();
-  const logFile = path.join(tmpdir, `threadbear-deploy-${process.pid}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.log`);
+  const logFile = path.join(tmpdir, `quokkacode-deploy-${process.pid}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.log`);
   const fd = fs.openSync(logFile, 'w');
   const r = spawn(cmd, args, { ...opts, stdio: ['ignore', fd, fd] });
   fs.closeSync(fd);

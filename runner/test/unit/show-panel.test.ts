@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { makeHarness, tmpDir } from '../helpers/fakes.ts';
 import { checkSummary } from '../helpers/protocol-check.ts';
-import { buildThreadbearTools } from '../../src/threadbear-mcp.ts';
+import { buildQuokkaCodeTools } from '../../src/quokkacode-mcp.ts';
 import { PANEL_ACK_WAIT_MS, resolvePanel } from '../../src/panel-requests.ts';
 import { AGENT_MESSAGE_PREFIX } from '../../src/protocol.ts';
 import type { Panel } from '../../src/protocol.ts';
@@ -20,8 +20,8 @@ test('a panel is named by its id or title in any case; the built-in ones by name
   assert.deepEqual(resolvePanel(' Usage ', has), { id: 'usage', title: 'Usage' });
   assert.deepEqual(resolvePanel('updates', has), { id: 'updates', title: 'Updates' });
   assert.deepEqual(resolvePanel('Connectors', has), { id: 'connectors', title: 'Connectors' });
-  assert.deepEqual(resolvePanel('Browser', has), { id: 'threadbear.browser', title: 'Browser' });
-  assert.deepEqual(resolvePanel('threadbear.browser', has), { id: 'threadbear.browser', title: 'Browser' });
+  assert.deepEqual(resolvePanel('Browser', has), { id: 'quokkacode.browser', title: 'Browser' });
+  assert.deepEqual(resolvePanel('quokkacode.browser', has), { id: 'quokkacode.browser', title: 'Browser' });
   assert.deepEqual(resolvePanel('Patches', has), { id: 'patches', title: 'Patches' });
   assert.deepEqual(resolvePanel('convex.dashboard', has), { id: 'convex.dashboard', title: 'Convex' });
   assert.deepEqual(resolvePanel('CONVEX', has), { id: 'convex.dashboard', title: 'Convex' });
@@ -34,7 +34,7 @@ test('a panel is named by its id or title in any case; the built-in ones by name
 
 // The show_panel tool, as an agent calls it.
 function showTool(h: ReturnType<typeof makeHarness>, threadId: string) {
-  const t = buildThreadbearTools(h.runner, threadId).find((x) => x.name === 'show_panel');
+  const t = buildQuokkaCodeTools(h.runner, threadId).find((x) => x.name === 'show_panel');
   assert.ok(t, 'show_panel');
   return async (args: Record<string, unknown>) => {
     const r = (await t.handler(args as never, {})) as { content: { text: string }[]; isError?: boolean };

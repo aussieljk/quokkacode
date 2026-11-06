@@ -1,15 +1,15 @@
 # The push relay
 
-The one shared piece of Threadbear. Built 28 Oct 2026 (thread 66935d23);
+The one shared piece of Quokka Code. Built 28 Oct 2026 (thread 66935d23);
 the decisions are in docs/setup-and-updates.md section 2.4.
 
 ## Why it exists
 
 Apple only delivers a notification to the App Store app if it's signed with
 the key of the developer account that published it: Mike's. That key also
-signs for his other apps, so it can't go into other people's Threadbear
+signs for his other apps, so it can't go into other people's Quokka Code
 backends. The relay is a small Convex project of Mike's that holds the key
-and forwards notifications for them. Everything else in Threadbear runs on
+and forwards notifications for them. Everything else in Quokka Code runs on
 each person's own Mac and their own Convex deployment.
 
 ## What it sees, and what it keeps
@@ -17,7 +17,7 @@ each person's own Mac and their own Convex deployment.
 - **Sees:** a device token, whether it's a development or App Store install,
   a thread id (a random UUID), and the notification **sealed** with a key
   only that phone and its own backend have. It never sees the title or text.
-- **Keeps:** one row per Threadbear install (a random id, the hash of its
+- **Keeps:** one row per Quokka Code install (a random id, the hash of its
   key, when it was made and last seen, the version it says it is, and for
   backends from 5 Nov 2026 the address of the Convex deployment it
   registered for) and daily totals (notifications sent and failed, why
@@ -38,7 +38,7 @@ each person's own Mac and their own Convex deployment.
    the relay's `/send` with the backend's install id and key (registered once
    through `/register` and kept in the `relayInstall` table; see
    "Registering" below).
-3. The relay sends Apple a stand-in ("Threadbear: A thread needs you") with
+3. The relay sends Apple a stand-in ("Quokka Code: A thread needs you") with
    `mutable-content` and the sealed text in `e`.
 4. The app's notification extension (`ios/NotificationService`) opens `e`
    with the key and shows the real title and text. If it can't, the stand-in
@@ -74,9 +74,9 @@ hosts (self-hosted, a custom domain) can't use this relay: run your own
 ## The project
 
 - Code: `relay/` (its own package and `convex/`). Convex project
-  `threadbear-relay` on team mikec: prod `impartial-hound-393` (Sydney,
+  `quokkacode-relay` on team mikec: prod `impartial-hound-393` (Sydney,
   `https://impartial-hound-393.ap-southeast-2.convex.site`), dev
-  `clean-terrier-424`. Env: the same `APNS_*` as Threadbear's prod.
+  `clean-terrier-424`. Env: the same `APNS_*` as Quokka Code's prod.
 - Limits: 120 sends an hour per install; 20 registrations a day per
   deployment.
 - Stats for Mike: `npx convex run relay:stats --prod` in `relay/`. Each
@@ -91,7 +91,7 @@ hosts (self-hosted, a custom domain) can't use this relay: run your own
 - Its Apple key is Poddle's (same team, so it signs for any of Mike's
   apps). Poddle moved to a new key and the old one was revoked, and from
   5 Nov 2026 every send failed with `403 InvalidProviderToken` until 6 Nov,
-  when the relay and Threadbear's prod got the new key. If Poddle's key
+  when the relay and Quokka Code's prod got the new key. If Poddle's key
   changes again, copy `APNS_KEY_P8` and `APNS_KEY_ID` to both. To check a
   key without a real phone: `npx convex run apns:send
   '{"deviceToken":"<64 zeros>","environment":"production","threadId":"probe"}' --prod`

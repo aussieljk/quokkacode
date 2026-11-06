@@ -11,5 +11,5 @@ dist/
 __pycache__/
 
 # iOS app (ios/)
-ios/ThreadbearKit/.build/
+ios/QuokkaCodeKit/.build/
 ios/**/xcuserdata/

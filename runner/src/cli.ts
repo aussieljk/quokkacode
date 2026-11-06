@@ -78,7 +78,7 @@ const OPTIONS = {
   help: { type: 'boolean', short: 'h' },
 } as const;
 
-const HELP = `tb: talk to the Threadbear runner
+const HELP = `tb: talk to the Quokka Code runner
 
   tb new "text" [--cwd DIR] [--pool ID | --account ID] [--model M] [--effort L] [--ask | --auto | --plan] [--image FILE]... [--wait]
                 [--from NAME] [--why WORDS] [--icon SYMBOL]
@@ -159,7 +159,7 @@ const HELP = `tb: talk to the Threadbear runner
                                   or for the ones given (never one named by hand)
 
 Thread ids can be shortened to any unique prefix.
-Uses THREADBEAR_HOME and THREADBEAR_PORT like the runner does.
+Uses QUOKKACODE_HOME and QUOKKACODE_PORT like the runner does.
 
 ${DEV_HELP}`;
 
@@ -293,7 +293,7 @@ async function main(argv: string[]): Promise<number> {
 type Flags = Record<string, string | boolean | string[] | undefined>;
 
 // `tb land` (docs/thread-worktrees.md, worktrees.ts). Inside a thread
-// (THREADBEAR_THREAD_ID) the runner says where the thread's worktree is;
+// (QUOKKACODE_THREAD_ID) the runner says where the thread's worktree is;
 // otherwise, or when the thread has none, it's the git checkout this runs
 // in, if that's on a thread/ branch. The check is the one in that
 // worktree's own patch, so a branch that changes it lands under its own.
@@ -301,7 +301,7 @@ async function landCommand(cfg: ReturnType<typeof loadConfig>, dryRun: boolean):
   const here = process.cwd();
   let target: Omit<LandTarget, 'check'> | undefined;
   let from = here;
-  const threadId = process.env.THREADBEAR_THREAD_ID;
+  const threadId = process.env.QUOKKACODE_THREAD_ID;
   if (threadId) {
     const t = await threadFromRunner(cfg, threadId);
     if (t?.worktree) {
@@ -366,7 +366,7 @@ async function run(client: RunnerClient, cmd: string, args: string[], f: Flags):
       if (f.ask) params.permissionMode = 'ask';
       else if (f.auto) params.permissionMode = 'auto';
       else if (f.plan) params.permissionMode = 'plan';
-      const startedBy = startedByFlags(f, process.env.THREADBEAR_THREAD_ID);
+      const startedBy = startedByFlags(f, process.env.QUOKKACODE_THREAD_ID);
       if (startedBy) params.startedBy = startedBy;
       const r = await client.call<{ thread: ThreadSummary; turnId: string }>('threads.create', params);
       console.log(r.thread.id);
@@ -455,7 +455,7 @@ async function run(client: RunnerClient, cmd: string, args: string[], f: Flags):
       const id = await resolveId(client, args[0]);
       if (cmd === 'archive') notSelf(id, STOPS_SELF);
       // Run from a thread (its agent), it's the agent archiving, not Mike.
-      const by = cmd === 'archive' && process.env.THREADBEAR_THREAD_ID ? { archivedBy: 'agent' } : {};
+      const by = cmd === 'archive' && process.env.QUOKKACODE_THREAD_ID ? { archivedBy: 'agent' } : {};
       await client.call('threads.update', { threadId: id, archived: cmd === 'archive', ...by });
       return 0;
     }
@@ -480,7 +480,7 @@ async function run(client: RunnerClient, cmd: string, args: string[], f: Flags):
       if (!args[1]) throw new Error('Name a panel, such as browser or highlights.');
       const result = await client.call<{ available: boolean; shown?: boolean }>('threads.showPanel', { threadId: id, panel: args[1] });
       if (f.json) console.log(JSON.stringify(result));
-      else console.log(!result.available ? 'The Threadbear Mac app is not connected.' : result.shown ? 'The panel is open.' : 'The panel will open when the user next opens that thread.');
+      else console.log(!result.available ? 'The QuokkaCode Mac app is not connected.' : result.shown ? 'The panel is open.' : 'The panel will open when the user next opens that thread.');
       return result.available ? 0 : 1;
     }
     case 'panel': {
@@ -509,7 +509,7 @@ async function run(client: RunnerClient, cmd: string, args: string[], f: Flags):
       const hooks = thread.hooks ?? [];
       const patches = thread.patches ?? [];
       if (!actions.length && !panels.length && !hooks.length && !patches.length) {
-        console.log(`No patches apply to ${thread.cwd}. Add .threadbear/patches/<name>.ts there (see docs/protocol.md, Patches).`);
+        console.log(`No patches apply to ${thread.cwd}. Add .quokkacode/patches/<name>.ts there (see docs/protocol.md, Patches).`);
         return 0;
       }
       if (actions.length) {
@@ -599,7 +599,7 @@ async function run(client: RunnerClient, cmd: string, args: string[], f: Flags):
         else if (f.auto) params.permissionMode = 'auto';
       }
       // A schedule an agent makes from a thread says which one.
-      if (process.env.THREADBEAR_THREAD_ID) params.createdBy = process.env.THREADBEAR_THREAD_ID;
+      if (process.env.QUOKKACODE_THREAD_ID) params.createdBy = process.env.QUOKKACODE_THREAD_ID;
       const r = await client.call<{ schedule: Schedule }>('schedules.create', params);
       if (f.json) console.log(JSON.stringify(r.schedule));
       else printSchedules([r.schedule]);
@@ -782,13 +782,13 @@ async function modelsCommand(client: RunnerClient, args: string[], f: Flags): Pr
   throw new Error(`Unknown: tb models ${action}. It's pool or try.`);
 }
 
-// Inside a thread, tb won't stop the thread it runs in, as the threadbear
-// MCP tools won't (threadbear-mcp.ts): it would end this very turn.
-// THREADBEAR_THREAD_ID is only set in a thread's own CLI and what it runs.
+// Inside a thread, tb won't stop the thread it runs in, as the quokkacode
+// MCP tools won't (quokkacode-mcp.ts): it would end this very turn.
+// QUOKKACODE_THREAD_ID is only set in a thread's own CLI and what it runs.
 const STOPS_SELF = "Can't snooze or archive the thread this runs in from inside its own turn. Do it once the turn is over by calling end_turn with needs \"nothing\" and archive: true, or snooze: and when to wake (30m, 2h, tomorrow, an ISO time, \"restart\", or words like \"when the phone arrives\"), again if you already have.";
 
 function notSelf(id: string, message: string): string {
-  if (id === process.env.THREADBEAR_THREAD_ID) throw new Error(message);
+  if (id === process.env.QUOKKACODE_THREAD_ID) throw new Error(message);
   return id;
 }
 

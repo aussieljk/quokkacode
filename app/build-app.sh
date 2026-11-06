@@ -1,25 +1,25 @@
 #!/usr/bin/env bash
-# Builds Threadbear.app and stages it in ~/Applications (or THREADBEAR_APP_DIR).
+# Builds QuokkaCode.app and stages it in ~/Applications (or QUOKKACODE_APP_DIR).
 #
-# THREADBEAR_BUILD_CONFIGURATION  release (default) or debug
-# THREADBEAR_SCRATCH_PATH         swift build's scratch path, instead of
+# QUOKKACODE_BUILD_CONFIGURATION  release (default) or debug
+# QUOKKACODE_SCRATCH_PATH         swift build's scratch path, instead of
 #                                 the package's own .build (the app's
 #                                 self-update builds in its own one)
-# THREADBEAR_SOURCE_CHECKOUT      the checkout recorded in the bundle's
+# QUOKKACODE_SOURCE_CHECKOUT      the checkout recorded in the bundle's
 #                                 build.json, whose main the installed app
 #                                 follows (default: this script's repo)
 set -euo pipefail
 
 # THREADBARE_* was the old name for these variables: each stands in for its new name.
-for v in $(compgen -e | grep '^THREADBARE_' || true); do n="THREADBEAR_${v#THREADBARE_}"; [ -n "${!n+x}" ] || export "$n=${!v}"; done
+for v in $(compgen -e | grep '^THREADBARE_' || true); do n="QUOKKACODE_${v#THREADBARE_}"; [ -n "${!n+x}" ] || export "$n=${!v}"; done
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BUILD_CONFIGURATION="${THREADBEAR_BUILD_CONFIGURATION:-release}"
-APP_NAME="Threadbear"
-BUNDLE_ID="com.mikerosoft.threadbear"
-FINAL_DIR="${THREADBEAR_APP_DIR:-$HOME/Applications/$APP_NAME.app}"
+BUILD_CONFIGURATION="${QUOKKACODE_BUILD_CONFIGURATION:-release}"
+APP_NAME="QuokkaCode"
+BUNDLE_ID="com.lucasknight.quokkacode"
+FINAL_DIR="${QUOKKACODE_APP_DIR:-$HOME/Applications/$APP_NAME.app}"
 STAGE_DIR="$(dirname "$FINAL_DIR")/.$APP_NAME.app.staging"
 OLD_DIR="$(dirname "$FINAL_DIR")/.$APP_NAME.app.old"
-ICON_SOURCE="$SCRIPT_DIR/icons/threadbear.png"
+ICON_SOURCE="$SCRIPT_DIR/icons/quokkacode.png"
 
 if ! command -v swift >/dev/null 2>&1; then
   echo "ERROR: swift is not on PATH. Install Xcode or Command Line Tools first."
@@ -27,13 +27,13 @@ if ! command -v swift >/dev/null 2>&1; then
 fi
 
 SCRATCH_ARGS=()
-if [[ -n "${THREADBEAR_SCRATCH_PATH:-}" ]]; then
-  SCRATCH_ARGS=(--scratch-path "$THREADBEAR_SCRATCH_PATH")
+if [[ -n "${QUOKKACODE_SCRATCH_PATH:-}" ]]; then
+  SCRATCH_ARGS=(--scratch-path "$QUOKKACODE_SCRATCH_PATH")
 fi
-echo "Building Threadbear ($BUILD_CONFIGURATION)..."
-swift build --package-path "$SCRIPT_DIR" ${SCRATCH_ARGS[@]+"${SCRATCH_ARGS[@]}"} -c "$BUILD_CONFIGURATION" --product Threadbear
+echo "Building QuokkaCode ($BUILD_CONFIGURATION)..."
+swift build --package-path "$SCRIPT_DIR" ${SCRATCH_ARGS[@]+"${SCRATCH_ARGS[@]}"} -c "$BUILD_CONFIGURATION" --product QuokkaCode
 BIN_DIR="$(swift build --package-path "$SCRIPT_DIR" ${SCRATCH_ARGS[@]+"${SCRATCH_ARGS[@]}"} -c "$BUILD_CONFIGURATION" --show-bin-path)"
-BINARY="$BIN_DIR/Threadbear"
+BINARY="$BIN_DIR/QuokkaCode"
 if [[ ! -x "$BINARY" ]]; then
   echo "ERROR: built binary not found at $BINARY"
   exit 1
@@ -43,9 +43,9 @@ echo "Staging $FINAL_DIR..."
 mkdir -p "$(dirname "$FINAL_DIR")"
 rm -rf "$STAGE_DIR" "$OLD_DIR"
 mkdir -p "$STAGE_DIR/Contents/MacOS" "$STAGE_DIR/Contents/Resources"
-cp "$BINARY" "$STAGE_DIR/Contents/MacOS/Threadbear"
+cp "$BINARY" "$STAGE_DIR/Contents/MacOS/QuokkaCode"
 cp "$SCRIPT_DIR/Resources/Info.plist" "$STAGE_DIR/Contents/Info.plist"
-chmod +x "$STAGE_DIR/Contents/MacOS/Threadbear"
+chmod +x "$STAGE_DIR/Contents/MacOS/QuokkaCode"
 # Packages' resource bundles (Highlightr's highlight.js and themes), where
 # SwiftPM's Bundle.module looks in an app: Contents/Resources.
 for b in "$BIN_DIR"/*.bundle; do if [[ -d "$b" ]]; then cp -R "$b" "$STAGE_DIR/Contents/Resources/"; fi; done
@@ -54,7 +54,7 @@ for b in "$BIN_DIR"/*.bundle; do if [[ -d "$b" ]]; then cp -R "$b" "$STAGE_DIR/C
 # (AppUpdate.swift): the commit, the tree hash of app/ at it (only a change
 # under app/ changes what runs) and the checkout whose main to follow. The
 # update script goes in too, so the app runs the copy it was built with.
-SOURCE_CHECKOUT="${THREADBEAR_SOURCE_CHECKOUT:-$(cd "$SCRIPT_DIR/.." && pwd -P)}"
+SOURCE_CHECKOUT="${QUOKKACODE_SOURCE_CHECKOUT:-$(cd "$SCRIPT_DIR/.." && pwd -P)}"
 COMMIT="$(git -C "$SCRIPT_DIR" rev-parse HEAD 2>/dev/null || true)"
 SHORT="$(git -C "$SCRIPT_DIR" rev-parse --short HEAD 2>/dev/null || true)"
 # app/ and dock/ (BearDock, which the app builds in): a change to either
@@ -76,14 +76,14 @@ cp "$SCRIPT_DIR/stage-update.sh" "$STAGE_DIR/Contents/Resources/stage-update.sh"
 chmod +x "$STAGE_DIR/Contents/Resources/stage-update.sh"
 
 if [[ -f "$ICON_SOURCE" ]]; then
-  ICONSET="$(mktemp -d)/threadbear.iconset"
+  ICONSET="$(mktemp -d)/quokkacode.iconset"
   mkdir -p "$ICONSET"
   for size in 16 32 128 256 512; do
     sips -z "$size" "$size" "$ICON_SOURCE" --out "$ICONSET/icon_${size}x${size}.png" >/dev/null
     double=$((size * 2))
     sips -z "$double" "$double" "$ICON_SOURCE" --out "$ICONSET/icon_${size}x${size}@2x.png" >/dev/null
   done
-  iconutil -c icns "$ICONSET" -o "$STAGE_DIR/Contents/Resources/threadbear.icns"
+  iconutil -c icns "$ICONSET" -o "$STAGE_DIR/Contents/Resources/quokkacode.icns"
   rm -rf "$(dirname "$ICONSET")"
 fi
 
@@ -97,15 +97,15 @@ fi
 # job (errSecInternalComponent), and this one never needs a prompt.
 SIGN_KEYCHAIN_ARGS=()
 LOCAL_SIGN_KEYCHAIN="$HOME/Library/Keychains/quokkacode-signing.keychain-db"
-if [[ -z "${THREADBEAR_SIGN_IDENTITY:-}" && -f "$LOCAL_SIGN_KEYCHAIN" ]]; then
+if [[ -z "${QUOKKACODE_SIGN_IDENTITY:-}" && -f "$LOCAL_SIGN_KEYCHAIN" ]]; then
   security unlock-keychain -p "" "$LOCAL_SIGN_KEYCHAIN" 2>/dev/null || true
   LOCAL_SIGN_HASH="$(security find-certificate -c "Quokka Code Local Signing" -Z "$LOCAL_SIGN_KEYCHAIN" 2>/dev/null | sed -n 's/^SHA-1 hash: //p' | head -n 1)"
   if [[ -n "$LOCAL_SIGN_HASH" ]]; then
-    THREADBEAR_SIGN_IDENTITY="$LOCAL_SIGN_HASH"
+    QUOKKACODE_SIGN_IDENTITY="$LOCAL_SIGN_HASH"
     SIGN_KEYCHAIN_ARGS=(--keychain "$LOCAL_SIGN_KEYCHAIN")
   fi
 fi
-SIGN_IDENTITY="${THREADBEAR_SIGN_IDENTITY:-$({
+SIGN_IDENTITY="${QUOKKACODE_SIGN_IDENTITY:-$({
   security find-identity -v -p codesigning 2>/dev/null \
     | sed -n 's/.*"\(Apple Development:[^"]*\)".*/\1/p' \
     | head -n 1
@@ -143,7 +143,7 @@ upload_debug_symbols() {
   # SwiftPM release builds don't make a dSYM; dsymutil gathers one from the
   # object files the binary points at.
   if ! dsymutil "$BINARY" -o "$BINARY.dSYM" \
-    || ! SENTRY_AUTH_TOKEN="$token" "$cli" debug-files upload --org mikec --project threadbear "$BINARY.dSYM"; then
+    || ! SENTRY_AUTH_TOKEN="$token" "$cli" debug-files upload --org mikec --project quokkacode "$BINARY.dSYM"; then
     echo "WARNING: debug symbols weren't uploaded to Sentry; crash reports from this build won't show function names."
   fi
 }

@@ -875,7 +875,7 @@ private struct HiddenTitleStrip: View {
 
 /// The bar of a title-less panel under the traffic lights: empty, moving
 /// the window (or the panel, with a title bar), with the grab handle on
-/// hover to move the panel by. In Threadbear that's the sidebar's bar, the
+/// hover to move the panel by. In Quokka Code that's the sidebar's bar, the
 /// one place left to grab the window by.
 private struct CornerBar: View {
     let panel: PanelID
@@ -913,7 +913,7 @@ extension View {
 /// drag of a panel's bar before the panel's own drag could start, the
 /// SwiftUI gestures there notwithstanding (Mike, 28 Oct). So this lets it
 /// move just for its own drag. Public for anything the app draws beside
-/// the dock under the traffic lights (Threadbear's activity bar).
+/// the dock under the traffic lights (Quokka Code's activity bar).
 public struct WindowGrip: NSViewRepresentable {
     public init() {}
     public func makeNSView(context: Context) -> NSView { GripView() }

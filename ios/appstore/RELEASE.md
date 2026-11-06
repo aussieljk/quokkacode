@@ -1,4 +1,4 @@
-# Releasing Threadbear for iPhone
+# Releasing Quokka Code for iPhone
 
 Every step to "Submitted for review", copied from Walkies' runbook
 (`~/dev/me/walkies/docs/runbooks/appstore-release.md`, same team and API key). Run everything from
@@ -11,17 +11,17 @@ the repo root.
   `APNS_*` env); the relay in `docs/setup-and-updates.md` 2.4 comes later.
 - App Review uses the **demo** ("Look around with sample threads" on the pair screen, `FakeBackend`),
   never a token into a real deployment.
-- Support email `threadbear@mikecann.app` (a Cloudflare Email Routing forward, like walkies@).
+- Support email `quokkacode@mikecann.app` (a Cloudflare Email Routing forward, like walkies@).
   Privacy and help pages: https://threadbear.mikecann.app/privacy and /support (`site/`).
 
-The App Store Connect app is **Threadbear**, bundle `com.mikecann.threadbear`, primary language
+The App Store Connect app is **Quokka Code**, bundle `com.mikecann.threadbear`, primary language
 English (Australia). The scripts find it by bundle id. They use the team's Admin API key
 `~/.config/poddle/AuthKey_7SS6J9F98P.p8`; never print it. The review contact's phone comes from
 `~/.config/poddle/review-contact.json`.
 
 ## 1. Before you start
 
-- `swift test` in `ios/ThreadbearKit` passes (it checks the sample threads name nothing of Mike's).
+- `swift test` in `ios/QuokkaCodeKit` passes (it checks the sample threads name nothing of Mike's).
 - `ios/appstore/metadata.json` has been read and okayed by Mike.
 - The privacy and support pages load.
 
@@ -41,7 +41,7 @@ marketing URLs, age rating, free, worldwide, and the App Review contact and note
 6.9" iPhone, 1320 x 2868, on the sample threads only:
 
 ```sh
-SIM_NAME="Threadbear App Store" ios/scripts/sim-shots.sh ios/appstore/screenshots
+SIM_NAME="Quokka Code App Store" ios/scripts/sim-shots.sh ios/appstore/screenshots
 node ios/scripts/appstore-screenshots.mjs ios/appstore/screenshots/{inbox,approval,question,new-thread}.png
 ```
 
@@ -62,7 +62,7 @@ arguments, isn't on production APNs or has no privacy manifest.
 
 - **App Privacy**: from the version after 1.0.0, Diagnostics > Crash Data, not linked to the
   user, not used for tracking, for App Functionality: App Store builds send anonymous crash
-  reports to Sentry (`Threadbear/CrashReporting.swift`). Nothing else is collected; the app only
+  reports to Sentry (`QuokkaCode/CrashReporting.swift`). Nothing else is collected; the app only
   talks to the person's own deployment. Publish. (1.0.0 went in as Data Not Collected, before
   Sentry.)
 - **App Information > Regulated Medical Device**: not a medical device (Walkies was asked for this

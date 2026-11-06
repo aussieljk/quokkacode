@@ -34,7 +34,7 @@ export const TOPIC_MAX = 80;
 const LATEST_MS = 2 * 365 * 86_400_000;
 
 export const WAKE_SYSTEM = [
-  "You work out when a hibernating thread should wake up, in Threadbear, the user's app for running AI agents in threads. The user has put a thread away and said in their own words when they want it back.",
+  "You work out when a hibernating thread should wake up, in Quokka Code, the user's app for running AI agents in threads. The user has put a thread away and said in their own words when they want it back.",
   'Answer with a time, a topic, or both:',
   '- A time when they name one, however loosely: "at the weekend" is Saturday 9 am, "tonight" 7 pm, "in a few weeks" three weeks on at 9 am, "after Christmas" 27 December 9 am. Pick a sensible hour when they give none: 9 am for a day. Never a time that has already passed.',
   '- A topic when they want it back the next time they bring something up ("next time I talk about woodworking", "when I get back to the shed"): a few words for what to listen for, as you would say it in "when the user talks about …" ("woodworking", "the shed build"). Add a time as well only when they give a limit ("or in a month at the latest").',

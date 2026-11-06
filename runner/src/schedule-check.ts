@@ -8,9 +8,9 @@
 // quiet. Cloudroom, Intentic and Paradev gate their automations this way
 // (6 Nov 2026, thread d698c77d).
 //
-// THREADBEAR_CHECK_STATE names a file of the schedule's own that the check
+// QUOKKACODE_CHECK_STATE names a file of the schedule's own that the check
 // may keep state in between runs (the last id it saw), and
-// THREADBEAR_SCHEDULE_ID is the schedule's id.
+// QUOKKACODE_SCHEDULE_ID is the schedule's id.
 //
 // A check like that reports each thing once, so what it printed is kept in
 // a file of the schedule's own (keptCheckFile) until a run carrying it has
@@ -148,7 +148,7 @@ export function runCheck(p: { command: string; cwd: string; home: string; schedu
     };
     const child = spawn('/bin/sh', ['-c', p.command], {
       cwd: fs.existsSync(p.cwd) ? p.cwd : undefined,
-      env: { ...process.env, THREADBEAR_SCHEDULE_ID: p.scheduleId, THREADBEAR_CHECK_STATE: state },
+      env: { ...process.env, QUOKKACODE_SCHEDULE_ID: p.scheduleId, QUOKKACODE_CHECK_STATE: state },
       stdio: ['ignore', 'pipe', 'pipe'],
       // Its own process group, so a timeout stops whatever it started too.
       detached: true,

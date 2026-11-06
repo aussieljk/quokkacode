@@ -4,17 +4,17 @@
 
 Please use GitHub's private vulnerability reporting: the **Report a vulnerability** button on this repo's [Security tab](https://github.com/mikecann/threadbear/security). Don't open a public issue, and keep tokens, keys and private thread content out of anything you send.
 
-Threadbear is one person's project, so there's no formal timeline. I'll aim to reply within a few days and to fix anything real on `main` as soon as I can. Only the latest `main` is supported.
+Quokka Code is one person's project, so there's no formal timeline. I'll aim to reply within a few days and to fix anything real on `main` as soon as I can. Only the latest `main` is supported.
 
-## What Threadbear is, security-wise
+## What Quokka Code is, security-wise
 
-Threadbear runs Claude Code and Codex agents on your own Mac, with your own logins. Everything is built for **one owner per deployment**: you, your Macs, your phone and your browser, and a Convex backend you deploy yourself. There are no other users or tenants inside a deployment.
+Quokka Code runs Claude Code and Codex agents on your own Mac, with your own logins. Everything is built for **one owner per deployment**: you, your Macs, your phone and your browser, and a Convex backend you deploy yourself. There are no other users or tenants inside a deployment.
 
-The agents themselves have whatever access you give them. New threads start with full access by default, the same as running the CLIs with permissions skipped. Threadbear doesn't sandbox an agent. Its job is to not hand anything *more* to code or text you haven't chosen to trust.
+The agents themselves have whatever access you give them. New threads start with full access by default, the same as running the CLIs with permissions skipped. Quokka Code doesn't sandbox an agent. Its job is to not hand anything *more* to code or text you haven't chosen to trust.
 
 ## What it protects
 
-- **Your Mac from a repo you open.** A project's patches (`.threadbear/patches`), the scripts they run and its own Claude Code hooks, commands (its agents' and skills' too) and environment settings don't run until you trust them, and in a thread that asks before tools run, nor do its permission rules that would let tools run without asking. Trust covers the exact bytes, so a later change asks again, and anything it can't check fails closed ([protocol: Trusting a folder's patches](docs/protocol.md)).
+- **Your Mac from a repo you open.** A project's patches (`.quokkacode/patches`), the scripts they run and its own Claude Code hooks, commands (its agents' and skills' too) and environment settings don't run until you trust them, and in a thread that asks before tools run, nor do its permission rules that would let tools run without asking. Trust covers the exact bytes, so a later change asks again, and anything it can't check fails closed ([protocol: Trusting a folder's patches](docs/protocol.md)).
 - **Ask and Auto threads from raising their own access.** An agent in a thread set to Ask or Auto can't switch its own or any other thread or schedule to more access, start a thread with more access than its own, send a message to a thread that has more (or move it, or put words in a project brief it reads), or add a schedule check (a shell command), unless you allow that one call on a card. That card has no "Always allow", and no rule or Auto's classifier answers it. A thread with full access can already run anything as you, so it isn't asked.
 - **"Always allow" on a Codex command** covers that exact command in that folder, never a prefix of it, and is never offered for a shell, interpreter or other program that runs code it's handed.
 - **Ask and Auto from becoming code that runs.** In those modes an agent's edit to a patch, a file a patch uses or Claude Code's settings always asks, with no Always allow, and what it writes waits for you to trust in Patches. Only a Full access thread's own edits are trusted as it leaves them, and an edit to a file you hadn't trusted doesn't trust the rest of it.

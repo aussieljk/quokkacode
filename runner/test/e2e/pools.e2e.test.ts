@@ -39,12 +39,12 @@ async function startRunner(): Promise<void> {
     cwd: RUNNER_DIR,
     env: {
       ...process.env,
-      THREADBEAR_HOME: home,
-      THREADBEAR_PORT: '0',
-      THREADBEAR_LOG: path.join(root, 'runner.log'),
-      THREADBEAR_DEBUG: '1',
-      THREADBEAR_CLI_UPDATES: 'off', THREADBEAR_TOKEN_TALLY: 'off',
-      THREADBEAR_FOLLOW_MAIN: '0',
+      QUOKKACODE_HOME: home,
+      QUOKKACODE_PORT: '0',
+      QUOKKACODE_LOG: path.join(root, 'runner.log'),
+      QUOKKACODE_DEBUG: '1',
+      QUOKKACODE_CLI_UPDATES: 'off', QUOKKACODE_TOKEN_TALLY: 'off',
+      QUOKKACODE_FOLLOW_MAIN: '0',
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
@@ -92,7 +92,7 @@ describe('pools end to end: a thread moved to another Claude login resumes its s
     home = path.join(root, 'home');
     cwd = path.join(root, 'work');
     fs.mkdirSync(cwd, { recursive: true });
-    assert.ok(!home.includes('Application Support/Threadbear'));
+    assert.ok(!home.includes('Application Support/QuokkaCode'));
     await startRunner();
   });
 

@@ -1,7 +1,7 @@
 // swift-tools-version: 6.2
 import PackageDescription
 
-// BearDock: dockable, rearrangeable panels for Threadbear, kept in its own
+// BearDock: dockable, rearrangeable panels for Quokka Code, kept in its own
 // package with a demo app so the feel of dragging and docking can be got
 // right before it goes into the real window.
 let package = Package(

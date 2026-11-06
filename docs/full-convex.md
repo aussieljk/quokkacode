@@ -1,4 +1,4 @@
-# Threadbear: full Convex by default
+# Quokka Code: full Convex by default
 
 Written 5 Nov 2026 in thread 3a33a492, after Jamie Turner's DM. Numbers are from
 Mike's M5 unless they say otherwise, and estimates say so.
@@ -199,7 +199,7 @@ The original plan for this step follows.
   approvals and updates, which the phone already does. The Mac app needs no
   Convex dependency.
 - The app's `RemoteClients` already sits behind `client(for:)`
-  (`app/Sources/Threadbear/RemoteRunners.swift:92`), with 34 call sites to go
+  (`app/Sources/QuokkaCode/RemoteRunners.swift:92`), with 34 call sites to go
   through. The first job is listing which of the methods the app uses need to
   work on a remote thread, and which stay local-only.
 - Anything that needs an answer from the runner, like a folder list, uses a

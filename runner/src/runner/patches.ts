@@ -318,7 +318,7 @@ export const patchesPart = {
   //   not, from the login's folder, the thread's or absolute: they run in
   //   every session on that login. The same for the thread folder's
   //   settings.
-  // - Patches that load without a hash (home's, Threadbear's own
+  // - Patches that load without a hash (home's, Quokka Code's own
   //   checkout's): what one is a link to, imports and names, a missing
   //   one included, absolute or `~/` paths in it, and its `./` paths from
   //   the thread's folder, where its commands run. One whose code can't
@@ -579,7 +579,7 @@ export const patchesPart = {
       const shown = outcome.text.length > HOOK_TELL_CHARS ? outcome.text.slice(-HOOK_TELL_CHARS) : outcome.text;
       const verdict = outcome.ok ? 'passed' : `failed${outcome.exitCode !== undefined ? ` (exit ${outcome.exitCode})` : ''}`;
       const text =
-        `[Threadbear hook] ${hook.title} (patch ${hook.patch}) ran after your turn and ${verdict}:\n\n` +
+        `[Quokka Code hook] ${hook.title} (patch ${hook.patch}) ran after your turn and ${verdict}:\n\n` +
         '```\n' + (shown.trim() || '(no output)') + '\n```\n\n' +
         (outcome.ok ? 'Nothing to do unless something above surprises you.' : 'If this is from your change, fix it; if not, say so and carry on.');
       try {

@@ -2,7 +2,7 @@ import AppKit
 import BearDock
 import SwiftUI
 
-// A playground for BearDock: Threadbear-ish mock panels to drag about until
+// A playground for BearDock: QuokkaCode-ish mock panels to drag about until
 // docking feels right. The layout is saved between launches; Reset puts it
 // back to option 2 (threads | transcript | highlights over a panel).
 

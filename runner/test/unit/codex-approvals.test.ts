@@ -13,7 +13,7 @@ import {
   type ApprovalsDeps,
 } from '../../src/adapters/codex/approvals.ts';
 import { dynamicToolSpecs, NAMESPACE_DESCRIPTION_MAX, type ToolDefinition } from '../../src/adapters/codex/tools.ts';
-import { buildThreadbearTools } from '../../src/threadbear-mcp.ts';
+import { buildQuokkaCodeTools } from '../../src/quokkacode-mcp.ts';
 import { nullLogger } from '../../src/log.ts';
 import type { QuestionAnswer, QuestionRequest, ToolApprovalAnswer, ToolApprovalRequest } from '../../src/adapters/types.ts';
 import type { CommandExecutionRequestApprovalParams } from '../../src/adapters/codex/types.ts';
@@ -198,8 +198,8 @@ function harness(rules: string[] = []) {
     },
     note: (t) => notes.push(t),
     cwd: () => '/work/proj',
-    itemPaths: (id) => (id === 'fc-3' ? ['/work/proj/a.ts', '/work/proj/b.ts', '/work/proj/c.ts'] : id === 'fc-1' ? ['/work/proj/a.txt'] : id === 'fc-p' ? ['.threadbear/patches/x.ts'] : undefined),
-    runsAsCode: (f) => f.includes('/.threadbear/'),
+    itemPaths: (id) => (id === 'fc-3' ? ['/work/proj/a.ts', '/work/proj/b.ts', '/work/proj/c.ts'] : id === 'fc-1' ? ['/work/proj/a.txt'] : id === 'fc-p' ? ['.quokkacode/patches/x.ts'] : undefined),
+    runsAsCode: (f) => f.includes('/.quokkacode/'),
     callTool: async () => ({ contentItems: [{ type: 'inputText', text: 'ok' }], success: true }),
     now: () => 1_793_000_000_000,
   };
@@ -359,16 +359,16 @@ test('file changes to a file that runs as code ask every time, past an "Always a
   const h = harness([FILE_CHANGE_RULE]);
   h.answerWith(async () => ({ decision: 'allowAlways' }));
   h.a.handle(0, 'item/fileChange/requestApproval', { threadId: 't', turnId: 'u', itemId: 'fc-p', reason: null, grantRoot: null }, { fromChild: false });
-  h.a.handle(1, 'applyPatchApproval', { conversationId: 't', callId: 'c', fileChanges: { '/home/me/.threadbear/patches/mine.ts': {} }, reason: null }, { fromChild: false });
+  h.a.handle(1, 'applyPatchApproval', { conversationId: 't', callId: 'c', fileChanges: { '/home/me/.quokkacode/patches/mine.ts': {} }, reason: null }, { fromChild: false });
   // A legacy rename into a home patch: the destination counts.
-  h.a.handle(3, 'applyPatchApproval', { conversationId: 't', callId: 'c2', fileChanges: { '/work/proj/notes.ts': { type: 'update', unified_diff: '', move_path: '/home/me/.threadbear/patches/notes.ts' } }, reason: null }, { fromChild: false });
+  h.a.handle(3, 'applyPatchApproval', { conversationId: 't', callId: 'c2', fileChanges: { '/work/proj/notes.ts': { type: 'update', unified_diff: '', move_path: '/home/me/.quokkacode/patches/notes.ts' } }, reason: null }, { fromChild: false });
   // Paths it never saw: asked, as it can't tell.
   h.a.handle(2, 'item/fileChange/requestApproval', { threadId: 't', turnId: 'u', itemId: 'unseen', reason: null, grantRoot: null }, { fromChild: false });
   await flush();
   assert.equal(h.asked.length, 4);
   for (const card of h.asked.slice(0, 3)) {
     assert.equal(card.canAlwaysAllow, false);
-    assert.match(card.title, /\(Threadbear runs this file as code\)$/);
+    assert.match(card.title, /\(Quokka Code runs this file as code\)$/);
   }
   assert.deepEqual(h.added, [[FILE_CHANGE_RULE]], 'only the unseen one, an ordinary card, could add the rule');
   assert.deepEqual(h.replies.map((r) => r.result), [{ decision: 'accept' }, { decision: 'approved' }, { decision: 'approved' }, { decision: 'accept' }]);
@@ -484,13 +484,13 @@ test('ending the session expires every open card without replying', async () => 
   assert.equal(h.replies.length, 0);
 });
 
-// ---- The threadbear tools as dynamic tools
+// ---- The quokkacode tools as dynamic tools
 
-test('every threadbear tool converts to a dynamic tool with a JSON Schema', () => {
+test('every quokkacode tool converts to a dynamic tool with a JSON Schema', () => {
   // Typed against the runner's real tool list, so C's wiring type-checks.
-  const tools: ToolDefinition[] = buildThreadbearTools({} as never, 'self', Date.now, undefined, undefined, undefined, { provider: 'codex' });
+  const tools: ToolDefinition[] = buildQuokkaCodeTools({} as never, 'self', Date.now, undefined, undefined, undefined, { provider: 'codex' });
   const [ns] = dynamicToolSpecs(tools);
-  assert.equal(ns.name, 'threadbear');
+  assert.equal(ns.name, 'quokkacode');
   // Codex refuses thread/start with a longer one, so no Codex thread starts.
   assert.ok(ns.description.length <= NAMESPACE_DESCRIPTION_MAX, `namespace description is ${ns.description.length} characters`);
   assert.ok(ns.tools.length >= 9);

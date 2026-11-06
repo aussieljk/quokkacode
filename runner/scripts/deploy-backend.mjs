@@ -9,7 +9,7 @@
 // It deploys from a clean `git archive` of the commit in a temp folder, never
 // the checkout, whose .env.local points at the dev deployment. The deploy key
 // is `CONVEX_DEPLOY_KEY=...` in <home>/secrets/convex-deploy.env (made with
-// `npx convex deployment token create threadbear-runner --prod --save-env <file>`);
+// `npx convex deployment token create quokkacode-runner --prod --save-env <file>`);
 // with no key file it does nothing and says so. What it last deployed is in
 // <home>/backend.json. Node built-ins only, like deploy.mjs.
 import { spawnSync } from 'node:child_process';
@@ -23,13 +23,13 @@ const HELP = `deploy-backend.mjs: deploy convex/ and web/ at a commit to the run
 Options:
   --commit REV   what to deploy (default HEAD of the repo this script is in)
   --repo DIR     the repo (default the one this script is in)
-  --home DIR     data dir (default $THREADBEAR_HOME, else ~/Library/Application Support/Threadbear)
+  --home DIR     data dir (default $QUOKKACODE_HOME, else ~/Library/Application Support/QuokkaCode)
   --force        deploy even if nothing changed
   --dry-run      say what would be deployed and change nothing
   --status       print what was last deployed and stop
 `;
 
-const DEFAULT_HOME = path.join(os.homedir(), 'Library', 'Application Support', 'Threadbear');
+const DEFAULT_HOME = path.join(os.homedir(), 'Library', 'Application Support', 'QuokkaCode');
 // What each part is built from. The root package files are the Convex
 // dependency's version, so they count for both.
 const FUNCTION_PATHS = ['convex', 'convex.json', 'package.json', 'package-lock.json'];
@@ -124,7 +124,7 @@ function lock(home) {
 function step(name, cmd, args, opts) {
   process.stdout.write(`${name}... `);
   const started = Date.now();
-  const logFile = path.join(os.tmpdir(), `threadbear-backend-${process.pid}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.log`);
+  const logFile = path.join(os.tmpdir(), `quokkacode-backend-${process.pid}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.log`);
   const fd = fs.openSync(logFile, 'w');
   const r = spawnSync(cmd, args, { ...opts, stdio: ['ignore', fd, fd] });
   fs.closeSync(fd);
@@ -157,7 +157,7 @@ function main(argv) {
     process.stdout.write(HELP);
     return 0;
   }
-  const home = path.resolve(v.home ?? process.env.THREADBEAR_HOME ?? process.env.THREADBARE_HOME ?? DEFAULT_HOME);
+  const home = path.resolve(v.home ?? process.env.QUOKKACODE_HOME ?? process.env.THREADBARE_HOME ?? DEFAULT_HOME);
   const stateFile = path.join(home, 'backend.json');
   const state = readJson(stateFile);
   if (v.status) {
@@ -186,7 +186,7 @@ function main(argv) {
   }
   const { file: keyFile, key, deployment } = readKey(home);
   if (!key) {
-    say(`No deploy key in ${keyFile}, so the backend isn't deployed automatically. Make one with:\n  npx convex deployment token create threadbear-runner --prod --save-env "${keyFile}"`);
+    say(`No deploy key in ${keyFile}, so the backend isn't deployed automatically. Make one with:\n  npx convex deployment token create quokkacode-runner --prod --save-env "${keyFile}"`);
     return 0;
   }
   const sync = syncDeployment(home);
@@ -200,7 +200,7 @@ function main(argv) {
   }
 
   lock(home);
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'threadbear-backend-'));
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'quokkacode-backend-'));
   process.on('exit', () => fs.rmSync(tmp, { recursive: true, force: true }));
   const archive = spawnSync('git', ['-C', repo, 'archive', '--format=tar', commit, '--', ...EXPORT_PATHS], { maxBuffer: 512 * 1024 * 1024 });
   if (archive.status !== 0) throw new Fail(`git archive failed: ${String(archive.stderr).trim()}`);

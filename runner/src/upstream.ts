@@ -1,4 +1,4 @@
-// Mike's releases, for everyone's own copy of Threadbear
+// Mike's releases, for everyone's own copy of QuokkaCode
 // (docs/setup-and-updates.md section 2.3).
 //
 // Everyone else's copy is a fork: `origin` is theirs and `upstream` is
@@ -18,7 +18,7 @@
 // (Gautam's scan, 6 Nov 2026, F5).
 //
 // Tags are fetched into a staging namespace nobody merges from, and copied
-// to refs/threadbear/upstream/ only once they verify; a release there is
+// to refs/quokkacode/upstream/ only once they verify; a release there is
 // never moved to another object, so a tag swapped upstream after it was
 // checked can't change what a bring-in thread merges (F31). Those threads
 // are told the verified commit id, and merge that.
@@ -52,10 +52,10 @@ export const SETTLE_MS = 60 * 60_000;
 export const TAG_PREFIX = 'release/';
 // Where upstream's release tags are fetched to, as they are: unchecked,
 // and moved by every fetch. Nothing merges from here.
-const INCOMING_NS = 'refs/threadbear/upstream-incoming/';
+const INCOMING_NS = 'refs/quokkacode/upstream-incoming/';
 // The releases that verified, copied from INCOMING_NS and never moved once
 // there. Their own namespaces, so the fork's own tags are never touched.
-const REF_NS = 'refs/threadbear/upstream/';
+const REF_NS = 'refs/quokkacode/upstream/';
 const MAX_SUBJECTS = 50;
 // What a release's name is after release/: the local date it was tagged
 // (tagFor). Nothing else is ever looked at.
@@ -138,7 +138,7 @@ export type UpstreamDeps = {
 // hour GitHub allows without one.
 export async function githubRuns(repo: string, commit: string): Promise<CiRun[]> {
   const res = await fetch(`https://api.github.com/repos/${repo}/actions/runs?head_sha=${commit}&event=push&per_page=100`, {
-    headers: { accept: 'application/vnd.github+json', 'user-agent': 'threadbear-runner' },
+    headers: { accept: 'application/vnd.github+json', 'user-agent': 'quokkacode-runner' },
     signal: AbortSignal.timeout(30_000),
   });
   if (!res.ok) throw new Error(`GitHub answered ${res.status}`);
@@ -274,7 +274,7 @@ export class Upstream {
     if (!urls.upstream) return this.set({ state: 'off', reason: "this copy has no upstream remote (Mike's repo), so it has no releases to follow" });
     if (urls.origin && repoKey(urls.origin) === repoKey(urls.upstream)) return this.set({ state: 'off', reason: 'upstream is this repo' });
     const signers = signersPath(this.deps.home);
-    if (!fs.existsSync(signers)) return this.set({ state: 'off', reason: `no release key pinned at ${signers}; run ./threadbear setup again` });
+    if (!fs.existsSync(signers)) return this.set({ state: 'off', reason: `no release key pinned at ${signers}; run ./quokkacode setup again` });
     this.set({ state: 'checking' });
     const checkedAt = new Date(this.deps.clock.now()).toISOString();
     try {
@@ -309,7 +309,7 @@ export class Upstream {
   // Takes out anything in REF_NS that doesn't verify: a runner from before
   // this check fetched straight into it, unverified, and so can a
   // rolled-back one. Whatever the name, so nothing is in the way of a
-  // release's (refs/threadbear/upstream/2026-11-06/x blocks 2026-11-06).
+  // release's (refs/quokkacode/upstream/2026-11-06/x blocks 2026-11-06).
   private async sweep(checkout: string, signers: string): Promise<void> {
     for (const [name, ref] of await this.refs(checkout, REF_NS)) {
       if (await this.verified(checkout, ref, TAG_PREFIX + name, signers)) continue;
@@ -460,7 +460,7 @@ export class Upstream {
     // it's read (forks find them from the commits' trailers themselves).
     const important = parseImportant(await this.git(checkout, ['log', '--no-merges', '--format=%H%x1f%(trailers:key=Important,valueonly,separator=%x20)', last ? `${last}..${tip}` : tip, '--max-count=200']));
     const lead = important.length ? important.map((i) => `Important: ${i.why}`).join('\n') + '\n\n' : '';
-    const message = `Threadbear ${tag.slice(TAG_PREFIX.length)}\n\n${lead}${subjects}\n`;
+    const message = `QuokkaCode ${tag.slice(TAG_PREFIX.length)}\n\n${lead}${subjects}\n`;
     const file = path.join(this.deps.home, 'runner', 'release-tag-message.txt');
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, message);

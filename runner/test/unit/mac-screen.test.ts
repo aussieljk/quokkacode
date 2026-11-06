@@ -145,7 +145,7 @@ test('not being able to look says nothing, either way', async () => {
   assert.equal(notes(t.id).length, 1, "it isn't known to have gone");
 });
 
-test('a Mac with no Threadbear app and no Full Disk Access is told once, up front', async () => {
+test('a Mac with no Quokka Code app and no Full Disk Access is told once, up front', async () => {
   const { probe, make, look, noticeThreads, notes } = setUp();
   probe.app = false;
   probe.access = false;

@@ -261,7 +261,7 @@ export const hibernationPart = {
     this.sendTo(st, text, [], { origin: 'runner', queue: true });
     this.log.info('woke after a lab review', { threadId: st.rec.id, reviewer: w.threadId });
     if (reviewer && !reviewer.rt.deleted && !reviewer.rec.archivedAt && !reviewer.rt.turn) {
-      this.update({ threadId: w.threadId, archived: true, archivedBy: 'threadbear' });
+      this.update({ threadId: w.threadId, archived: true, archivedBy: 'quokkacode' });
     }
   },
 

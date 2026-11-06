@@ -1,7 +1,7 @@
 // The relay's whole API (docs/push-relay.md):
 //
 //   POST /register  { version?, deployment, nonce }  ->  { installId, installKey }
-//     Once per Threadbear backend, which keeps the pair in its database.
+//     Once per Quokka Code backend, which keeps the pair in its database.
 //     The relay first posts { nonce } to <deployment>/relay/verify (its
 //     CONVEX_SITE_URL) and registers only if that answers { ok: true }
 //     (verify.ts says why); 403 without them or if it doesn't.
@@ -53,7 +53,7 @@ http.route({
     // asks how an install was made.
     const site = convexSite(str(b.deployment, 200));
     const nonce = str(b.nonce, 100);
-    if (!site || !nonce) return json({ error: 'update Threadbear: this relay only registers Convex cloud deployments that confirm the registration (docs/push-relay.md)' }, 403);
+    if (!site || !nonce) return json({ error: 'update Quokka Code: this relay only registers Convex cloud deployments that confirm the registration (docs/push-relay.md)' }, 403);
     if (!(await deploymentVouches(site, nonce))) return json({ error: "the deployment didn't confirm this registration" }, 403);
     try {
       return json(await ctx.runMutation(internal.relay.registerVerified, { deployment: site, ...(version ? { version } : {}) }));
@@ -74,7 +74,7 @@ http.route({
     const environment = b?.environment === 'production' ? 'production' : b?.environment === 'sandbox' ? 'sandbox' : undefined;
     const threadId = str(b?.threadId, 100);
     if (!b || !deviceToken || !/^[0-9a-f]+$/i.test(deviceToken) || !environment || !threadId) return json({ error: 'bad request' }, 400);
-    const header = req.headers.get('x-threadbear-version');
+    const header = req.headers.get('x-quokkacode-version');
     const version = header === null ? undefined : storedVersion(header);
     const admitted = await ctx.runMutation(internal.relay.admit, { installId: auth[1]!, installKey: auth[2]!, ...(version ? { version } : {}) });
     if (admitted === 'auth') return json({ error: 'unauthorized' }, 401);

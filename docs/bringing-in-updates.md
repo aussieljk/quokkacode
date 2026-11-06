@@ -10,7 +10,7 @@ these threads, or want them less often, change `releases.bringIn` in
 `runner.json` (a number of days, `"important"` or `"off"`).
 A thread started by Let's Discuss uses section 1 to talk the release
 through first, and goes on to section 2 only once they say to.
-This copy of Threadbear is their fork of `mikecann/threadbear`: `origin` is
+This copy of Quokka Code is their fork of `mikecann/threadbear`: `origin` is
 theirs and `upstream` is Mike's. Their `main` has their own changes on it,
 and your job is to add Mike's release to it without losing any of theirs.
 docs/setup-and-updates.md section 2.3 explains the thinking behind it.
@@ -23,7 +23,7 @@ docs/setup-and-updates.md section 2.3 explains the thinking behind it.
   pinned, and the commit id is the one the signature was checked for.
   Merge that commit id (it's in the message that started this thread
   too), never `upstream/main` (Mike's main can be halfway through
-  something) and never anything under `refs/threadbear/upstream-incoming/`,
+  something) and never anything under `refs/quokkacode/upstream-incoming/`,
   which is what upstream serves before it's checked. If `tb updates` no
   longer lists the release, or names a different commit for it, stop and
   say so rather than merging anything.
@@ -58,7 +58,7 @@ sides' commit messages and diffs, and write code that does both:
 - If you can't do both, stop and ask them which they'd rather have, with
   what each does.
 
-Their patches (`.threadbear/patches/`, `~/.threadbear/patches/`) and
+Their patches (`.quokkacode/patches/`, `~/.quokkacode/patches/`) and
 settings (`runner.json`) aren't part of the merge. Check they still work
 against Mike's changes (docs/protocol.md, "Patches", says what a patch can
 use), and fix them if not.

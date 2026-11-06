@@ -337,7 +337,7 @@ test('mcp-image: an MCP image block and an image resource saved, a dynamic data:
   assert.equal(mr.images.length, 2);
   assert.ok(mr.images.every((i: any) => path.dirname(i.path) === e.media && i.width === 6 && i.height === 3));
   assert.match(path.basename(mr.images[0].path), /^computer-use_screenshot-[0-9a-f]{10}\.png$/);
-  const dyn = evs.find((x) => x.type === 'tool.call' && x.name === 'mcp__threadbear__read_thread');
+  const dyn = evs.find((x) => x.type === 'tool.call' && x.name === 'mcp__quokkacode__read_thread');
   assert.equal(dyn.title, 'Read this thread');
   const dr = evs.find((x) => x.type === 'tool.result' && x.itemId === dyn.itemId);
   assert.equal(dr.images.length, 1);
@@ -390,11 +390,11 @@ test('reasoning: a second summary part is joined by a blank line', () => {
   assert.equal(events(outs)[0].text, '**One**\n\nfirst\n\n**Two**\n\nsecond');
 });
 
-test('dynamic-tools: a Threadbear tool call shows as mcp__threadbear__<tool>, before and after a resume', () => {
+test('dynamic-tools: a Quokka Code tool call shows as mcp__quokkacode__<tool>, before and after a resume', () => {
   const { outs } = run('dynamic-tools');
   const evs = events(outs);
   const calls = evs.filter((x) => x.type === 'tool.call' && x.name.startsWith('mcp__'));
-  assert.deepEqual(calls.map((c) => [c.name, c.kind]), [['mcp__threadbear__secret_word', 'mcp'], ['mcp__threadbear__secret_word', 'mcp']]);
+  assert.deepEqual(calls.map((c) => [c.name, c.kind]), [['mcp__quokkacode__secret_word', 'mcp'], ['mcp__quokkacode__secret_word', 'mcp']]);
   const texts = calls.map((c) => evs.find((x) => x.type === 'tool.result' && x.itemId === c.itemId)).map((r) => [r.ok, r.text]);
   assert.deepEqual(texts, [[true, 'The secret word is marmalade.'], [true, 'The secret word is quince.']]);
 });
@@ -693,7 +693,7 @@ test('the committed Codex fixtures hold nothing private', () => {
 // it, and Mike read the lot (28 Oct 2026).
 test('a tool call written into a message is cut off it', () => {
   const leaked =
-    'Nothing needed from you right now; the review is finished.\n fortheassistant to=functions.exec کامنتری code segmente\ntext(await tools.threadbear__end_turn({needs:"nothing"}));\n 只有精品functions.exec (commentary) ым\nScript completed\nWall time 0.1 seconds\nOutput:\n{"needs":"nothing"}';
+    'Nothing needed from you right now; the review is finished.\n fortheassistant to=functions.exec کامنتری code segmente\ntext(await tools.quokkacode__end_turn({needs:"nothing"}));\n 只有精品functions.exec (commentary) ым\nScript completed\nWall time 0.1 seconds\nOutput:\n{"needs":"nothing"}';
   assert.equal(stripLeakedToolCall(leaked), 'Nothing needed from you right now; the review is finished.');
   assert.equal(stripLeakedToolCall('Done.\nto=functions.exec code'), 'Done.');
   // Plain text, and a message about the token, keep every word.

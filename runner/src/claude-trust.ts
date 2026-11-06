@@ -200,7 +200,7 @@ export function claudeCommands(cwd: string, home: string = os.homedir(), opts: C
   // Nothing found, unless the look for nested skills couldn't finish:
   // then what it missed can't be vouched for either.
   if (!files.length) return incomplete ? { files: [], named: [], hash: sha256(Buffer.from(incomplete)), read: {}, incomplete } : undefined;
-  if (grants) incomplete ??= threadbearGrant(parts);
+  if (grants) incomplete ??= quokkacodeGrant(parts);
   const follow = reachedFiles(parts, dir, files);
   incomplete ??= follow.problem;
   // Relative to the folder, so a worktree and its main checkout agree.
@@ -222,7 +222,7 @@ export function claudeCommands(cwd: string, home: string = os.homedir(), opts: C
   // joined paths that could hold newlines, and was fooled: Gautam's scan,
   // 6 Nov. Moving this to its JSON form too would ask about every
   // folder's Claude settings again for nothing.)
-  const hash = sha256(Buffer.from(['threadbear-claude-1', stableJson(parts), ...lines].join('\n')));
+  const hash = sha256(Buffer.from(['quokkacode-claude-1', stableJson(parts), ...lines].join('\n')));
   const words = grants ? grantWords(parts) : [];
   return {
     files,
@@ -383,7 +383,7 @@ function nestedSkills(dir: string, depth = 0): { files: string[]; problem?: stri
     const links = new Set<string>();
     const staged = git('ls-files', '-s', '-z');
     const others = git('ls-files', '-o', '--exclude-standard', '-z');
-    if (staged === undefined || others === undefined) return { files, problem: "git couldn't list the folder's files, so Threadbear can't tell which skills Claude would load." };
+    if (staged === undefined || others === undefined) return { files, problem: "git couldn't list the folder's files, so Quokka Code can't tell which skills Claude would load." };
     for (const line of staged.split('\0')) {
       const m = /^(160000|120000) [0-9a-f]+ \d+\t([\s\S]+)$/.exec(line);
       if (m) (m[1] === '160000' ? inner : links).add(path.join(dir, m[2]));
@@ -401,7 +401,7 @@ function nestedSkills(dir: string, depth = 0): { files: string[]; problem?: stri
     }
     for (const d of inner) {
       if (!isDir(d)) continue;
-      if (depth >= 4 || inner.size > 200) return { files, problem: 'the folder has more nested repositories than Threadbear looks through for skills Claude would load.' };
+      if (depth >= 4 || inner.size > 200) return { files, problem: 'the folder has more nested repositories than Quokka Code looks through for skills Claude would load.' };
       const sub = nestedSkills(d, depth + 1);
       files.push(...sub.files);
       if (sub.problem) return { files, problem: sub.problem };
@@ -533,7 +533,7 @@ function reachedFiles(parts: Record<string, unknown>, dir: string, sources: stri
     const want = path.resolve(from, spec.replace(/[?#].*$/, ''));
     if (/^\.{0,2}\//.test(spec) && !isFile(want)) {
       const could = [...['.ts', '.mts', '.cts', '.js', '.mjs', '.cjs', '.tsx', '.jsx', '.json', '.node'].map((e) => want + e), ...['.ts', '.js', '.mjs', '.cjs', '.json', '.node'].map((e) => path.join(want, `index${e}`)), path.join(want, 'package.json')].filter(isFile);
-      if (could.length > 1 || could.some((f) => path.basename(f) === 'package.json')) problem ??= `${path.relative(base.folder, from) || '.'} imports ${spec}, which ${could.length} files could answer (${could.map((f) => path.basename(f)).join(', ')}), so Threadbear can't tell which one runs. Import it with its extension.`;
+      if (could.length > 1 || could.some((f) => path.basename(f) === 'package.json')) problem ??= `${path.relative(base.folder, from) || '.'} imports ${spec}, which ${could.length} files could answer (${could.map((f) => path.basename(f)).join(', ')}), so Quokka Code can't tell which one runs. Import it with its extension.`;
     }
     return base.resolveImport(from, spec);
   };
@@ -555,14 +555,14 @@ function reachedFiles(parts: Record<string, unknown>, dir: string, sources: stri
     const target = path.resolve(real, raw.replace(/\$\{?CLAUDE_PROJECT_DIR\}?/g, real));
     // A file an env variable names (BASH_ENV, NODE_OPTIONS=--require) is
     // loaded by whatever reads the variable, from wherever that runs, with
-    // its own relative paths from there: Threadbear can't follow it. So
+    // its own relative paths from there: Quokka Code can't follow it. So
     // one in the repo, or named by a relative path (it may be one from
     // another folder), can't be trusted. URLs and paths outside are fine.
     if (inEnv && !raw.includes('://')) {
       const pathish = /^\.{1,2}(\/|$)/.test(raw) || raw.includes('/');
       const mine = target === opts.top || isInside(target, opts.top);
       if ((pathish && !path.isAbsolute(raw) && !raw.startsWith('$')) || (mine && fs.existsSync(target))) {
-        problem ??= `an environment variable names \`${raw}\`, a file or folder in the repo (or by a relative path), which whatever reads the variable loads from wherever it runs, so Threadbear can't follow it.`;
+        problem ??= `an environment variable names \`${raw}\`, a file or folder in the repo (or by a relative path), which whatever reads the variable loads from wherever it runs, so Quokka Code can't follow it.`;
         if (mine && isFile(target)) out.add(realpath(target));
         return;
       }
@@ -570,7 +570,7 @@ function reachedFiles(parts: Record<string, unknown>, dir: string, sources: stri
     if (isDir(target)) {
       // `.` counts: PYTHONPATH=. loads from the folder itself.
       if (target !== opts.top && !isInside(target, opts.top)) return;
-      if (inEnv) problem ??= `an environment variable names the folder \`${raw}\`, and Threadbear can't hash everything a folder could load.`;
+      if (inEnv) problem ??= `an environment variable names the folder \`${raw}\`, and Quokka Code can't hash everything a folder could load.`;
       return;
     }
     if (!isInside(target, opts.top) || !isFile(target)) return;
@@ -590,7 +590,7 @@ function reachedFiles(parts: Record<string, unknown>, dir: string, sources: stri
     if (inEnv) {
       // Node told to keep symlinked paths loads other files than are hashed.
       if (/--preserve-symlinks/.test(text)) problem ??= `an environment variable sets --preserve-symlinks, which changes which files Node loads.`;
-      if (/[$`]/.test(text.replace(/\$\{?PWD\}?/g, ''))) problem ??= `an environment variable's value uses a variable or command (\`${text.length > 80 ? `${text.slice(0, 80)}...` : text}\`), so Threadbear can't tell what it names.`;
+      if (/[$`]/.test(text.replace(/\$\{?PWD\}?/g, ''))) problem ??= `an environment variable's value uses a variable or command (\`${text.length > 80 ? `${text.slice(0, 80)}...` : text}\`), so Quokka Code can't tell what it names.`;
       for (const p of [text, ...text.split(':')]) {
         const v = p.replace(/\$\{?PWD\}?/g, real);
         // As written (a name can end in a space) and trimmed.
@@ -608,7 +608,7 @@ function reachedFiles(parts: Record<string, unknown>, dir: string, sources: stri
       words(s, keys.includes('env'));
       // A shell's startup file, read relative to wherever the shell starts.
       const name = keys[keys.length - 1];
-      if (keys.includes('env') && STARTUP_VARS.has(name) && !path.isAbsolute(s.replace(/\$\{?CLAUDE_PROJECT_DIR\}?/g, real))) problem ??= `${rel} sets ${name} to \`${s}\`, a file a shell reads from wherever it starts, so Threadbear can't tell which one it is.`;
+      if (keys.includes('env') && STARTUP_VARS.has(name) && !path.isAbsolute(s.replace(/\$\{?CLAUDE_PROJECT_DIR\}?/g, real))) problem ??= `${rel} sets ${name} to \`${s}\`, a file a shell reads from wherever it starts, so Quokka Code can't tell which one it is.`;
     });
     // Commands Claude runs by themselves, followed through what they run.
     walkStrings(part, (s, keys) => {
@@ -632,13 +632,13 @@ function reachedFiles(parts: Record<string, unknown>, dir: string, sources: stri
         if (typeof block !== 'string' || !FRONTMATTER_RUNS.has(name)) continue;
         // An MCP server's command runs with its args, not through a shell.
         const cmds = name === 'mcpservers' ? yamlServers(block) : yamlCommands(block);
-        if (!cmds) problem ??= `${rel} has ${key} whose commands Threadbear can't read: write each as \`command: ...\` on its own line${name === 'mcpservers' ? ', and its args as a plain list' : ''}.`;
+        if (!cmds) problem ??= `${rel} has ${key} whose commands Quokka Code can't read: write each as \`command: ...\` on its own line${name === 'mcpservers' ? ', and its args as a plain list' : ''}.`;
         for (const c of cmds ?? []) command(c, `A ${key} command in ${rel}`);
         // An MCP server's env, as a settings file's.
         if (name === 'mcpservers') {
           for (const [k, v] of yamlEnvBlocks(block)) {
             words(v, true);
-            if (STARTUP_VARS.has(k) && !path.isAbsolute(v.replace(/\$\{?CLAUDE_PROJECT_DIR\}?/g, real))) problem ??= `${rel} sets ${k} to \`${v}\`, a file a shell reads from wherever it starts, so Threadbear can't tell which one it is.`;
+            if (STARTUP_VARS.has(k) && !path.isAbsolute(v.replace(/\$\{?CLAUDE_PROJECT_DIR\}?/g, real))) problem ??= `${rel} sets ${k} to \`${v}\`, a file a shell reads from wherever it starts, so Quokka Code can't tell which one it is.`;
           }
         }
       }
@@ -649,10 +649,10 @@ function reachedFiles(parts: Record<string, unknown>, dir: string, sources: stri
       // followed (and YAML can spell a key with escapes), so it can't be
       // trusted as it is.
       problem ??= rel.toLowerCase().endsWith('.md')
-        ? `${rel} has frontmatter Threadbear can't read key by key (a flow mapping, a quoted key, an anchor or alias). Write it as plain YAML, one key to a line.`
-        : `${rel} isn't plain JSON, so Threadbear can't tell what it would run.`;
+        ? `${rel} has frontmatter Quokka Code can't read key by key (a flow mapping, a quoted key, an anchor or alias). Write it as plain YAML, one key to a line.`
+        : `${rel} isn't plain JSON, so Quokka Code can't tell what it would run.`;
     }
-    if (out.size > MAX_NAMED) return { files: [...out], problem: `its commands reach more than ${MAX_NAMED} files, more than Threadbear hashes.` };
+    if (out.size > MAX_NAMED) return { files: [...out], problem: `its commands reach more than ${MAX_NAMED} files, more than Quokka Code hashes.` };
   }
   return { files: [...out].sort(), ...(problem ? { problem } : {}) };
 }
@@ -849,28 +849,28 @@ function yamlEnvBlocks(block: string): [string, string][] {
   return out;
 }
 
-// An allow rule (or a skill's allowed-tools) that would cover Threadbear's
+// An allow rule (or a skill's allowed-tools) that would cover Quokka Code's
 // own tools: a folder never gets to approve those (a repo allowing
 // update_thread would let the agent switch its own thread to Full), so
 // no stored hash can vouch for one.
-function threadbearGrant(parts: Record<string, unknown>): string | undefined {
-  const covers = (rule: string) => /^\s*(mcp__threadbear|mcp__threadbare|mcp__\*|\*)/i.test(rule);
+function quokkacodeGrant(parts: Record<string, unknown>): string | undefined {
+  const covers = (rule: string) => /^\s*(mcp__quokkacode|mcp__threadbare|mcp__\*|\*)/i.test(rule);
   for (const [rel, part] of Object.entries(parts)) {
     if (!isObject(part)) continue;
     const allow = isObject(part.permissions) ? part.permissions.allow : undefined;
     const rule = Array.isArray(allow) ? allow.find((r) => typeof r === 'string' && covers(r)) : undefined;
-    if (rule) return `${rel} allows ${rule}, and only Threadbear's own approvals can allow its tools. Take the rule out.`;
-    // Bypassing permissions covers every tool, Threadbear's included.
-    if (isObject(part.permissions) && part.permissions.defaultMode === 'bypassPermissions') return `${rel} starts Claude bypassing permissions, which would cover Threadbear's own tools, and only Threadbear's own approvals can allow those.`;
+    if (rule) return `${rel} allows ${rule}, and only Quokka Code's own approvals can allow its tools. Take the rule out.`;
+    // Bypassing permissions covers every tool, Quokka Code's included.
+    if (isObject(part.permissions) && part.permissions.defaultMode === 'bypassPermissions') return `${rel} starts Claude bypassing permissions, which would cover Quokka Code's own tools, and only Quokka Code's own approvals can allow those.`;
     if (isObject(part.frontmatter)) {
       for (const [key, block] of Object.entries(part.frontmatter)) {
         if (typeof block !== 'string' || !FRONTMATTER_GRANTS.has(key.toLowerCase().replace(/[-_]/g, ''))) continue;
         const value = block.replace(/^[^:]*:/, '');
         // YAML can spell a name with escapes (`\u0062`), which isn't read here.
-        if (value.includes('\\')) return `${rel} has ${key} with an escape in it, which Threadbear can't read to check it doesn't cover its own tools. Write the tools out plainly.`;
+        if (value.includes('\\')) return `${rel} has ${key} with an escape in it, which Quokka Code can't read to check it doesn't cover its own tools. Write the tools out plainly.`;
         const tools = value.split(/[\s,[\]'"]+/).filter(Boolean);
-        if (key.toLowerCase().replace(/[-_]/g, '') === 'permissionmode' && tools.some((t) => /bypass/i.test(t))) return `${rel} runs bypassing permissions, which would cover Threadbear's own tools, and only Threadbear's own approvals can allow those.`;
-        if (tools.some((t) => covers(t))) return `${rel} lets ${key} cover Threadbear's own tools, and only Threadbear's own approvals can allow them. Take them out.`;
+        if (key.toLowerCase().replace(/[-_]/g, '') === 'permissionmode' && tools.some((t) => /bypass/i.test(t))) return `${rel} runs bypassing permissions, which would cover Quokka Code's own tools, and only Quokka Code's own approvals can allow those.`;
+        if (tools.some((t) => covers(t))) return `${rel} lets ${key} cover Quokka Code's own tools, and only Quokka Code's own approvals can allow them. Take them out.`;
       }
     }
   }

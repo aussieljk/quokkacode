@@ -108,7 +108,7 @@ test('hooks with no env hash as they did before env was asked about, so trusting
   const stable = (v: unknown): string => Array.isArray(v) ? `[${v.map(stable).join(',')}]` : v && typeof v === 'object' ? `{${Object.keys(v).sort().map((k) => `${JSON.stringify(k)}:${stable((v as Record<string, unknown>)[k])}`).join(',')}}` : JSON.stringify(v);
   const sha = (b: string | Buffer) => crypto.createHash('sha256').update(b).digest('hex');
   const line = `.claude/hooks/session-start.mjs ${sha(fs.readFileSync(path.join(dir, '.claude', 'hooks', 'session-start.mjs')))}`;
-  assert.equal(claudeCommands(dir, home)!.hash, sha(['threadbear-claude-1', stable(parts), line].join('\n')));
+  assert.equal(claudeCommands(dir, home)!.hash, sha(['quokkacode-claude-1', stable(parts), line].join('\n')));
 });
 
 test("what's left while untrusted: project and local settings merged, without anything that runs, sets the environment or allows tools", () => {
@@ -177,7 +177,7 @@ test('trust is per folder in the patch trust file, a worktree counts as its main
   const again = trust.checkClaude(main);
   assert.ok(!again.trusted && again.reason === 'changed');
 
-  // Threadbear's own checkout is always trusted.
+  // Quokka Code's own checkout is always trusted.
   assert.ok(new PatchTrust({ always: [main], claudeHome: root }).checkClaude(wt).trusted);
 });
 
@@ -331,18 +331,18 @@ test("F2/F8/F15: a repo's allow rules, extra directories, defaultMode and sandbo
   assert.equal(claudeCommands(narrow, home, ASKING), undefined);
 });
 
-test('F15: an allow rule covering Threadbear\'s own tools can never be trusted from a folder', () => {
+test('F15: an allow rule covering QuokkaCode\'s own tools can never be trusted from a folder', () => {
   const home = tmpDir();
   const dir = path.join(home, 'cloned');
-  settingsIn(dir, { permissions: { allow: ['Bash', 'Write', 'mcp__threadbear__update_thread'] } });
+  settingsIn(dir, { permissions: { allow: ['Bash', 'Write', 'mcp__quokkacode__update_thread'] } });
   const trust = new PatchTrust({ claudeHome: home });
   const v = trust.checkClaude(dir, ASKING);
   assert.ok(!v.trusted && v.reason === 'unchecked', 'no Trust button');
-  assert.match(v.problem, /mcp__threadbear__update_thread/);
+  assert.match(v.problem, /mcp__quokkacode__update_thread/);
   // Not even by storing its hash.
   trust.trustClaude(dir, v.hash);
   assert.ok(!trust.checkClaude(dir, ASKING).trusted);
-  for (const rule of ['mcp__threadbear', 'mcp__threadbear__*', 'mcp__*', '*']) {
+  for (const rule of ['mcp__quokkacode', 'mcp__quokkacode__*', 'mcp__*', '*']) {
     settingsIn(dir, { permissions: { allow: [rule] } });
     assert.equal((trust.checkClaude(dir, ASKING) as { reason?: string }).reason, 'unchecked', rule);
   }
@@ -735,7 +735,7 @@ test("review: frontmatter or settings that can't be read key by key can't be tru
   const trust = new PatchTrust({ claudeHome: home });
   assert.equal((trust.checkClaude(dir) as { reason?: string }).reason, 'unchecked');
   // A quoted key YAML reads as allowed-tools.
-  fs.writeFileSync(path.join(dir, '.claude', 'skills', 's', 'SKILL.md'), '---\nname: s\n"allowed-tools": mcp__threadbear__delete_thread\n---\n');
+  fs.writeFileSync(path.join(dir, '.claude', 'skills', 's', 'SKILL.md'), '---\nname: s\n"allowed-tools": mcp__quokkacode__delete_thread\n---\n');
   assert.equal((trust.checkClaude(dir, ASKING) as { reason?: string }).reason, 'unchecked');
 });
 
@@ -782,12 +782,12 @@ test("review 2: a test runner finding its own tests, or a program that loads its
   }
 });
 
-test("review 2: allowed-tools covering Threadbear's tools through quotes or escapes can't be trusted", () => {
+test("review 2: allowed-tools covering Quokka Code's tools through quotes or escapes can't be trusted", () => {
   const home = tmpDir();
   const dir = path.join(home, 'app');
   fs.mkdirSync(path.join(dir, '.claude', 'skills', 's'), { recursive: true });
   const trust = new PatchTrust({ claudeHome: home });
-  for (const value of ['["*"]', '["mcp__thread\\u0062ear__send_message"]', "'mcp__threadbear__send_message'", '\n  - Read\n  - mcp__threadbear__pin']) {
+  for (const value of ['["*"]', '["mcp__thread\\u0062ear__send_message"]', "'mcp__quokkacode__send_message'", '\n  - Read\n  - mcp__quokkacode__pin']) {
     fs.writeFileSync(path.join(dir, '.claude', 'skills', 's', 'SKILL.md'), `---\nname: s\nallowed-tools: ${value}\n---\n`);
     assert.equal((trust.checkClaude(dir, ASKING) as { reason?: string }).reason, 'unchecked', value);
   }
@@ -842,10 +842,10 @@ test('review 4: node --env-file can load code, and an edit in Full still carries
     settingsIn(dir, { hooks: { SessionStart: [{ hooks: [{ type: 'command', command }] }] } });
     assert.equal((trust.checkClaude(dir) as { reason?: string }).reason, 'unchecked', command);
   }
-  // A hook trusted for Full, and an allow rule for Threadbear's tools that
+  // A hook trusted for Full, and an allow rule for Quokka Code's tools that
   // no thread that asks first can ever trust: an edit to the hook still
   // carries the Full trust on.
-  const settings = settingsIn(dir, { hooks: { SessionStart: [{ hooks: [{ type: 'command', command: 'node hook.mjs' }] }] }, permissions: { allow: ['mcp__threadbear__update_thread'] } });
+  const settings = settingsIn(dir, { hooks: { SessionStart: [{ hooks: [{ type: 'command', command: 'node hook.mjs' }] }] }, permissions: { allow: ['mcp__quokkacode__update_thread'] } });
   const v = trust.checkClaude(dir);
   assert.ok(!v.trusted && v.reason !== 'unchecked');
   trust.trustClaude(dir, v.hash);
@@ -859,7 +859,7 @@ test('review 4: node --env-file can load code, and an edit in Full still carries
 
 // ---- The review's fifth round ----
 
-test('review 5: what bypasses permissions covers Threadbear\'s tools, so it can\'t be trusted in a thread that asks first', () => {
+test('review 5: what bypasses permissions covers QuokkaCode\'s tools, so it can\'t be trusted in a thread that asks first', () => {
   const home = tmpDir();
   const dir = path.join(home, 'app');
   fs.mkdirSync(path.join(dir, '.claude', 'agents'), { recursive: true });

@@ -1,10 +1,10 @@
-// The `pocket` tool (threadbear-mcp.ts): one tool that files, replaces,
+// The `pocket` tool (quokkacode-mcp.ts): one tool that files, replaces,
 // removes and lists the cards on the phone.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { makeHarness } from '../helpers/fakes.ts';
-import { buildThreadbearTools, type PocketControl } from '../../src/threadbear-mcp.ts';
+import { buildQuokkaCodeTools, type PocketControl } from '../../src/quokkacode-mcp.ts';
 
 function setup() {
   const saved: Parameters<PocketControl['savePocketCard']>[0][] = [];
@@ -23,7 +23,7 @@ function setup() {
   return { saved, removed, pocket };
 }
 
-async function call(tools: ReturnType<typeof buildThreadbearTools>, args: Record<string, unknown>) {
+async function call(tools: ReturnType<typeof buildQuokkaCodeTools>, args: Record<string, unknown>) {
   const r = (await tools.find((t) => t.name === 'pocket')!.handler(args as never, {})) as { content: { text: string }[]; isError?: boolean };
   return { text: r.content[0]!.text, isError: r.isError };
 }
@@ -32,7 +32,7 @@ test('files a card with the thread it came from, and the same title replaces it'
   const h = makeHarness();
   const { thread } = await h.runner.create({ text: 'Passport' } as never);
   const { saved, pocket } = setup();
-  const tools = buildThreadbearTools(h.runner, thread.id, Date.now, undefined, undefined, undefined, { pocket: () => pocket });
+  const tools = buildQuokkaCodeTools(h.runner, thread.id, Date.now, undefined, undefined, undefined, { pocket: () => pocket });
   assert.match((await call(tools, { title: 'Post to Corby', text: 'Long Croft Road', place: 'post office', icon: 'parcel' })).text, /Filed/);
   assert.match((await call(tools, { title: 'Post to Corby', text: 'New' })).text, /Replaced/);
   assert.equal(saved[0]!.threadId, thread.id);
@@ -47,7 +47,7 @@ test('removes by title, and says when there was no such card', async () => {
   const h = makeHarness();
   const { thread } = await h.runner.create({ text: 'hi' } as never);
   const { removed, saved, pocket } = setup();
-  const tools = buildThreadbearTools(h.runner, thread.id, Date.now, undefined, undefined, undefined, { pocket: () => pocket });
+  const tools = buildQuokkaCodeTools(h.runner, thread.id, Date.now, undefined, undefined, undefined, { pocket: () => pocket });
   assert.match((await call(tools, { title: 'There', remove: true })).text, /Took "There" out/);
   assert.match((await call(tools, { title: 'Nope', remove: true })).text, /No card called/);
   assert.deepEqual(removed, ['There', 'Nope']);
@@ -58,7 +58,7 @@ test('no title lists the cards; a title with no text is an error', async () => {
   const h = makeHarness();
   const { thread } = await h.runner.create({ text: 'hi' } as never);
   const { pocket } = setup();
-  const tools = buildThreadbearTools(h.runner, thread.id, Date.now, undefined, undefined, undefined, { pocket: () => pocket });
+  const tools = buildQuokkaCodeTools(h.runner, thread.id, Date.now, undefined, undefined, undefined, { pocket: () => pocket });
   assert.match((await call(tools, {})).text, /There \(post office\) \[misc\]\nLine one/);
   const bad = await call(tools, { title: 'There' });
   assert.equal(bad.isError, true);
@@ -67,6 +67,6 @@ test('no title lists the cards; a title with no text is an error', async () => {
 test('no tool at all while sync is off', async () => {
   const h = makeHarness();
   const { thread } = await h.runner.create({ text: 'hi' } as never);
-  const tools = buildThreadbearTools(h.runner, thread.id, Date.now, undefined, undefined, undefined, { pocket: () => undefined });
+  const tools = buildQuokkaCodeTools(h.runner, thread.id, Date.now, undefined, undefined, undefined, { pocket: () => undefined });
   assert.equal(tools.find((t) => t.name === 'pocket'), undefined);
 });

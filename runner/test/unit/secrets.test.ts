@@ -7,13 +7,13 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { makeHarness, tick, tmpDir } from '../helpers/fakes.ts';
 import { SecretStore, SECRET_TTL_MS, openSealed, seal } from '../../src/secrets.ts';
-import { buildThreadbearTools } from '../../src/threadbear-mcp.ts';
+import { buildQuokkaCodeTools } from '../../src/quokkacode-mcp.ts';
 import { WROTE_INSTEAD } from '../../src/runner.ts';
 
 const VALUE = 'hunter2 ✓';
 
 // The phone (CryptoKit) side is tested against this same vector in
-// ios/ThreadbearKit, so the two can't drift apart.
+// ios/QuokkaCodeKit, so the two can't drift apart.
 const VECTOR = {
   recipientPrivate: 'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=',
   recipientPublic: 'pOCSkrZRwni5dyxWn1+puxPZBrRqtoyd+dwrRAn4ogk=',
@@ -77,7 +77,7 @@ test('the sweep removes files older than a day and nothing else', () => {
 });
 
 function askTool(h: ReturnType<typeof makeHarness>, selfId: string) {
-  const list = buildThreadbearTools(h.runner, selfId, Date.now);
+  const list = buildQuokkaCodeTools(h.runner, selfId, Date.now);
   const t = list.find((x) => x.name === 'ask_secret');
   assert.ok(t, 'ask_secret is offered');
   return async (args: Record<string, unknown>) => {
@@ -103,7 +103,7 @@ test('ask_secret: a card goes up, the answer goes to a file, and the value is no
   assert.ok(h.runner.get(thread.id).needsYou);
   // approvals.respond can't answer it: the value would go into its message.
   assert.throws(() => h.runner.respondApproval({ threadId: thread.id, approvalId: req.approvalId, decision: 'answered', message: VALUE }), /secrets.answer/);
-  assert.throws(() => h.runner.respondApproval({ threadId: thread.id, approvalId: req.approvalId, decision: 'allow' }), /update the Threadbear app/);
+  assert.throws(() => h.runner.respondApproval({ threadId: thread.id, approvalId: req.approvalId, decision: 'allow' }), /update the Quokka Code app/);
   assert.throws(() => h.runner.answerSecret({ threadId: thread.id, approvalId: req.approvalId, secret: '   ' }), /Type the secret/);
   h.runner.answerSecret({ threadId: thread.id, approvalId: req.approvalId, secret: `  ${VALUE}\n` });
   const text = await reply;

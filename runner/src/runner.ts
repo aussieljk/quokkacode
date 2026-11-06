@@ -91,7 +91,7 @@ import type { ExplainTurn } from './explain.ts';
 import { SAID_MAX, WAKE_SYSTEM, awayFor, hibernateNote, localWhen, readWakeAnswer, wakePrompt } from './wake-when.ts';
 import { parseWhen } from './when.ts';
 import { emptyHighlights, observe as observeHighlights, pinItem, remove as removeHighlight, unpin as unpinHighlight, upsert as upsertHighlight, view as highlightsView, absolute, type ThreadHighlights } from './highlights.ts';
-import { SERVER_NAME, approvalTitle } from './threadbear-mcp.ts';
+import { SERVER_NAME, approvalTitle } from './quokkacode-mcp.ts';
 import { PANEL_ACK_WAIT_MS, PANEL_PLACES, resolvePanel } from './panel-requests.ts';
 import { archiveFromTool, bylineFromTool, END_TURN_TOOL, endTurnAccepted, endTurnAddedArchive, endTurnAddedSnooze, snoozeFromTool, waitForFromTool, endTurnAsksForMessage, endTurnIsOneReply, endTurnOwesReply, endTurnRefusedRepeat, endTurnTaken, endTurnWantsReply, needsFromText, needsFromTool, replyWithoutRepeat, splitReplySection, summaryFromTool, summaryMarkdown } from './needs.ts';
 import type { Needs } from './needs.ts';
@@ -323,7 +323,7 @@ export type Turn = {
   headline?: boolean;
   replyNeeds?: Needs;
   // The Stop hook sent this turn back to call end_turn, so what it already
-  // wrote is the reply (threadbear-mcp.ts, needs.ts oneReplyAlreadyWritten).
+  // wrote is the reply (quokkacode-mcp.ts, needs.ts oneReplyAlreadyWritten).
   endTurnNudged?: boolean;
 };
 
@@ -370,7 +370,7 @@ type Runtime = {
   // while the live one still has it loaded.
   archivePending?: boolean;
   // The archived thread's worktree cleanup while it runs: a handover waits
-  // for it before saving the record, or its result is lost (THREADBEAR-16).
+  // for it before saving the record, or its result is lost (QUOKKACODE-16).
   cleaning?: Promise<void>;
   // Background work that ended and whose result the CLI hasn't started a
   // turn to read yet. Shown as `finished` in the summary's background list
@@ -2443,7 +2443,7 @@ export class Runner {
     snoozedUntil?: string | null; // an ISO time, 'restart' for until the runner next starts, or 'release' for until it starts on a new release
     archived?: boolean;
     // Who's archiving it: Mike (the default: the app, the phone, tb), an
-    // agent (update_thread, end_turn's archive) or Threadbear itself. With
+    // agent (update_thread, end_turn's archive) or Quokka Code itself. With
     // Mike's verdict from the done card's Archive menu, so whoever reads
     // the thread later knows it was put away on purpose, and how it went.
     archivedBy?: ArchivedBy;
@@ -3091,7 +3091,7 @@ export class Runner {
 
   // The most access a thread's agent has now: its mode, or more while a
   // turn that started with (or was raised to) more is still running.
-  // threadbear-mcp.ts, "Raising access", goes by it for messages.
+  // quokkacode-mcp.ts, "Raising access", goes by it for messages.
   accessOf(threadId: string): PermissionMode {
     const { rec, rt } = this.mustGet(threadId);
     return moreAccess(rt.turn?.access, rec.permissionMode);
@@ -3180,7 +3180,7 @@ export class Runner {
   // archived has been dealt with, so that gets a new one.
   noticeOnMac(threadId: string | undefined, title: string, text: string): string {
     let st = threadId ? this.threads.get(threadId) : undefined;
-    if (!st || st.rt.deleted || st.rec.archivedAt) st = this.makeThread({ text, title, worktree: false, origin: 'runner', startedBy: { kind: 'runner', label: 'Threadbear' } }).st;
+    if (!st || st.rt.deleted || st.rec.archivedAt) st = this.makeThread({ text, title, worktree: false, origin: 'runner', startedBy: { kind: 'runner', label: 'QuokkaCode' } }).st;
     st.rec.forceUnread = true;
     st.rec.preview = oneLine(text, LIMITS.previewChars);
     this.emit(st, { type: 'system.note', text });
@@ -3195,7 +3195,7 @@ export class Runner {
     if (archive) st.rec.forceUnread = false;
     this.emit(st, { type: 'system.note', text });
     this.markDirty(st);
-    if (archive && !st.rt.turn && !st.rec.archivedAt && this.opening(threadId).text === undefined) this.update({ threadId, archived: true, archivedBy: 'threadbear' });
+    if (archive && !st.rt.turn && !st.rec.archivedAt && this.opening(threadId).text === undefined) this.update({ threadId, archived: true, archivedBy: 'quokkacode' });
   }
 }
 
@@ -3219,12 +3219,12 @@ export function stoppedWorkMessage(what: string[], last: boolean): string {
   const one = what.length === 1;
   const lines = what.map((w) => `- ${w.length > 200 ? `${w.slice(0, 200)}...` : w}`);
   return [
-    `Threadbear stopped ${one ? 'this background job' : 'these background jobs'} of yours when the runner restarted onto a new release, so nothing more will come from ${one ? 'it' : 'them'}:`,
+    `Quokka Code stopped ${one ? 'this background job' : 'these background jobs'} of yours when the runner restarted onto a new release, so nothing more will come from ${one ? 'it' : 'them'}:`,
     '',
     ...lines,
     '',
     `If you said you'd report back or carry on after ${one ? 'it' : 'them'}, check how far ${one ? 'it' : 'they'} got and do that now; work running elsewhere may have finished by itself. Start ${one ? 'it' : 'them'} again only if that's still needed. An update only holds background work for about 4 hours past your last turn, so for a longer wait use schedule_message to come back and check. If it no longer matters, say so in a line.`,
-    ...(last ? ['', "Threadbear won't wake this thread for this again, so if the user needs to step in, ask them in end_turn."] : []),
+    ...(last ? ['', "Quokka Code won't wake this thread for this again, so if the user needs to step in, ask them in end_turn."] : []),
   ].join('\n');
 }
 
@@ -3246,7 +3246,7 @@ export const WROTE_INSTEAD = "The user didn't answer this; they wrote you a mess
 // What a pool thread is told when it carries on by itself after its login
 // ran dry (docs/protocol.md, "Pools").
 export const CARRY_ON_MOVED = 'Your last login hit its usage limit partway through that turn, so this thread has moved to another one. Carry on from where you left off.';
-export const CARRY_ON_RESTART = 'The runner stopped partway through that turn (Threadbear or the Mac restarted) and is back now. Carry on from where you left off.';
+export const CARRY_ON_RESTART = 'The runner stopped partway through that turn (Quokka Code or the Mac restarted) and is back now. Carry on from where you left off.';
 // Past this, a cut-off turn is left for Mike: the Mac was off for a while,
 // and he may have moved on.
 export const STOPPED_CARRY_ON_MAX_AGE_MS = 12 * 3_600_000;
@@ -3318,7 +3318,7 @@ export function titleFrom(text: string): string {
 // do more than the rules: without them Haiku drifts into Title Case and
 // sometimes describes the naming job itself.
 export const TITLE_PROMPT = [
-  'You name threads in Threadbear, an app for running AI agents, mostly for coding.',
+  'You name threads in Quokka Code, an app for running AI agents, mostly for coding.',
   'Reply with the title only: 2 to 6 words saying what the thread is about.',
   'Sentence case: a capital for the first word and for names only. No quotes, no full stop, no dashes, no emoji.',
   'Never mention titles, threads or the person asking.',

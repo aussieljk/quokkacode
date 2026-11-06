@@ -1,4 +1,4 @@
-// End to end for the threadbear tools (src/threadbear-mcp.ts) with the real
+// End to end for the quokkacode tools (src/quokkacode-mcp.ts) with the real
 // Claude CLI: an agent moves its own thread to another folder and carries on
 // there with its memory intact, then starts and deletes another thread.
 // Temp runner, temp folders, the claude-main login (TB_E2E_ACCOUNT), the cheapest model.
@@ -45,7 +45,7 @@ function dump(): string {
     .join('\n');
 }
 
-describe('threadbear tools end to end (real Claude CLI)', { concurrency: false }, () => {
+describe('quokkacode tools end to end (real Claude CLI)', { concurrency: false }, () => {
   let a: string; // folder the thread starts in
   let b: string; // folder it moves to
 
@@ -59,7 +59,7 @@ describe('threadbear tools end to end (real Claude CLI)', { concurrency: false }
     fs.writeFileSync(path.join(b, 'marker.txt'), 'you are in the new folder\n');
     runner = spawn(process.execPath, ['src/main.ts'], {
       cwd: RUNNER_DIR,
-      env: { ...process.env, THREADBEAR_HOME: home, THREADBEAR_PORT: '0', THREADBEAR_LOG: path.join(root, 'runner.log'), THREADBEAR_DEBUG: '1', THREADBEAR_CLI_UPDATES: 'off', THREADBEAR_TOKEN_TALLY: 'off' },
+      env: { ...process.env, QUOKKACODE_HOME: home, QUOKKACODE_PORT: '0', QUOKKACODE_LOG: path.join(root, 'runner.log'), QUOKKACODE_DEBUG: '1', QUOKKACODE_CLI_UPDATES: 'off', QUOKKACODE_TOKEN_TALLY: 'off' },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     const port = await new Promise<number>((resolve, reject) => {
@@ -101,7 +101,7 @@ describe('threadbear tools end to end (real Claude CLI)', { concurrency: false }
       cwd: a,
       text:
         `Remember this code word: PINEAPPLE-42.\n\n` +
-        `Now call the mcp__threadbear__move_thread tool once, with exactly these arguments: ` +
+        `Now call the mcp__quokkacode__move_thread tool once, with exactly these arguments: ` +
         `${JSON.stringify({ folder: b, then: 'Run pwd and cat marker.txt, then tell me the code word I gave you.' })}. ` +
         `After the tool returns, reply with just "moving" and end your turn. Don't run any other tools in this turn.`,
     });
@@ -114,7 +114,7 @@ describe('threadbear tools end to end (real Claude CLI)', { concurrency: false }
     // Two turns: the one Mike started, and the one the move queued.
     await waitFor('two finished turns', () => persisted(id).filter((e) => e.type === 'turn.completed').length >= 2 && true);
     const evs = persisted(id);
-    const call = evs.find((e) => e.type === 'tool.call' && e.name === 'mcp__threadbear__move_thread');
+    const call = evs.find((e) => e.type === 'tool.call' && e.name === 'mcp__quokkacode__move_thread');
     assert.ok(call, `the agent called move_thread\n${dump()}`);
     assert.equal(call.title, `Move this thread to ${b}`);
     const res = evs.find((e) => e.type === 'tool.result' && e.itemId === call.itemId);
@@ -122,7 +122,7 @@ describe('threadbear tools end to end (real Claude CLI)', { concurrency: false }
     assert.ok(evs.some((e) => e.type === 'system.note' && e.text.startsWith(`Moved to ${b}`)), `transcript carried\n${dump()}`);
     const second = evs.filter((e) => e.type === 'user.message')[1];
     assert.match(second.text, /^\[Sent by the agent before moving to /);
-    assert.ok(!second.text.includes('[Threadbear handoff]'));
+    assert.ok(!second.text.includes('[Quokka Code handoff]'));
     const after = evs.filter((e) => e.seq > second.seq);
     const results = after.filter((e) => e.type === 'tool.result').map((e) => e.text).join('\n');
     assert.match(results, new RegExp(b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), 'pwd shows the new folder');
@@ -141,7 +141,7 @@ describe('threadbear tools end to end (real Claude CLI)', { concurrency: false }
       model: MODEL,
       cwd: a,
       text:
-        'Test the end_turn reminder. First call mcp__threadbear__end_turn with needs "nothing", before writing any reply. ' +
+        'Test the end_turn reminder. First call mcp__quokkacode__end_turn with needs "nothing", before writing any reply. ' +
         'After its result, follow the reminder and answer this question in one sentence: ' +
         'A box has 3 red balls and 2 blue balls. How many balls are there, and what counts support the total? ' +
         'Then call end_turn again with needs "nothing".',
@@ -155,7 +155,7 @@ describe('threadbear tools end to end (real Claude CLI)', { concurrency: false }
     const done = await waitFor('the reply after the end_turn reminder', () => persisted(id).find((e) => e.type === 'turn.completed'));
     const evs = persisted(id);
     assert.equal(done.outcome, 'completed', dump());
-    const calls = evs.filter((e) => e.type === 'tool.call' && e.name === 'mcp__threadbear__end_turn');
+    const calls = evs.filter((e) => e.type === 'tool.call' && e.name === 'mcp__quokkacode__end_turn');
     assert.equal(calls.length, 2, dump());
     const refused = evs.find((e) => e.type === 'tool.result' && e.itemId === calls[0].itemId);
     assert.equal(refused?.ok, false, dump());
@@ -175,14 +175,14 @@ describe('threadbear tools end to end (real Claude CLI)', { concurrency: false }
       model: MODEL,
       cwd: a,
       text:
-        `Use the threadbear tools. 1) Call mcp__threadbear__create_thread with title "Scratch child" and text "Reply with just OK." ` +
-        `2) Call mcp__threadbear__delete_thread on the id it returned. 3) Call mcp__threadbear__list_threads and tell me how many threads there are. Keep it short.`,
+        `Use the quokkacode tools. 1) Call mcp__quokkacode__create_thread with title "Scratch child" and text "Reply with just OK." ` +
+        `2) Call mcp__quokkacode__delete_thread on the id it returned. 3) Call mcp__quokkacode__list_threads and tell me how many threads there are. Keep it short.`,
     });
     const id = r.thread.id;
     await client.call('threads.subscribe', { threadId: id, afterSeq: 0 });
     // delete_thread asks even though the thread has full access.
     const ask = await waitFor('the delete approval', () => persisted(id).find((e) => e.type === 'approval.requested'));
-    assert.equal(ask.name, 'mcp__threadbear__delete_thread');
+    assert.equal(ask.name, 'mcp__quokkacode__delete_thread');
     assert.equal(ask.title, 'Delete the thread "Scratch child"');
     assert.deepEqual(ask.options, ['allow', 'deny'], 'no "Always allow" for a tool that always asks');
     const child = (await client.call('threads.list', {})).threads.find((x: Ev) => x.title === 'Scratch child');
@@ -196,7 +196,7 @@ describe('threadbear tools end to end (real Claude CLI)', { concurrency: false }
     assert.ok(!list.some((x: Ev) => x.id === child.id));
     const evs = persisted(id);
     for (const name of ['create_thread', 'delete_thread', 'list_threads']) {
-      const c = evs.find((e) => e.type === 'tool.call' && e.name === `mcp__threadbear__${name}`);
+      const c = evs.find((e) => e.type === 'tool.call' && e.name === `mcp__quokkacode__${name}`);
       assert.ok(c, `${name} was called\n${dump()}`);
       assert.ok(evs.find((e) => e.type === 'tool.result' && e.itemId === c.itemId)?.ok, `${name} succeeded`);
     }

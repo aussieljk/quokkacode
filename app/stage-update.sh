@@ -8,9 +8,9 @@
 #
 # <checkout> is the repo whose main to build (default: this script's own
 # repo). --next is where the bundle goes (default:
-# ~/Applications/.Threadbear.app.next, beside the installed app). The clone
+# ~/Applications/.QuokkaCode.app.next, beside the installed app). The clone
 # it builds from, the build folder and the lock live under
-# ~/Library/Caches/Threadbear/update, so an agent's own swift build in the
+# ~/Library/Caches/QuokkaCode/update, so an agent's own swift build in the
 # checkout is never waited on or disturbed, and a dirty working tree never
 # gets into the app: only what's committed on main is built.
 #
@@ -19,10 +19,10 @@
 set -euo pipefail
 
 # THREADBARE_* was the old name for these variables: each stands in for its new name.
-for v in $(compgen -e | grep '^THREADBARE_' || true); do n="THREADBEAR_${v#THREADBARE_}"; [ -n "${!n+x}" ] || export "$n=${!v}"; done
+for v in $(compgen -e | grep '^THREADBARE_' || true); do n="QUOKKACODE_${v#THREADBARE_}"; [ -n "${!n+x}" ] || export "$n=${!v}"; done
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 CHECKOUT=""
-NEXT_DIR="${THREADBEAR_UPDATE_DIR:-$HOME/Applications/.Threadbear.app.next}"
+NEXT_DIR="${QUOKKACODE_UPDATE_DIR:-$HOME/Applications/.QuokkaCode.app.next}"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --next) NEXT_DIR="$2"; shift ;;
@@ -43,7 +43,7 @@ fi
 # Launched from the app, PATH is the bare system one; swift, git, codesign
 # and the rest are all under /usr/bin.
 export PATH="/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
-CACHE="$HOME/Library/Caches/Threadbear/update"
+CACHE="$HOME/Library/Caches/QuokkaCode/update"
 SRC="$CACHE/src"
 LOCK="$CACHE/lock"
 mkdir -p "$CACHE"
@@ -74,9 +74,9 @@ git -C "$SRC" fetch -q "$CHECKOUT" "refs/heads/main"
 git -C "$SRC" checkout -q --detach FETCH_HEAD
 git -C "$SRC" clean -qfd -e .build
 
-THREADBEAR_BUILD_CONFIGURATION=release \
-THREADBEAR_SCRATCH_PATH="$CACHE/build" \
-THREADBEAR_APP_DIR="$NEXT_DIR" \
-THREADBEAR_SOURCE_CHECKOUT="$CHECKOUT" \
+QUOKKACODE_BUILD_CONFIGURATION=release \
+QUOKKACODE_SCRATCH_PATH="$CACHE/build" \
+QUOKKACODE_APP_DIR="$NEXT_DIR" \
+QUOKKACODE_SOURCE_CHECKOUT="$CHECKOUT" \
   bash "$SRC/app/build-app.sh"
 echo "Staged $NEXT_DIR; the app swaps it in when it next quits or launches."

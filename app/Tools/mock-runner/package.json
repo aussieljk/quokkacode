@@ -1,8 +1,8 @@
 {
-  "name": "threadbear-mock-runner",
+  "name": "quokkacode-mock-runner",
   "private": true,
   "type": "module",
-  "description": "A stand-in Threadbear runner that speaks docs/protocol.md, for app development and perf runs.",
+  "description": "A stand-in Quokka Code runner that speaks docs/protocol.md, for app development and perf runs.",
   "scripts": {
     "start": "node server.mjs"
   },

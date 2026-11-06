@@ -1,4 +1,4 @@
-# Threadbear's Convex backend
+# Quokka Code's Convex backend
 
 Research and build notes, 27 Oct 2026, thread 89b52654. Sections 1 to 4
 are the research Mike said yes to ("A", and make the project now).
@@ -11,18 +11,18 @@ Nothing. Checked on 27 Oct:
 
 - `git log --all` and `git grep` over every branch (main, pools, step4
   and its pieces, project-icons, rename, thread-worktrees, the design
-  branches) and the 17 worktrees under `~/dev/me/threadbear-*` and
-  `~/dev/me/threadbear-rename`. Every hit for "convex" is one of: the
+  branches) and the 17 worktrees under `~/dev/me/quokkacode-*` and
+  `~/dev/me/quokkacode-rename`. Every hit for "convex" is one of: the
   built-in Convex dashboard panel (`runner/src/patches.ts`), the "Convex
   work only" note on the claude-2 account, or the schedules doc saying
   cron works "like Convex's scheduled functions".
-- `~/dev/me/threadbear-notes` holds only the step 4 plan, spikes and
+- `~/dev/me/quokkacode-notes` holds only the step 4 plan, spikes and
   recorder scripts.
 - No `convex/` folder, no Convex dependency, no deployment, no
   `.env.local` anywhere in the repo.
 
 The runner keeps everything as files under
-`~/Library/Application Support/Threadbear/`: `threads/<id>/thread.json`
+`~/Library/Application Support/QuokkaCode/`: `threads/<id>/thread.json`
 (the summary), `events.ndjson` (every event), `media/`, `blobs/`, plus
 `projects.json`, `schedules.json`, `usage.json` and `librarian.json`. The
 Mac app is a client of the runner over a loopback WebSocket and holds no
@@ -50,7 +50,7 @@ From Agent Archive, in order:
    full transcripts staying on the runner's machine, Agent Archive on
    Bruce staying the search layer, Sydney region.
 3. **27 Oct, afternoon (thread f5247e5b).** Asked for the phone app, Mike
-   said Threadbear "was supposed to be backed by a convex project so that
+   said Quokka Code "was supposed to be backed by a convex project so that
    there was kind of like a real-time convex nature in there, potentially
    synced to convex", and wanted that sorted first.
 
@@ -58,7 +58,7 @@ Thread 6eecd8a8 ("thread digests for archive search and the phone") is
 related but separate: it proposed a model-written digest per thread stored
 in `thread.json`, for Archive search, the sidebar and the phone list. It
 doesn't touch Convex, and its conclusion was that Agent Archive already
-indexes every Threadbear transcript, so Threadbear shouldn't build its own
+indexes every Quokka Code transcript, so Quokka Code shouldn't build its own
 search. If digests get built they're one more field the mirror below
 carries up.
 
@@ -124,7 +124,7 @@ app isn't a subscriber, so this is the whole bill: well inside the team's
 limit.
 
 Under B the Mac app subscribes all day to the thread list, projects,
-schedules and the rest, on every machine Threadbear is open on. Each
+schedules and the rest, on every machine Quokka Code is open on. Each
 `thread.updated` then costs a re-read of the list on the Mac as well as
 the phone, and the Mac's reads happen whether or not anyone's looking.
 Call it 4 GB a month per always-on client, and more as the thread count
@@ -195,10 +195,10 @@ changes the protocol's "kept in `projects.json`" and "kept in
 off the loopback path that makes it fast.
 
 **Agent Archive.** Stays on Bruce as the search and memory layer under
-both. It already ingests every Threadbear session, because Threadbear
+both. It already ingests every Quokka Code session, because Quokka Code
 runs the real CLIs and they write the same JSONL the archive reads.
 Mike's "could become the new agent archive" is the C shape and the
-answer's the same as on 27 Oct: no. If Threadbear wants search over its
+answer's the same as on 27 Oct: no. If Quokka Code wants search over its
 own threads, it should ask Bruce.
 
 ## 3. Recommendation: A, as "runner owns, Convex mirrors, phone asks"
@@ -211,7 +211,7 @@ app reading remote runners' summaries from Convex at step 6.
 
 ### Shape
 
-**One Convex project**, `threadbear`, on the `mikec` team, Sydney region,
+**One Convex project**, `quokkacode`, on the `mikec` team, Sydney region,
 in `convex/` at the repo root with its own `package.json` (which also
 lights up the built-in Convex dashboard panel for threads in this repo).
 Tables:
@@ -322,7 +322,7 @@ In order, matching the build order above:
 3. `commands`, for reply, approve, answer, hibernate, den and new thread.
 4. `devices` and the push action.
 
-Quick Ask stays as it is on Bruce. Folding it into the Threadbear phone
+Quick Ask stays as it is on Bruce. Folding it into the Quokka Code phone
 app is a later decision and doesn't depend on any of this.
 
 ## 4. Decisions
@@ -332,8 +332,8 @@ Mike, 27 Oct: shape A, and make the project now. Full conversation text
 
 ## 5. What's built (steps 1 to 5) and how to work on it
 
-**The Convex project** is `threadbear` on team `mikec`
-(https://dashboard.convex.dev/t/mikec/threadbear). Its code is `convex/`
+**The Convex project** is `quokkacode` on team `mikec`
+(https://dashboard.convex.dev/t/mikec/quokkacode). Its code is `convex/`
 at the repo root, with the root `package.json` holding the `convex`
 dependency; `convex/_generated` is committed so `./check.sh` can typecheck
 the functions without a deployment (`npm run convex:typecheck`). Having a
@@ -416,7 +416,7 @@ quota by deleting its 41 `temp-*`/`tmp-*` projects), all in Sydney
 |---|---|---|
 | prod | `opulent-moose-249` | `https://opulent-moose-249.ap-southeast-2.convex.cloud` |
 | dev | `earnest-puffin-640` | `https://earnest-puffin-640.ap-southeast-2.convex.cloud` |
-| local (e2e only) | `local-mikec-threadbear-1` | `http://127.0.0.1:3210` |
+| local (e2e only) | `local-mikec-quokkacode-1` | `http://127.0.0.1:3210` |
 
 `.env.local` at the repo root (gitignored) selects the dev deployment, so
 `npx convex dev` pushes there and `npx convex deploy` ships prod.
@@ -435,9 +435,9 @@ rotate-owner` on the M5, restart its runner, then `tb runner rotate-owner
 
 **Working on it.** `npx convex dev` at the repo root runs the local
 backend and pushes `convex/` as it changes; `npx convex env set RUNNER_KEY
-<key>` on it once, and a dev runner with `THREADBEAR_SYNC_URL` set to the
+<key>` on it once, and a dev runner with `QUOKKACODE_SYNC_URL` set to the
 local URL and the same key in its secrets mirrors there. `./check.sh`
-sets `THREADBEAR_SYNC=off` so no test runner ever writes to the real
+sets `QUOKKACODE_SYNC=off` so no test runner ever writes to the real
 project.
 
 **Deploying (since 28 Oct).** Nobody runs `npx convex deploy` for prod by
@@ -445,7 +445,7 @@ hand any more. `runner/scripts/deploy-backend.mjs` deploys `convex/` and
 `web/` at a commit, from a clean `git archive` in a temp folder, whenever
 they've changed since what `<data>/backend.json` records. It uses the deploy
 key in `<data>/secrets/convex-deploy.env` (`CONVEX_DEPLOY_KEY=`, made with
-`npx convex deployment token create threadbear-runner --prod --save-env
+`npx convex deployment token create quokkacode-runner --prod --save-env
 <file>`, never printed) and refuses a key for any deployment but the one
 `runner.json`'s `sync.url` names. The runner's updater runs it for each new
 commit of main before it builds a runner release, and holds the runner back
@@ -477,7 +477,7 @@ all meet. So:
   with `BACKEND_API_VERSION` in `runner/src/sync.ts` (a unit test keeps them
   equal). The runner shows an older backend in `tb status`; the phone app
   says "Update it on the Mac" when the backend is below
-  `BackendCompatibility.minimumAPIVersion` (ThreadbearKit).
+  `BackendCompatibility.minimumAPIVersion` (QuokkaCodeKit).
 
 ## 6. The phone's API
 
@@ -639,7 +639,7 @@ what the Mac app sends); `view` and `lastActivityMs` are on every row; a
 
 ## Secret scrubbing (API 47, 5 Nov 2026)
 
-Threadbear had none until now. Today's mirror was nearly clean only because it
+Quokka Code had none until now. Today's mirror was nearly clean only because it
 sends one-line tool rows: on 5 Nov the rules would have changed 2 of prod's 83,924
 message rows and nothing in its other tables. Full sync would be a different
 story (about 220 of Mike's 200,000 events, tool output mostly), so this came
@@ -701,7 +701,7 @@ but it's the one table where a run over everything costs real I/O.
 ## The Pocket (API 19)
 
 The phone's deck of cards for when Mike's out (`pocketCards`, the `pocket`
-tool in `runner/src/threadbear-mcp.ts`, `ios/Threadbear/PocketView.swift`).
+tool in `runner/src/quokkacode-mcp.ts`, `ios/QuokkaCode/PocketView.swift`).
 Unlike the other lists, this table is the only copy: the tool writes to it
 directly through `sync:savePocketCard`, and the phone removes cards directly
 with `phone:removePocketCard`, not through a command. Both runners then share
@@ -743,9 +743,9 @@ I/O, $2.20 a million calls, 1.3 times that outside US regions).
 
 ### What Mike's prod used
 
-Dashboard, team usage page filtered to `threadbear`, last 7 days (26 Oct to
+Dashboard, team usage page filtered to `quokkacode`, last 7 days (26 Oct to
 2 Nov; the mirror went live on 28 Oct, so it's about 5 days), with
-per-call numbers from `npx convex logs --deployment mikec:threadbear:prod
+per-call numbers from `npx convex logs --deployment mikec:quokkacode:prod
 --success --jsonl`, whose `usageStats` give each call's database bytes.
 That's two runners (the M5 with about 500 threads and Bruce with 6), about
 330 turns a day on the M5 alone, and the phone in daily use.
@@ -927,7 +927,7 @@ for four runners whatever they write.
 Then, API 50 (6 Nov). The daily check's 15-minute samples had
 `sync:upsertProjects` at 55 KB a call, 11 to 16 calls a quarter hour while
 threads were busy: each `update_project` (or a project's thread count moving)
-rewrote the whole row, and 16 KB of the Threadbear project's 17.7 KB is notes,
+rewrote the whole row, and 16 KB of the Quokka Code project's 17.7 KB is notes,
 so each was about 34 KB read and 17 KB written. Notes now live in
 `projectNotes` (`convex/projectNotes.ts`) and a runner of 50 sends them only
 when they change, so a state update writes the small row alone. An older row's

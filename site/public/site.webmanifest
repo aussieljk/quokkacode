@@ -1,6 +1,6 @@
 {
-  "name": "Threadbear",
-  "short_name": "Threadbear",
+  "name": "Quokka Code",
+  "short_name": "Quokka Code",
   "icons": [
     { "src": "/img/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "/img/icon-512.png", "sizes": "512x512", "type": "image/png" }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Drives a debug build of the app launched with `--automation <log file>`
-# (see Sources/Threadbear/Automation.swift) without bringing it to the front.
+# (see Sources/QuokkaCode/Automation.swift) without bringing it to the front.
 #
 #   Tools/drive.sh '{"cmd":"select","id":"bea0"}'
 #   Tools/drive.sh '{"cmd":"type","text":"hello"}' '{"cmd":"return"}'
@@ -8,12 +8,12 @@
 #   Tools/drive.sh '{"cmd":"status"}'
 #
 # Each command's result is a line in the log file the app was started with.
-# THREADBEAR_AUTOMATION_ID=<id> reaches an app started with --automation-id
+# QUOKKACODE_AUTOMATION_ID=<id> reaches an app started with --automation-id
 # <id>. Tools/dev-app.sh starts such apps and waits for each result.
 set -euo pipefail
 # THREADBARE_* was the old name for these variables: each stands in for its new name.
-for v in $(compgen -e | grep '^THREADBARE_' || true); do n="THREADBEAR_${v#THREADBARE_}"; [ -n "${!n+x}" ] || export "$n=${!v}"; done
-CHANNEL="com.mikerosoft.threadbear.automation${THREADBEAR_AUTOMATION_ID:+.$THREADBEAR_AUTOMATION_ID}"
+for v in $(compgen -e | grep '^THREADBARE_' || true); do n="QUOKKACODE_${v#THREADBARE_}"; [ -n "${!n+x}" ] || export "$n=${!v}"; done
+CHANNEL="com.lucasknight.quokkacode.automation${QUOKKACODE_AUTOMATION_ID:+.$QUOKKACODE_AUTOMATION_ID}"
 
 if [[ $# -eq 0 ]]; then
   sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'

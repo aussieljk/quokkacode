@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { makeHarness, tmpDir } from '../helpers/fakes.ts';
 import { checkSummary } from '../helpers/protocol-check.ts';
-import { buildThreadbearTools } from '../../src/threadbear-mcp.ts';
+import { buildQuokkaCodeTools } from '../../src/quokkacode-mcp.ts';
 import type { PersistedEvent } from '../../src/protocol.ts';
 import { commitsIn, emptyHighlights, linksIn, observe, openTargets, pinItem, pushedBranches, remove, unpin, upsert, view, HIGHLIGHTS_KEPT } from '../../src/highlights.ts';
 
@@ -149,7 +149,7 @@ test('the runner keeps a thread\'s highlights from its events, pins from the too
   assert.deepEqual(first.edited, [path.join(dir, 'mock.html')]);
   assert.equal(h.runner.get(thread.id).highlightsAt, undefined, 'found ones move lastSeq, not highlightsAt');
 
-  const tools = buildThreadbearTools(h.runner, thread.id);
+  const tools = buildQuokkaCodeTools(h.runner, thread.id);
   const pin = tools.find((t) => t.name === 'pin')!;
   const res = await pin.handler({ path: 'mock.html', note: 'Pick a layout', show: true } as never, {} as never);
   assert.equal(res.isError, undefined, JSON.stringify(res));

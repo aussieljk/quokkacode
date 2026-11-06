@@ -1,6 +1,6 @@
 // swift-tools-version: 6.0
 // whisper.cpp's prebuilt framework on its own, for the phone's Whisper
-// dictation (Threadbear/Whisper). Release b5454, the exact binary Voice Type
+// dictation (QuokkaCode/Whisper). Release b5454, the exact binary Voice Type
 // on the Mac runs and its benchmark measured, so the phone hears the same
 // way. SwiftPM downloads it into the derived data; no binaries go in git.
 //

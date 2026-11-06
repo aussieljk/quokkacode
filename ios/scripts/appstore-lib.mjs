@@ -1,4 +1,4 @@
-// What the App Store scripts share: Threadbear's App Store Connect app, the API key, and a small
+// What the App Store scripts share: Quokka Code's App Store Connect app, the API key, and a small
 // client. Copied from Walkies and Quick Ask (~/dev/me/walkies/scripts/appstore-lib.mjs). Same
 // team and key as Poddle, Walkies and Quick Ask (a team-wide Admin key); it's read from
 // ~/.config/poddle and never printed or copied.
@@ -9,10 +9,10 @@ import { join } from "node:path";
 
 export const BUNDLE_ID = "com.mikecann.threadbear";
 /**
- * "Threadbear" in App Store Connect (App Information > General > Apple ID). Looked up by bundle
- * id when it's empty, so the scripts work as soon as the record exists; THREADBEAR_APP_ID works too.
+ * "QuokkaCode" in App Store Connect (App Information > General > Apple ID). Looked up by bundle
+ * id when it's empty, so the scripts work as soon as the record exists; QUOKKACODE_APP_ID works too.
  */
-const KNOWN_APP_ID = process.env.THREADBEAR_APP_ID ?? "";
+const KNOWN_APP_ID = process.env.QUOKKACODE_APP_ID ?? "";
 
 export const KEY_ID = process.env.ASC_KEY_ID ?? "7SS6J9F98P";
 export const ISSUER = process.env.ASC_ISSUER_ID ?? "69a6de6f-a06e-47e3-e053-5b8c7c11a4d1";

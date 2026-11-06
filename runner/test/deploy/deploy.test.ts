@@ -17,7 +17,7 @@ import { pathToFileURL } from 'node:url';
 const RUNNER = path.join(import.meta.dirname, '..', '..');
 const FAKE_LAUNCHCTL = path.join(import.meta.dirname, 'fake-launchctl.mjs');
 const NODE = process.execPath;
-const LABEL = 'com.mikerosoft.threadbear.runner.devtest';
+const LABEL = 'com.lucasknight.quokkacode.runner.devtest';
 const TARGET = `gui/${process.getuid!()}/${LABEL}`;
 const ID_RE = /^\d{8}T\d{6}Z-[0-9a-f]{7,}(-dirty)?$/;
 
@@ -37,7 +37,7 @@ type State = {
   rolledBack?: { from: string; to: string; at: string };
 };
 
-// No THREADBEAR_* from whatever this runs in (inside a thread they name
+// No QUOKKACODE_* from whatever this runs in (inside a thread they name
 // the live runner), then the fakes.
 function env(extra: Record<string, string> = {}): NodeJS.ProcessEnv {
   const out: NodeJS.ProcessEnv = {};
@@ -45,12 +45,12 @@ function env(extra: Record<string, string> = {}): NodeJS.ProcessEnv {
   return {
     ...out,
     PATH: `${path.dirname(NODE)}:${process.env.PATH}`,
-    THREADBEAR_NODE: NODE,
+    QUOKKACODE_NODE: NODE,
     // How long a deploy watches a release that came up (20 s for real); the
     // fake runner is marked good after 200 ms, which ends it sooner.
-    THREADBEAR_DEPLOY_SETTLE_MS: '1500',
-    THREADBEAR_LAUNCHCTL: FAKE_LAUNCHCTL,
-    THREADBEAR_LAUNCH_AGENTS_DIR: agents,
+    QUOKKACODE_DEPLOY_SETTLE_MS: '1500',
+    QUOKKACODE_LAUNCHCTL: FAKE_LAUNCHCTL,
+    QUOKKACODE_LAUNCH_AGENTS_DIR: agents,
     FAKE_LAUNCHD_DIR: launchd,
     ...extra,
   };
@@ -248,29 +248,29 @@ test('install-runner.sh builds the first release and starts it through launch.mj
   const plist = JSON.parse(spawnSync('plutil', ['-convert', 'json', '-o', '-', plistFile], { encoding: 'utf8' }).stdout);
   // The program is the launcher app (a sandbox's lives in its data dir),
   // with node and launch.mjs as its arguments.
-  const app = path.join(home, 'runner', 'Threadbear Runner.app');
-  assert.deepEqual(plist.ProgramArguments, [path.join(app, 'Contents', 'MacOS', 'Threadbear Runner'), NODE, path.join(home, 'runner', 'launch.mjs')]);
-  assert.match(r.stdout, /Threadbear Runner\.app isn't built yet/);
-  assert.match(r.stdout, /Built .*Threadbear Runner\.app/);
+  const app = path.join(home, 'runner', 'QuokkaCode Runner.app');
+  assert.deepEqual(plist.ProgramArguments, [path.join(app, 'Contents', 'MacOS', 'QuokkaCode Runner'), NODE, path.join(home, 'runner', 'launch.mjs')]);
+  assert.match(r.stdout, /QuokkaCode Runner\.app isn't built yet/);
+  assert.match(r.stdout, /Built .*QuokkaCode Runner\.app/);
   assert.match(r.stdout, new RegExp(`app:\\s+${app.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
   const appInfo = JSON.parse(spawnSync('plutil', ['-convert', 'json', '-o', '-', path.join(app, 'Contents', 'Info.plist')], { encoding: 'utf8' }).stdout);
-  assert.equal(appInfo.CFBundleIdentifier, 'com.mikerosoft.threadbear.runner');
-  assert.equal(appInfo.CFBundleName, 'Threadbear Runner');
+  assert.equal(appInfo.CFBundleIdentifier, 'com.lucasknight.quokkacode.runner');
+  assert.equal(appInfo.CFBundleName, 'QuokkaCode Runner');
   assert.equal(spawnSync('codesign', ['--verify', '--strict', app]).status, 0, 'the app is signed');
   assert.equal(readJson(path.join(app, 'Contents', 'Resources', 'build.json')).sources, sh('../launcher/build-launcher.sh', ['--hash']).stdout.trim());
-  assert.ok(!fs.existsSync(path.join(home, 'runner', '.Threadbear Runner.app.old')), 'no old app left behind on a first install');
+  assert.ok(!fs.existsSync(path.join(home, 'runner', '.QuokkaCode Runner.app.old')), 'no old app left behind on a first install');
   // launchd's job is the launcher, and the runner runs under it: node is
   // its child, so privacy prompts are attributed to the app.
   const launcherPid = Number(fs.readFileSync(path.join(launchd, 'child.pid'), 'utf8'));
-  assert.equal(spawnSync('ps', ['-o', 'comm=', '-p', String(launcherPid)], { encoding: 'utf8' }).stdout.trim(), path.join(app, 'Contents', 'MacOS', 'Threadbear Runner'));
+  assert.equal(spawnSync('ps', ['-o', 'comm=', '-p', String(launcherPid)], { encoding: 'utf8' }).stdout.trim(), path.join(app, 'Contents', 'MacOS', 'QuokkaCode Runner'));
   const supervisorPid = Number(spawnSync('pgrep', ['-P', String(launcherPid)], { encoding: 'utf8' }).stdout.trim());
   assert.equal(spawnSync('ps', ['-o', 'command=', '-p', String(supervisorPid)], { encoding: 'utf8' }).stdout.trim(), `${NODE} ${path.join(home, 'runner', 'launch.mjs')}`);
   assert.equal(plist.WorkingDirectory, path.join(home, 'runner'));
-  assert.equal(plist.EnvironmentVariables.THREADBEAR_HOME, home);
+  assert.equal(plist.EnvironmentVariables.QUOKKACODE_HOME, home);
   // So the runner can tell the LaunchAgent is behind main (update.ts, launchAgentBehind).
-  assert.equal(plist.EnvironmentVariables.THREADBEAR_RUNNER_APP, app);
-  assert.equal(plist.EnvironmentVariables.THREADBEAR_PORT, '0');
-  assert.equal(plist.EnvironmentVariables.THREADBEAR_LOG, path.join(home, 'runner.log'));
+  assert.equal(plist.EnvironmentVariables.QUOKKACODE_RUNNER_APP, app);
+  assert.equal(plist.EnvironmentVariables.QUOKKACODE_PORT, '0');
+  assert.equal(plist.EnvironmentVariables.QUOKKACODE_LOG, path.join(home, 'runner.log'));
   assert.equal(plist.StandardOutPath, path.join(home, 'runner.log'));
   assert.ok(fs.existsSync(path.join(home, 'runner', 'launch.mjs')));
 
@@ -323,7 +323,7 @@ test('a second release goes live through runner.restart', { timeout: 60_000 }, a
 });
 
 test('inside a thread, the restart waits for the thread and then resumes it', { timeout: 60_000 }, async () => {
-  const inThread = { THREADBEAR_THREAD_ID: 'thread-1', THREADBEAR_HOME: home };
+  const inThread = { QUOKKACODE_THREAD_ID: 'thread-1', QUOKKACODE_HOME: home };
   setBusy(['thread-1']);
 
   const refused = deploy(['--now', '--skip-checks'], inThread);
@@ -355,12 +355,12 @@ test('inside a thread, the restart waits for the thread and then resumes it', { 
 
 test("the real runner's label is refused for a sandbox, and a thread is spotted from the process tree", { timeout: 60_000 }, async () => {
   // The reviewer's case: a sandbox --home with the real label, from inside a thread.
-  let r = sh('deploy-runner.sh', ['--home', home, '--label', 'com.mikerosoft.threadbear.runner', '--now', '--dry-run'], { THREADBEAR_THREAD_ID: 'thread-1' });
+  let r = sh('deploy-runner.sh', ['--home', home, '--label', 'com.lucasknight.quokkacode.runner', '--now', '--dry-run'], { QUOKKACODE_THREAD_ID: 'thread-1' });
   assert.equal(r.status, 1, out(r));
   assert.match(r.stderr, /is the real runner's label/);
   assert.doesNotMatch(r.stdout, /kickstart/);
 
-  // No THREADBEAR_* at all, but the runner owning the data dir is an
+  // No QUOKKACODE_* at all, but the runner owning the data dir is an
   // ancestor (here this test process stands in for it).
   fs.mkdirSync(path.join(home, 'run'), { recursive: true });
   fs.writeFileSync(path.join(home, 'run', 'runner.pid'), JSON.stringify({ pid: process.pid, lstart: 'x' }));
@@ -371,20 +371,20 @@ test("the real runner's label is refused for a sandbox, and a thread is spotted 
     r = sh('install-runner.sh', ['--home', home, '--label', LABEL]);
     assert.equal(r.status, 1, out(r));
     assert.match(r.stderr, /Ask the user to run it from a terminal/);
-    // THREADBEAR_HOME pointed at a dev runner doesn't switch the guard off.
-    r = sh('install-runner.sh', ['--home', home, '--label', LABEL], { THREADBEAR_THREAD_ID: 't', THREADBEAR_HOME: path.join(root, 'dev-home') });
+    // QUOKKACODE_HOME pointed at a dev runner doesn't switch the guard off.
+    r = sh('install-runner.sh', ['--home', home, '--label', LABEL], { QUOKKACODE_THREAD_ID: 't', QUOKKACODE_HOME: path.join(root, 'dev-home') });
     assert.equal(r.status, 1, out(r));
   } finally {
     fs.rmSync(path.join(home, 'run'), { recursive: true, force: true });
   }
-  // THREADBEAR_RUNNER_HOME, not THREADBEAR_HOME, says which runner a thread is on.
-  r = deploy(['--now', '--skip-checks'], { THREADBEAR_THREAD_ID: 'thread-1', THREADBEAR_HOME: path.join(root, 'dev-home'), THREADBEAR_RUNNER_HOME: home });
+  // QUOKKACODE_RUNNER_HOME, not QUOKKACODE_HOME, says which runner a thread is on.
+  r = deploy(['--now', '--skip-checks'], { QUOKKACODE_THREAD_ID: 'thread-1', QUOKKACODE_HOME: path.join(root, 'dev-home'), QUOKKACODE_RUNNER_HOME: home });
   assert.equal(r.status, 1, out(r));
   assert.match(r.stderr, /--now would stop the runner this thread runs on/);
 });
 
 test("inside a thread, a resume the runner won't send is said rather than promised", { timeout: 60_000 }, async () => {
-  const inThread = { THREADBEAR_THREAD_ID: 'thread-1', THREADBEAR_HOME: home };
+  const inThread = { QUOKKACODE_THREAD_ID: 'thread-1', QUOKKACODE_HOME: home };
   setBusy(['thread-1']);
   fs.writeFileSync(path.join(home, 'fake-no-resume'), '');
   commit({ v: 'no-resume' }, 'no resume');
@@ -406,7 +406,7 @@ test("inside a thread, a resume the runner won't send is said rather than promis
 test('--now --force inside a thread restarts through runner.restart and still carries the thread on', { timeout: 60_000 }, async () => {
   commit({ v: 'now' }, 'now');
   const kicks = kickstarts();
-  const r = deploy(['--now', '--force', '--skip-checks'], { THREADBEAR_THREAD_ID: 'thread-1', THREADBEAR_HOME: home });
+  const r = deploy(['--now', '--force', '--skip-checks'], { QUOKKACODE_THREAD_ID: 'thread-1', QUOKKACODE_HOME: home });
   assert.equal(r.status, 0, out(r));
   assert.match(r.stdout, /Restarting now\. This turn ends here, and the runner then carries this thread on with:/);
   const id = current();
@@ -419,7 +419,7 @@ test('--now --force inside a thread restarts through runner.restart and still ca
 });
 
 test('--now never cuts other threads short from a thread, and a thread hears about its own background work', { timeout: 60_000 }, async () => {
-  const inThread = { THREADBEAR_THREAD_ID: 'thread-1', THREADBEAR_HOME: home };
+  const inThread = { QUOKKACODE_THREAD_ID: 'thread-1', QUOKKACODE_HOME: home };
   setBusy(['thread-1', 't-other']);
   const ids = releases();
   let r = deploy(['--now', '--force', '--skip-checks'], inThread);
@@ -445,7 +445,7 @@ test('--now never cuts other threads short from a thread, and a thread hears abo
   assert.match(r.stdout, /goes ahead after 5m and stops it\./);
   // For a sandbox the data dir goes in front: a bare tb in a thread is the
   // live runner's.
-  assert.ok(r.stdout.includes(`THREADBEAR_HOME=${home} ${path.join(rdir, 'bin', 'tb')} status shows what it's waiting for`), r.stdout);
+  assert.ok(r.stdout.includes(`QUOKKACODE_HOME=${home} ${path.join(rdir, 'bin', 'tb')} status shows what it's waiting for`), r.stdout);
   assert.equal(restartCalls().at(-1)!.backgroundWaitMs, 5 * 60_000);
   const id = current();
   setBusy([]);
@@ -457,7 +457,7 @@ test("a deploy while another deploy's restart is pending is refused unless --for
   const running = current();
   setBusy(['t-p']);
   commit({ v: 'p1' }, 'first of two');
-  let r = deploy(['--skip-checks'], { THREADBEAR_THREAD_ID: 'thread-1', THREADBEAR_HOME: home });
+  let r = deploy(['--skip-checks'], { QUOKKACODE_THREAD_ID: 'thread-1', QUOKKACODE_HOME: home });
   assert.equal(r.status, 0, out(r));
   const waiting = current();
   assert.equal(await version(), `9.9.9+${running}`);
@@ -475,7 +475,7 @@ test("a deploy while another deploy's restart is pending is refused unless --for
   assert.equal(r.status, 0, out(r));
   assert.match(r.stdout, new RegExp(`But the real run would stop before building: Release ${waiting} is current but hasn't started yet`));
   // From a thread, --force isn't offered.
-  r = deploy(['--skip-checks'], { THREADBEAR_THREAD_ID: 'thread-2', THREADBEAR_HOME: home });
+  r = deploy(['--skip-checks'], { QUOKKACODE_THREAD_ID: 'thread-2', QUOKKACODE_HOME: home });
   assert.equal(r.status, 1, out(r));
   assert.doesNotMatch(r.stderr, /--force/);
   r = deploy(['--list']);
@@ -486,7 +486,7 @@ test("a deploy while another deploy's restart is pending is refused unless --for
   r = deploy(['--skip-checks', '--force', '--wait', '1s']);
   assert.equal(r.status, 0, out(r));
   assert.match(r.stdout, new RegExp(`Replacing release ${waiting}, which never started`));
-  assert.ok(r.stdout.includes(`THREADBEAR_HOME=${home} ${path.join(rdir, 'bin', 'tb')} restart --cancel`), r.stdout);
+  assert.ok(r.stdout.includes(`QUOKKACODE_HOME=${home} ${path.join(rdir, 'bin', 'tb')} restart --cancel`), r.stdout);
   const replaced = current();
   assert.equal(state().previous, running, 'previous is the release that ran, not the one that never did');
   setBusy([]);
@@ -592,7 +592,7 @@ test('a runner too old for runner.restart: waits until idle, then kickstarts', {
 
   // Inside a thread it can't wait for itself, so it hands Mike the command.
   commit({ v: 6 }, 'sixth');
-  r = deploy(['--skip-checks'], { THREADBEAR_THREAD_ID: 'thread-1', THREADBEAR_HOME: home });
+  r = deploy(['--skip-checks'], { QUOKKACODE_THREAD_ID: 'thread-1', QUOKKACODE_HOME: home });
   assert.equal(r.status, 0, out(r));
   assert.match(r.stdout, new RegExp(`launchctl kickstart -k ${TARGET.replaceAll('.', '\\.')}`));
   assert.equal(kickstarts(), kicks + 1, 'no kickstart from inside a thread');
@@ -733,7 +733,7 @@ test('launch.mjs on its own: two failed starts, then the third runs lastGood', {
   fs.copyFileSync(path.join(RUNNER, 'launch.mjs'), path.join(dir2, 'launch.mjs'));
   fs.symlinkSync(path.join('releases', bad), path.join(dir2, 'current'));
   fs.writeFileSync(path.join(dir2, 'state.json'), JSON.stringify({ current: bad, previous: good, lastGood: good, boots: [] }));
-  const runEnv = env({ THREADBEAR_HOME: home2, THREADBEAR_PORT: '0' });
+  const runEnv = env({ QUOKKACODE_HOME: home2, QUOKKACODE_PORT: '0' });
 
   for (let i = 0; i < 2; i++) {
     const r = spawnSync(NODE, [path.join(dir2, 'launch.mjs')], { env: runEnv, encoding: 'utf8', timeout: 20_000 });
@@ -773,7 +773,7 @@ test("launch.mjs still starts lastGood when it can't move the current link", { t
   fs.writeFileSync(path.join(dir4, 'state.json'), JSON.stringify({ current: bad, previous: good, lastGood: good, boots: [{ release: bad, at }, { release: bad, at }] }));
   // A folder it can't write in (a full disk would do the same).
   fs.chmodSync(dir4, 0o555);
-  const third = spawn(NODE, [path.join(dir4, 'launch.mjs')], { env: env({ THREADBEAR_HOME: home4, THREADBEAR_PORT: '0' }), stdio: ['ignore', 'pipe', 'pipe'] });
+  const third = spawn(NODE, [path.join(dir4, 'launch.mjs')], { env: env({ QUOKKACODE_HOME: home4, QUOKKACODE_PORT: '0' }), stdio: ['ignore', 'pipe', 'pipe'] });
   let text = '';
   third.stdout.on('data', (d) => (text += d));
   third.stderr.on('data', (d) => (text += d));
@@ -948,7 +948,7 @@ test('no deploy to a LaunchAgent that runs a checkout, or to none', () => {
     assert.match(r.stderr, /runs from a checkout/);
     assert.match(r.stderr, /Install it with scripts\/install-runner\.sh --home/);
     // From a thread of that runner it's Mike's to do, not the agent's.
-    r = sh('deploy-runner.sh', ['--home', home3, '--label', label, '--dry-run'], { THREADBEAR_THREAD_ID: 't', THREADBEAR_RUNNER_HOME: home3 });
+    r = sh('deploy-runner.sh', ['--home', home3, '--label', label, '--dry-run'], { QUOKKACODE_THREAD_ID: 't', QUOKKACODE_RUNNER_HOME: home3 });
     assert.equal(r.status, 1, out(r));
     assert.match(r.stderr, /the user has to switch it to releases once, from a terminal/);
     assert.match(r.stderr, /Don't run that from a thread/);
@@ -959,7 +959,7 @@ test('no deploy to a LaunchAgent that runs a checkout, or to none', () => {
     // (which install-runner.sh refuses for another data dir).
     r = sh('deploy-runner.sh', ['--home', home3, '--dry-run']);
     assert.equal(r.status, 1, out(r));
-    assert.match(r.stderr, /--label com\.mikerosoft\.threadbear\.runner\.devtest, which builds/);
+    assert.match(r.stderr, /--label com\.mikerosoft\.quokkacode\.runner\.devtest, which builds/);
   } finally {
     fs.rmSync(path.join(agents, `${label}.plist`));
   }
@@ -972,13 +972,13 @@ test('install-runner.sh guards: sandbox labels, and not from inside its own thre
   r = sh('install-runner.sh', ['--label', LABEL, '--print']);
   assert.equal(r.status, 1);
   assert.match(r.stderr, /give a second runner its own --home/);
-  r = sh('install-runner.sh', ['--home', home, '--label', LABEL], { THREADBEAR_THREAD_ID: 'thread-1', THREADBEAR_HOME: home });
+  r = sh('install-runner.sh', ['--home', home, '--label', LABEL], { QUOKKACODE_THREAD_ID: 'thread-1', QUOKKACODE_HOME: home });
   assert.equal(r.status, 1);
   assert.match(r.stderr, /Ask the user to run it from a terminal/);
-  // THREADBEAR_HOME doesn't pick install-runner.sh's data dir; saying so
+  // QUOKKACODE_HOME doesn't pick install-runner.sh's data dir; saying so
   // beats reinstalling the real runner.
   // (--print, so a broken guard could only print the real runner's plist.)
-  r = sh('install-runner.sh', ['--print'], { THREADBEAR_HOME: home });
+  r = sh('install-runner.sh', ['--print'], { QUOKKACODE_HOME: home });
   assert.equal(r.status, 1);
   assert.match(r.stderr, /only goes by --home/);
   // A busy runner isn't replaced (or removed) without --force.
@@ -1057,12 +1057,12 @@ test('reinstalling checks everything first, builds from HEAD, and puts the old s
   assert.equal(fs.readFileSync(installed, 'utf8'), fs.readFileSync(launchSrc, 'utf8'));
   for (const f of ['previous-launchagent.plist', 'previous-launch.mjs']) assert.ok(!fs.existsSync(path.join(runnerDir(), f)), f);
   // The launcher app is left as it is unless launcher/ changed.
-  assert.match(r.stdout, /Keeping .*Threadbear Runner\.app, built from launcher\/ as it is/);
-  assert.doesNotMatch(r.stdout, /Built .*Threadbear Runner\.app/);
+  assert.match(r.stdout, /Keeping .*QuokkaCode Runner\.app, built from launcher\/ as it is/);
+  assert.doesNotMatch(r.stdout, /Built .*QuokkaCode Runner\.app/);
   await runsOn(rebuilt);
 
   // A launcher change: the app is rebuilt and the job restarts on it.
-  const app = path.join(runnerDir(), 'Threadbear Runner.app');
+  const app = path.join(runnerDir(), 'QuokkaCode Runner.app');
   const appBuild = () => readJson(path.join(app, 'Contents', 'Resources', 'build.json')).sources as string;
   const launcherSrc = path.join(rdir, 'launcher', 'main.swift');
   const launcherPristine = fs.readFileSync(launcherSrc, 'utf8');
@@ -1074,10 +1074,10 @@ test('reinstalling checks everything first, builds from HEAD, and puts the old s
   assert.notEqual(launcherHash(), hashBefore);
   r = install();
   assert.equal(r.status, 0, out(r));
-  assert.match(r.stdout, /Threadbear Runner\.app was built from older sources/);
-  assert.match(r.stdout, /Built .*Threadbear Runner\.app/);
+  assert.match(r.stdout, /QuokkaCode Runner\.app was built from older sources/);
+  assert.match(r.stdout, /Built .*QuokkaCode Runner\.app/);
   assert.equal(appBuild(), launcherHash());
-  assert.ok(!fs.existsSync(path.join(runnerDir(), '.Threadbear Runner.app.old')), 'the old app is gone once the install succeeded');
+  assert.ok(!fs.existsSync(path.join(runnerDir(), '.QuokkaCode Runner.app.old')), 'the old app is gone once the install succeeded');
   await runsOn(current());
   const rebuiltApp = appBuild();
 
@@ -1096,15 +1096,15 @@ test('reinstalling checks everything first, builds from HEAD, and puts the old s
     commit({ v: 'launcher change' }, 'launcher back');
   }
   assert.equal(r.status, 1, out(r));
-  assert.match(r.stdout, /Built .*Threadbear Runner\.app/);
+  assert.match(r.stdout, /Built .*QuokkaCode Runner\.app/);
   assert.match(r.stderr, new RegExp(`current points at ${keptRelease} again`));
   assert.equal(current(), keptRelease);
   assert.match(r.stderr, /Bootstrap failed: 5: Input\/output error/);
-  assert.match(r.stderr, /launchd wouldn't load the new plist\.\n.*Threadbear Runner\.app is the one from before again\.\nPutting back the LaunchAgent as it was\./);
+  assert.match(r.stderr, /launchd wouldn't load the new plist\.\n.*QuokkaCode Runner\.app is the one from before again\.\nPutting back the LaunchAgent as it was\./);
   assert.match(r.stderr, /Back as it was/);
   assert.ok(!plistPath().includes('/fail/here'), 'the old plist is back');
   assert.equal(appBuild(), rebuiltApp, 'the app from before is back');
-  assert.ok(!fs.existsSync(path.join(runnerDir(), '.Threadbear Runner.app.old')));
+  assert.ok(!fs.existsSync(path.join(runnerDir(), '.QuokkaCode Runner.app.old')));
   assert.deepEqual(fs.readdirSync(agents).filter((f) => f.startsWith(`${LABEL}.plist.`)), [], 'no temp plist left in LaunchAgents');
   await runsOn(current());
   assert.equal(appBuild(), launcherHash(), 'launcher/ is back to what the app was built from');
@@ -1206,8 +1206,8 @@ test('uninstall boots the job out and removes the plist', { timeout: 30_000 }, a
   assert.equal(await version(), null);
   assert.ok(fs.existsSync(path.join(runnerDir(), 'current')), 'releases stay');
   // So do the app and the privacy grants macOS tied to it.
-  assert.ok(fs.existsSync(path.join(runnerDir(), 'Threadbear Runner.app')));
-  assert.match(r.stdout, /Threadbear Runner\.app stays/);
+  assert.ok(fs.existsSync(path.join(runnerDir(), 'QuokkaCode Runner.app')));
+  assert.match(r.stdout, /QuokkaCode Runner\.app stays/);
 });
 
 test('a first install whose runner never comes up is removed again, not left crash-looping', { timeout: 120_000 }, async () => {

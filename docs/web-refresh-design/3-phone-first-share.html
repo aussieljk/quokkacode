@@ -232,7 +232,7 @@ const T = {
    <div class="reply"><p>Merged and deployed. The switch is live on the settings page.</p><ul><li>14 tests pass, 2 of them new for the switch</li><li>Nothing else went out with it</li></ul></div>`,
 };
 const me = (t) => `<div class="me">${t}</div>`;
-const from = `<div class="from">${bear(26)}<div><b>This thread was shared from Threadbear</b>, Mike's agent app.<br><a href="#">What's Threadbear? ›</a></div></div>`;
+const from = `<div class="from">${bear(26)}<div><b>This thread was shared from Quokka Code</b>, Mike's agent app.<br><a href="#">What's Quokka Code? ›</a></div></div>`;
 
 function chrome(){ return `<div class="island"></div><div class="status"><span>9:41</span><span class="ic"><span class="bars"><i style="height:4px"></i><i style="height:6px"></i><i style="height:9px"></i><i style="height:12px"></i></span><svg width="17" height="12" viewBox="0 0 17 12" fill="#fff"><path d="M8.5 2.2c2.4 0 4.6.9 6.2 2.5l1.2-1.2A10.4 10.4 0 0 0 8.5.5 10.4 10.4 0 0 0 1.1 3.5l1.2 1.2A8.7 8.7 0 0 1 8.5 2.2zm0 3.4c1.5 0 2.8.6 3.8 1.5l1.2-1.2a7 7 0 0 0-10 0l1.2 1.2c1-.9 2.3-1.5 3.8-1.5zm0 3.4c.6 0 1.1.2 1.5.6L8.5 11 7 9.6c.4-.4.9-.6 1.5-.6z"/></svg><span class="batt"><i></i></span></span></div><div class="home"></div>`; }
 const sharedHead = `<div class="sh">${bear(24)}<div class="tx"><div class="t">Add a dark mode toggle to settings</div><div class="f">acme-web</div></div></div>`;
@@ -296,7 +296,7 @@ const rows = [
 ];
 const row = (r) => `<div class="r ${r.sel?"sel":""} ${r.u||r.need?"u":""}">${r.u?'<span class="dot"></span>':""}<span class="tile">${r.l}</span><div class="m"><div class="l1"><span class="tt">${r.t}</span>${r.need?'<span class="nd">Needs you</span>':`<span class="tm">${r.tm}</span>`}</div><div class="pv">${r.p}${r.link?`<span class="lk">${linkIco(11)}</span>`:""}</div></div></div>`;
 document.getElementById("d2").innerHTML = `<div class="win" style="--bg:#161616">${bbar("threadbear.mikecann.app/t/add-a-dark-mode-toggle")}<div class="vp">
-  <div class="inbox"><div class="ib-top"><h2>Threadbear</h2><span class="round"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span></div>
+  <div class="inbox"><div class="ib-top"><h2>Quokka Code</h2><span class="round"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span></div>
    <div class="search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Search</div>
    <div class="sec">Inbox</div><div class="grp">${rows.slice(0,5).map(row).join("")}</div>
    <div class="sec">Running</div><div class="grp">${row({l:"D",t:"Search box for the docs",p:"Running npm test",tm:"now"})}</div>

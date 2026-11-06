@@ -3,7 +3,7 @@
 # thread installed its build over another's repro and shut the simulator down,
 # and the first thread's frames were silently wrong until someone noticed.
 #
-# So each worktree gets "Threadbear <folder>" (slot-3 gets "Threadbear slot-3"),
+# So each worktree gets "QuokkaCode <folder>" (slot-3 gets "Quokka Code slot-3"),
 # cloned on first use. Only one thread holds a worktree at a time, and folders
 # are reused, so that's a safe owner and the clones stay few. Those whose
 # worktree has gone are deleted when a new one is made. The main checkout can
@@ -28,24 +28,24 @@ id_of() {
 prune_gone() {
   local kept device name sim
   kept=$(git worktree list --porcelain | sed -n 's|^worktree .*/||p')
-  xcrun simctl list devices | grep -E "^ +Threadbear slot-[0-9]+ \(.*\(Shutdown\)" | while IFS= read -r device; do
+  xcrun simctl list devices | grep -E "^ +QuokkaCode slot-[0-9]+ \(.*\(Shutdown\)" | while IFS= read -r device; do
     name=$(print -r -- "$device" | grep -oE "slot-[0-9]+")
     print -r -- "$kept" | grep -qxF "$name" && continue
     sim=$(print -r -- "$device" | grep -oE "[0-9A-F-]{36}")
-    xcrun simctl delete "$sim" && rm -rf "/tmp/threadbear-dd-$sim"
+    xcrun simctl delete "$sim" && rm -rf "/tmp/quokkacode-dd-$sim"
   done
 }
 
 if [[ -z "${SIM_NAME:-}" ]]; then
   if [[ "$(git rev-parse --absolute-git-dir)" == "$(cd "$(git rev-parse --git-common-dir)" && pwd -P)" ]]; then
-    if [[ -n "${THREADBEAR_THREAD_ID:-}" ]]; then
+    if [[ -n "${QUOKKACODE_THREAD_ID:-}" ]]; then
       echo "This is the main checkout, which threads can share, so it has no simulator for a thread." >&2
       echo "Run this from your thread's worktree (./borrow-worktree.sh lends one), or set SIM_NAME to a name of your own." >&2
       exit 1
     fi
-    SIM_NAME="Threadbear main"
+    SIM_NAME="Quokka Code main"
   else
-    SIM_NAME="Threadbear $(basename "$(git rev-parse --show-toplevel)")"
+    SIM_NAME="QuokkaCode $(basename "$(git rev-parse --show-toplevel)")"
   fi
 fi
 

@@ -261,7 +261,7 @@ export function message(jobs: Stuck[]): string {
   });
   const one = jobs.length === 1;
   return [
-    `Threadbear's stuck-job check: ${one ? 'this background job has' : 'these background jobs have'} been going for over ${QUIET_MS / 60_000} minutes without writing any output${jobs.some((j) => j.commands) ? ', and the shells have used next to no CPU since the last check' : ''}:`,
+    `Quokka Code's stuck-job check: ${one ? 'this background job has' : 'these background jobs have'} been going for over ${QUIET_MS / 60_000} minutes without writing any output${jobs.some((j) => j.commands) ? ', and the shells have used next to no CPU since the last check' : ''}:`,
     '',
     ...lines,
     '',

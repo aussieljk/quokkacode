@@ -9,7 +9,7 @@ it then.
 
 Until then, any server that speaks the small protocol below works with
 Ask. It's two HTTP endpoints. The phone's side is in
-`ios/Threadbear/QuickAskCore` (`AskAPI.swift`, `ServerAnswerStream.swift`,
+`ios/QuokkaCode/QuickAskCore` (`AskAPI.swift`, `ServerAnswerStream.swift`,
 `Sources.swift`) if you want to check a detail.
 
 ## Settings

@@ -125,7 +125,7 @@ test('view follows hibernate and den; cost is to the cent; working comes from ba
     id: 't1', title: 'T', cwd: '/w', accountId: 'claude-3', provider: 'claude' as const, permissionMode: 'full' as const, status: 'idle' as const, live: false, needsYou: false,
     createdAt: '2026-10-27T09:00:00.000Z', updatedAt: '2026-10-27T09:30:00.000Z', lastActivityAt: '2026-10-27T09:30:00.000Z', preview: 'p', lastSeq: 3, lastSeenSeq: 1, costUsd: 0.123456,
     background: [{ kind: 'shell' as const, description: 'npm test', finished: false }],
-    projects: [{ id: 'p1', title: 'Threadbear', by: 'mike' as const, at: '2026-10-27T09:10:00.000Z' }],
+    projects: [{ id: 'p1', title: 'QuokkaCode', by: 'mike' as const, at: '2026-10-27T09:10:00.000Z' }],
   };
   // The phone can't tell a sub-agent from a job, so "you" waits for agents
   // to finish before it goes up. The asks go anyway, for the open thread.
@@ -142,7 +142,7 @@ test('view follows hibernate and den; cost is to the cent; working comes from ba
   assert.equal(inbox.unread, true);
   assert.equal(inbox.costUsd, 0.12);
   assert.equal(inbox.working, 'npm test');
-  assert.deepEqual(inbox.projects, [{ id: 'p1', title: 'Threadbear' }]);
+  assert.deepEqual(inbox.projects, [{ id: 'p1', title: 'QuokkaCode' }]);
   assert.equal(toThreadDoc({ ...base, snoozedUntil: '2026-10-27T18:00:00.000Z' }, 'r', now).view, 'hibernating');
   assert.equal(toThreadDoc({ ...base, snoozedUntil: '2026-10-27T09:00:00.000Z' }, 'r', now).view, 'inbox', 'a snooze that has passed');
   assert.equal(toThreadDoc({ ...base, archivedAt: '2026-10-27T09:40:00.000Z' }, 'r', now).view, 'den');
@@ -392,7 +392,7 @@ function setupFull(opts: { heads?: { threadId: string; lastSeq: number }[]; take
       list: (i) => h.runner.list(i),
       get: (id) => h.runner.get(id),
       events: (id, o) => h.runner.events(id, o),
-      listProjects: () => [{ id: 'p1', title: 'Threadbear', folders: ['/w'], goals: 'g', state: 's', notes: 'n', links: [], createdBy: 'mike', createdAt: '2026-10-27T00:00:00.000Z', updatedAt: '2026-10-27T00:00:00.000Z', threadCount: 1 }],
+      listProjects: () => [{ id: 'p1', title: 'QuokkaCode', folders: ['/w'], goals: 'g', state: 's', notes: 'n', links: [], createdBy: 'mike', createdAt: '2026-10-27T00:00:00.000Z', updatedAt: '2026-10-27T00:00:00.000Z', threadCount: 1 }],
       listSchedules: () => [{ id: 's1', title: 'Nightly', text: 'go', cron: '0 3 * * *', whenText: 'every day at 3 am', paused: false, createdAt: '2026-10-27T00:00:00.000Z', updatedAt: '2026-10-27T00:00:00.000Z', runs: 2, lastRun: { at: '2026-10-27T03:00:00.000Z', outcome: 'sent', threadId: 't9' } }],
       listAccounts: () => [{ id: 'claude-3', provider: 'claude', title: 'three@example.com', configDir: '/tmp/three', models: [{ id: 'x', title: 'X' }] as never, usage: { windows: [{ kind: 'five_hour', title: '5-hour', remainingPercent: 80.5 }], readAt: '2026-10-27T00:00:00.000Z', source: 'live' } }],
     },
@@ -599,7 +599,7 @@ test('lists: projects, schedules and accounts go up at start and when they chang
   await sync.flushNow();
   const set = (name: string) => calls.filter((c) => c.fn === `sync:set${name}`);
   assert.equal(set('Projects').length, 1);
-  assert.deepEqual(set('Projects')[0]!.args.projects, [{ id: 'p1', title: 'Threadbear', folders: ['/w'], goals: 'g', state: 's', notes: 'n', createdBy: 'mike', archived: false, createdAt: '2026-10-27T00:00:00.000Z', updatedAt: '2026-10-27T00:00:00.000Z', threadCount: 1 }]);
+  assert.deepEqual(set('Projects')[0]!.args.projects, [{ id: 'p1', title: 'QuokkaCode', folders: ['/w'], goals: 'g', state: 's', notes: 'n', createdBy: 'mike', archived: false, createdAt: '2026-10-27T00:00:00.000Z', updatedAt: '2026-10-27T00:00:00.000Z', threadCount: 1 }]);
   assert.equal(set('Projects')[0]!.args.runnerId, 'r1');
   assert.deepEqual(set('Schedules')[0]!.args.schedules, [{ id: 's1', title: 'Nightly', text: 'go', whenText: 'every day at 3 am', paused: false, createdAt: '2026-10-27T00:00:00.000Z', updatedAt: '2026-10-27T00:00:00.000Z', runs: 2, cron: '0 3 * * *', lastRun: { at: '2026-10-27T03:00:00.000Z', outcome: 'sent', threadId: 't9' } }]);
   const accounts = set('Accounts')[0]!.args.accounts as Record<string, unknown>[];
@@ -963,7 +963,7 @@ test('pushText says why the thread needs Mike: the question, the approval, or th
   assert.deepEqual(pushText({ ...base, status: 'waiting', pendingApproval: { kind: 'secret', label: 'Mac administrator password' } }), { title: 'Fix the dock badge', body: 'Asking for a secret: Mac administrator password' });
   assert.deepEqual(pushText({ ...base, status: 'waiting', pendingApproval: { kind: 'question', questions: [{ question: 'Which colour?' }] } }), { title: 'Fix the dock badge', body: 'Which colour?' });
   assert.deepEqual(pushText({ ...base, status: 'error', preview: 'usage limit' }), { title: 'Fix the dock badge', body: 'Failed: usage limit' });
-  assert.deepEqual(pushText({ title: '', status: 'idle', preview: '' }), { title: 'Threadbear', body: 'Finished' });
+  assert.deepEqual(pushText({ title: '', status: 'idle', preview: '' }), { title: 'Quokka Code', body: 'Finished' });
   const long = pushText({ ...base, preview: 'x'.repeat(500) + '\n\nmore' });
   assert.equal(long.body.length, PUSH_BODY_CHARS);
   assert.ok(long.body.endsWith('…'));
@@ -1033,7 +1033,7 @@ function setupPictures(opts: { backend?: number; has?: { projectId: string; pict
   const calls: Call[] = [];
   const uploads: { url: string; bytes: string; mediaType: string }[] = [];
   let project: Project = {
-    id: 'p1', title: 'Threadbear', folders: ['/w'], goals: 'g', state: 's', notes: 'n', links: [], createdBy: 'mike',
+    id: 'p1', title: 'QuokkaCode', folders: ['/w'], goals: 'g', state: 's', notes: 'n', links: [], createdBy: 'mike',
     createdAt: '2026-10-27T00:00:00.000Z', updatedAt: '2026-10-27T00:00:00.000Z', threadCount: 1,
     icon: { image: { path: iconPath, mediaType: 'image/png', width: 64, height: 64 }, symbol: 'leaf', by: 'librarian', updatedAt: '2026-10-27T00:00:00.000Z' },
     ...opts.project,
@@ -1080,7 +1080,7 @@ test('project pictures: sent to file storage once the backend takes them, once p
   assert.deepEqual(uploads, [{ url: 'https://upload.example/u1', bytes: 'PNGBYTES', mediaType: 'image/png' }]);
   assert.deepEqual(setIcons()[0]!.args, { key: 'k', runnerId: 'r1', projectId: 'p1', picture: 'p1-abc123', storageId: 'st_1', mediaType: 'image/png' });
   // The list changing again doesn't send the same picture again.
-  change({ title: 'Threadbear app' });
+  change({ title: 'Quokka Code app' });
   await sync.flushNow();
   assert.equal(uploads.length, 1);
   // A new copy (a new file name) does.
@@ -1846,13 +1846,13 @@ test('projects: the whole list once per start, then only the ones that changed, 
     p.sync.start();
     await p.sync.flushNow();
     await tick();
-    p.h.runner.publish({ method: 'projects.updated', params: { projects: two('Threadbear') as never } });
+    p.h.runner.publish({ method: 'projects.updated', params: { projects: two('QuokkaCode') as never } });
     p.h.clock.advance(SYNC_COALESCE_MS);
     await tick(20);
-    p.h.runner.publish({ method: 'projects.updated', params: { projects: two('Threadbear app') as never } });
+    p.h.runner.publish({ method: 'projects.updated', params: { projects: two('Quokka Code app') as never } });
     p.h.clock.advance(SYNC_COALESCE_MS);
     await tick(20);
-    p.h.runner.publish({ method: 'projects.updated', params: { projects: [two('Threadbear app')[0]!] as never } });
+    p.h.runner.publish({ method: 'projects.updated', params: { projects: [two('Quokka Code app')[0]!] as never } });
     p.h.clock.advance(SYNC_COALESCE_MS);
     await tick(20);
     await p.sync.stop();
@@ -1876,7 +1876,7 @@ test('projects: the whole list once per start, then only the ones that changed, 
 test("projects: notes go up only when they change, and a backend before API 50 always gets them", async () => {
   const run = async (backend: number) => {
     const p = setupPictures({ backend });
-    const one = (state: string, notes: string) => [{ id: 'p1', title: 'Threadbear', folders: [], goals: '', state, notes, createdBy: 'mike', archived: false, createdAt: 'c', updatedAt: state, threadCount: 1 }];
+    const one = (state: string, notes: string) => [{ id: 'p1', title: 'QuokkaCode', folders: [], goals: '', state, notes, createdBy: 'mike', archived: false, createdAt: 'c', updatedAt: state, threadCount: 1 }];
     p.sync.start();
     await p.sync.flushNow();
     await tick();
@@ -2540,7 +2540,7 @@ test('asking another runner: the phone gets a card it can only read, and allow n
     minutes: 60,
     check: async () => {
       if (row) return row;
-      throw new Error('Answer this in the Threadbear app on the main Mac: it starts the thread from there.');
+      throw new Error('Answer this in the Quokka Code app on the main Mac: it starts the thread from there.');
     },
   });
   h.clock.advance(SYNC_COALESCE_MS);

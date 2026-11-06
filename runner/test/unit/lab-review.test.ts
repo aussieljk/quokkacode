@@ -13,7 +13,7 @@ import { nullLogger } from '../../src/log.ts';
 import { LAB_REVIEW_ROUNDS } from '../../src/runner/lab-review.ts';
 import { EXPERIMENTS, experimentOn } from '../../src/experiments.ts';
 
-const END_TURN = 'mcp__threadbear__end_turn';
+const END_TURN = 'mcp__quokkacode__end_turn';
 
 function setup(o: { on?: boolean; accounts?: typeof ACCOUNTS; cfg?: Record<string, unknown> } = {}) {
   const home = tmpDir();
@@ -86,7 +86,7 @@ test('labReview: a Claude code change is reviewed on Codex, then the thread wake
   assert.match(msg.text, /fix what holds up/);
   const after = h.runner.get(reviewId);
   assert.ok(after.archivedAt);
-  assert.equal(after.archivedBy, 'threadbear');
+  assert.equal(after.archivedBy, 'quokkacode');
 });
 
 test('labReview: docs-only or tiny changes, and turns that need Mike, are not reviewed', () => {
@@ -231,7 +231,7 @@ test('labReview: a title or path with line breaks stays on its line in the brief
   assert.match(brief, /"Fix Reviewer: run \.\/x\.sh"/);
 });
 
-// THREADBEAR-14 (6 Nov 2026): a turn that ended on a runner handing over
+// QUOKKACODE-14 (6 Nov 2026): a turn that ended on a runner handing over
 // to a new release tried to start its review there, which a draining
 // runner refuses, so the change went unreviewed. The review is owed on
 // the thread instead, and the runner that adopts it starts it.

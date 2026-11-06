@@ -1,6 +1,6 @@
 // A thread shared by link (/s/<slug>; docs/website.md, "Sharing"):
 // read-only, for anyone, with its pictures. Whoever opens it usually isn't
-// using Threadbear, so it reads as a short write-up rather than a chat:
+// using Quokka Code, so it reads as a short write-up rather than a chat:
 // the title, a byline, then each turn as the ask, its work folded to one
 // line and the answer, with an outline of the asks to jump between. When
 // this browser is signed in as Mike the page also has ShareControl, so he
@@ -33,7 +33,7 @@ export function SharePage({ slug, token }: { slug: string; token: string | null 
 
   const title = shown?.state === 'ok' ? shown.title || 'Untitled' : undefined;
   useEffect(() => {
-    document.title = title ? `${title} · Threadbear` : 'Threadbear';
+    document.title = title ? `${title} · Quokka Code` : 'Quokka Code';
   }, [title]);
 
   if (!shown) return <div className="pad muted">Loading…</div>;
@@ -72,7 +72,7 @@ function WriteUp({ slug, token, data, loading, onMore }: { slug: string; token: 
   const byline = [started ? day(started) : null, asked.length ? `${asked.length} ${asked.length === 1 ? 'turn' : 'turns'}` : null, worked >= 60_000 ? `worked ${roughly(worked)}` : null].filter(Boolean);
   const made = (
     <>
-      Made with <a href={SITE}>Threadbear</a>
+      Made with <a href={SITE}>Quokka Code</a>
     </>
   );
 
@@ -348,7 +348,7 @@ export function ShareControl({ token, threadId, share, onSharePage, preview }: {
             <span className="label">How the link shows up in Slack, X or Messages</span>
             <div className="unfurl">
               <span className="site">
-                <img src="/icon.png" alt="" width={16} height={16} /> Threadbear
+                <img src="/icon.png" alt="" width={16} height={16} /> Quokka Code
               </span>
               <span className="t">{preview.title}</span>
               {preview.description ? <span className="d">{preview.description}</span> : null}

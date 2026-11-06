@@ -3,7 +3,7 @@
 // /s/<slug>, which is the same index.html with that thread's title, the
 // start of its last reply and its first picture in the meta tags, so a
 // link pasted into Slack, X or iMessage unfurls as the thread rather than
-// as plain "Threadbear". Link-preview bots don't run the page's script, so
+// as plain "Quokka Code". Link-preview bots don't run the page's script, so
 // the tags have to be in the HTML itself.
 import { httpRouter } from 'convex/server';
 import { registerStaticRoutes } from '@convex-dev/static-hosting';
@@ -92,7 +92,7 @@ export function withCard(html: string, card: { title: string; description: strin
   const e = escapeHtml;
   const tags = [
     `<meta property="og:type" content="article" />`,
-    `<meta property="og:site_name" content="Threadbear" />`,
+    `<meta property="og:site_name" content="Quokka Code" />`,
     `<meta property="og:title" content="${e(card.title)}" />`,
     `<meta property="og:url" content="${e(url.origin + url.pathname)}" />`,
     card.description ? `<meta property="og:description" content="${e(card.description)}" />` : '',
@@ -104,7 +104,7 @@ export function withCard(html: string, card: { title: string; description: strin
   ]
     .filter(Boolean)
     .join('\n    ');
-  return html.replace(/<title>[^<]*<\/title>/, `<title>${e(card.title)} · Threadbear</title>\n    ${tags}`);
+  return html.replace(/<title>[^<]*<\/title>/, `<title>${e(card.title)} · Quokka Code</title>\n    ${tags}`);
 }
 
 async function text(response: Promise<Response>): Promise<string | null> {

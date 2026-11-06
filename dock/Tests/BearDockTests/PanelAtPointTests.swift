@@ -2,7 +2,7 @@ import AppKit
 import Testing
 @testable import BearDock
 
-// Threadbear's activity log names the panel a click was in.
+// Quokka Code's activity log names the panel a click was in.
 
 private final class Flipped: NSView {
     override var isFlipped: Bool { true }

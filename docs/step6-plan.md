@@ -4,7 +4,7 @@ Draft, 29 Oct 2026. Nothing here is built. It follows `docs/plan.md`
 ("Build order") and the multi-runner notes in `docs/convex-backend.md`.
 
 The plan said Tinker Desk. On 29 Oct Mike moved it to Bruce: Tinker Desk is
-kept for testing clean installs of Threadbear as a new user would, and a
+kept for testing clean installs of Quokka Code as a new user would, and a
 second runner there would muddy those tests.
 
 ## Why
@@ -59,7 +59,7 @@ start, chosen by Mike or by the agent. Nothing guesses.
   for new threads and in the schedule editor: this Mac, Bruce, later a
   cloud sandbox. From the Mac app it defaults to this Mac; the default is
   a setting. The phone and website use that setting too.
-- **Agents pick** through the threadbear tools: `create_thread` and
+- **Agents pick** through the quokkacode tools: `create_thread` and
   `schedule_message` take an optional runner. Without one, the new thread
   or schedule goes on **the runner the agent's own thread is on**.
 - **A schedule that sends into an existing thread** runs on that thread's

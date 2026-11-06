@@ -177,7 +177,7 @@ test('settings: update saves to runner.json, applies at once, and a bad field ch
   assert.equal(json.bulletReplies, false);
   assert.deepEqual(json.models, { privateFolders: ['~/client'] });
   // A fresh load reads the same.
-  const cfg = loadConfig({ THREADBEAR_HOME: s.home });
+  const cfg = loadConfig({ QUOKKACODE_HOME: s.home });
   assert.deepEqual(cfg.models.privateFolders, ['~/client']);
   assert.equal(cfg.defaults.cwd, other);
 
@@ -203,7 +203,7 @@ test("settings: bringIn is every 5 days until changed, and keeps the rest of run
 });
 
 test('settings: a fresh runner.json means the Claude pool and no private folders', () => {
-  const cfg = loadConfig({ THREADBEAR_HOME: tmpDir() });
+  const cfg = loadConfig({ QUOKKACODE_HOME: tmpDir() });
   assert.deepEqual(cfg.models, { pool: 'claude', privateFolders: [] });
 });
 
@@ -340,7 +340,7 @@ test('titles: cleanTitle tidies what a model says', () => {
   assert.equal(cleanTitle('Fix README typo "directons"'), 'Fix README typo "directons"', 'quotes inside stay');
   // Rambling or cut off by the token limit: no title, so the first line stays.
   assert.equal(cleanTitle('x'.repeat(80)), '');
-  assert.equal(cleanTitle('Adding Cmd plus and Cmd minus zoom shortcuts to the whole Threadbear window'), '');
+  assert.equal(cleanTitle('Adding Cmd plus and Cmd minus zoom shortcuts to the whole Quokka Code window'), '');
 });
 
 // ------------------------------------------------------------------ tb
@@ -355,7 +355,7 @@ test('tb settings and tb models over a real socket', async () => {
   const run = (args: string[]) =>
     new Promise<{ code: number | null; out: string }>((resolve) => {
       let out = '';
-      const p = spawn(process.execPath, [TB, ...args], { env: { ...process.env, THREADBEAR_HOME: s.home, THREADBEAR_URL: url }, stdio: ['ignore', 'pipe', 'pipe'] });
+      const p = spawn(process.execPath, [TB, ...args], { env: { ...process.env, QUOKKACODE_HOME: s.home, QUOKKACODE_URL: url }, stdio: ['ignore', 'pipe', 'pipe'] });
       p.stdout.on('data', (d) => (out += d));
       p.stderr.on('data', (d) => (out += d));
       p.once('exit', (code) => resolve({ code, out }));

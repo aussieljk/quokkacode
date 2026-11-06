@@ -515,7 +515,7 @@ export default defineSchema({
     .index('by_runner_id', ['runnerId', 'id']),
 
   // A project's notes, apart from its row (API 50, projectNotes.ts). Notes
-  // are most of a project's bytes (16 KB of the Threadbear project's 17.7),
+  // are most of a project's bytes (16 KB of the Quokka Code project's 17.7),
   // and Convex charges a write for the whole document, so with them in
   // `projects` every state update or new thread count rewrote them, about
   // 50 KB a time. `projects.notes` is '' for a row written since; an older

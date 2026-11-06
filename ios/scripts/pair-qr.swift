@@ -2,7 +2,7 @@
 // printed or going near the clipboard. Issues a phone token with
 // `npx convex run tokens:issue`, makes the threadbear://pair link, draws it
 // as a QR code into a temp PNG, opens it in Preview, and deletes the file
-// once Preview has it. Scan it with Threadbear's Scan the code (or the Camera).
+// once Preview has it. Scan it with Quokka Code's Scan the code (or the Camera).
 //
 //   swift ios/scripts/pair-qr.swift [--prod --url https://….convex.cloud] [--name iphone] [--days 90]
 //
@@ -67,7 +67,7 @@ filter.setValue(Data(link.url!.absoluteString.utf8), forKey: "inputMessage")
 filter.setValue("M", forKey: "inputCorrectionLevel")
 let qr = filter.outputImage!.transformed(by: CGAffineTransform(scaleX: 12, y: 12))
 let rep = NSBitmapImageRep(ciImage: qr)
-let file = FileManager.default.temporaryDirectory.appendingPathComponent("threadbear-pair-\(UUID().uuidString.prefix(6)).png")
+let file = FileManager.default.temporaryDirectory.appendingPathComponent("quokkacode-pair-\(UUID().uuidString.prefix(6)).png")
 try! rep.representation(using: .png, properties: [:])!.write(to: file)
 // Readable by Mike only.
 try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: file.path)
@@ -77,5 +77,5 @@ NSWorkspace.shared.open(file)
 // from a detached shell didn't survive the script's process group ending.)
 Thread.sleep(forTimeInterval: 3)
 try? FileManager.default.removeItem(at: file)
-print("Showing the pairing QR for \"\(name)\" (\(prod ? "prod" : "dev"), expires in \(days) days). In Threadbear, tap Scan the code.")
+print("Showing the pairing QR for \"\(name)\" (\(prod ? "prod" : "dev"), expires in \(days) days). In Quokka Code, tap Scan the code.")
 print("Close the Preview window once the phone has paired. Revoke with: npx convex run tokens:revoke '{\"name\":\"\(name)\"}'\(prod ? " --prod" : "")")

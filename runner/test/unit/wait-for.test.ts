@@ -6,7 +6,7 @@ import { makeHarness } from '../helpers/fakes.ts';
 import { checkSummary } from '../helpers/protocol-check.ts';
 import { WAIT_FOR_DEFAULT_MS } from '../../src/runner/hibernation.ts';
 
-const END_TURN = 'mcp__threadbear__end_turn';
+const END_TURN = 'mcp__quokkacode__end_turn';
 
 function setup() {
   const h = makeHarness();

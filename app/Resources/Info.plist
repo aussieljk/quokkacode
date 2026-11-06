@@ -5,15 +5,15 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>en</string>
     <key>CFBundleExecutable</key>
-    <string>Threadbear</string>
+    <string>Quokka Code</string>
     <key>CFBundleIdentifier</key>
-    <string>com.mikerosoft.threadbear</string>
+    <string>com.lucasknight.quokkacode</string>
     <key>CFBundleName</key>
-    <string>Threadbear</string>
+    <string>Quokka Code</string>
     <key>CFBundleDisplayName</key>
-    <string>Threadbear</string>
+    <string>Quokka Code</string>
     <key>CFBundleIconFile</key>
-    <string>threadbear</string>
+    <string>quokkacode</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
@@ -33,7 +33,7 @@
     <array>
         <dict>
             <key>CFBundleURLName</key>
-            <string>com.mikerosoft.threadbear.thread-link</string>
+            <string>com.lucasknight.quokkacode.thread-link</string>
             <key>CFBundleURLSchemes</key>
             <array>
                 <string>threadbear</string>

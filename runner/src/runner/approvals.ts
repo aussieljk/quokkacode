@@ -7,7 +7,7 @@ import type { RunnerPart } from './part.ts';
 import type { ApprovalDecision, EventBody, PermissionMode } from '../protocol.ts';
 import { ErrorCode, RpcError } from '../protocol.ts';
 import type { QuestionAnswer, QuestionRequest, ToolApprovalAnswer, ToolApprovalRequest } from '../adapters/types.ts';
-import { approvalTitle, type AgentApprovalRequest } from '../threadbear-mcp.ts';
+import { approvalTitle, type AgentApprovalRequest } from '../quokkacode-mcp.ts';
 import crypto from 'node:crypto';
 import type { PendingApproval, ThreadState } from '../runner.ts';
 import { matchAnswers } from '../runner.ts';
@@ -44,7 +44,7 @@ export const approvalsPart = {
       // A phone from before secrets draws any card it doesn't know as
       // Allow/Deny: Deny declines, and Allow can't carry a value.
       if (params.decision === 'deny') return this.answerSecret({ threadId: params.threadId, approvalId: params.approvalId, decline: true });
-      throw new RpcError(ErrorCode.badParams, 'A secret is answered with secrets.answer: update the Threadbear app, or answer it on the Mac.');
+      throw new RpcError(ErrorCode.badParams, 'A secret is answered with secrets.answer: update the Quokka Code app, or answer it on the Mac.');
     }
     if (pending.kind === 'request') {
       if (params.decision === 'deny') {
@@ -148,8 +148,8 @@ export const approvalsPart = {
     });
   },
 
-  // A threadbear tool's own card, for a call that would raise access from a
-  // thread not in full mode (threadbear-mcp.ts, "Raising access"). Never
+  // A quokkacode tool's own card, for a call that would raise access from a
+  // thread not in full mode (quokkacode-mcp.ts, "Raising access"). Never
   // "Always allow". The agent's CLI waits on the call, so a message from
   // Mike declines it, as with a question.
   requestAgentApproval(this: Runner, threadId: string, req: AgentApprovalRequest): Promise<ToolApprovalAnswer> {

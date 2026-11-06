@@ -99,7 +99,7 @@ export const IGNORED_METHODS = [
 
 // What the adapter's line reader sends through handle() for a line over its
 // size guard: {method?, itemId?} from the start of the skipped line.
-export const OVERSIZED_LINE = 'threadbear/oversizedLine';
+export const OVERSIZED_LINE = 'quokkacode/oversizedLine';
 
 const MAPPED_ITEMS = new Set<string>(MAPPED_ITEM_TYPES);
 const IGNORED_ITEMS = new Set<string>(IGNORED_ITEM_TYPES);

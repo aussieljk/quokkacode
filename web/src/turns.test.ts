@@ -28,7 +28,7 @@ test('a quick answer has nothing to fold', () => {
 });
 
 test('the summary is the reply when nothing longer comes after the last step', () => {
-  const items = fold([user('go', 0), tool('Bash npm test', 1), said('- tests pass', 5, { summary: true }), tool('threadbear: end_turn', 6)], false);
+  const items = fold([user('go', 0), tool('Bash npm test', 1), said('- tests pass', 5, { summary: true }), tool('quokkacode: end_turn', 6)], false);
   assert.deepEqual(kinds(items), ['user:go', 'worked', 'assistant:- tests pass']);
 });
 

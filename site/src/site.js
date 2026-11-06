@@ -197,7 +197,7 @@ const sendToMac = document.querySelector(".send-mac");
 if (sendToMac && navigator.share && matchMedia("(pointer: coarse)").matches) {
   sendToMac.hidden = false;
   sendToMac.addEventListener("click", () => {
-    navigator.share({ title: "Threadbear", url: `${location.origin}/` }).catch(() => {});
+    navigator.share({ title: "Quokka Code", url: `${location.origin}/` }).catch(() => {});
   });
 }
 
@@ -231,7 +231,7 @@ for (const card of document.querySelectorAll(".video-card[data-video]")) {
     event.preventDefault();
     const frame = document.createElement("iframe");
     frame.src = `https://www.youtube-nocookie.com/embed/${card.dataset.video}?autoplay=1`;
-    frame.title = "Threadbear launch video";
+    frame.title = "Quokka Code launch video";
     frame.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
     frame.allowFullscreen = true;
     // A div rather than the link, since a player inside a link would be a link too.

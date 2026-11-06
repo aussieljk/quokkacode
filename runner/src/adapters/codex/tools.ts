@@ -1,6 +1,6 @@
-// The threadbear tools for Codex threads. Codex can't take the in-process
+// The quokkacode tools for Codex threads. Codex can't take the in-process
 // SDK MCP server Claude threads get, so the same tools go in as dynamic
-// tools (experimental): a `threadbear` namespace given at thread/start, and
+// tools (experimental): a `quokkacode` namespace given at thread/start, and
 // item/tool/call requests answered by running the same handlers.
 //
 // Spike 1 (27 Oct): tools given at thread/start survive thread/resume in a
@@ -15,13 +15,13 @@
 import { z } from 'zod';
 import type { ToolApprovalAnswer, ToolApprovalRequest } from '../types.ts';
 import type { PermissionMode } from '../../protocol.ts';
-import { ALWAYS_ASK_TOOLS, FILING_PROJECTS, NEVER_ASK_TOOLS, guideLine, POCKET_LINE, SERVER_NAME, SHOWING_THE_USER } from '../../threadbear-mcp.ts';
+import { ALWAYS_ASK_TOOLS, FILING_PROJECTS, NEVER_ASK_TOOLS, guideLine, POCKET_LINE, SERVER_NAME, SHOWING_THE_USER } from '../../quokkacode-mcp.ts';
 import { userLine } from '../../user-name.ts';
 import { CODEX_ONE_REPLY_DESCRIPTION, END_TURN_TOOL } from '../../needs.ts';
 import { toolTitle, truncateInput } from '../../tools.ts';
 import type { DynamicToolCallParams, DynamicToolCallResponse, DynamicToolSpec } from './types.ts';
 
-// What the SDK's tool() makes (buildThreadbearTools' array), loosely typed
+// What the SDK's tool() makes (buildQuokkaCodeTools' array), loosely typed
 // so tools with different argument shapes fit in one list.
 export type ToolDefinition = {
   name: string;
@@ -41,7 +41,7 @@ export const NAMESPACE = SERVER_NAME;
 // the whole thread/start), so this stays a short summary. The longer
 // guidance on when to use each tool goes in as developer instructions.
 export const NAMESPACE_DESCRIPTION =
-  "Tools that manage Threadbear, the app the user runs agent threads in, which this thread runs in: threads, schedules, projects, show_options, pin and show_panel for showing the user things, and end_turn to finish every turn.";
+  "Tools that manage Quokka Code, the app the user runs agent threads in, which this thread runs in: threads, schedules, projects, show_options, pin and show_panel for showing the user things, and end_turn to finish every turn.";
 export const NAMESPACE_DESCRIPTION_MAX = 1024;
 
 // Said as developer instructions at thread/start, next to the thread's
@@ -51,7 +51,7 @@ const GUIDE = guideLine();
 const GUIDANCE_HEAD =
   userLine() +
   (GUIDE ? `${GUIDE} ` : '') +
-  "This thread's threadbear tools manage Threadbear itself: list and read threads, start new ones, message them, rename, snooze, archive, move and delete them, and schedule messages for later. " +
+  "This thread's quokkacode tools manage Quokka Code itself: list and read threads, start new ones, message them, rename, snooze, archive, move and delete them, and schedule messages for later. " +
   'Use move_thread when the work belongs in another folder (for example a repo), so this thread runs there from the next turn. ' +
   `${SHOWING_THE_USER} ` +
   `${FILING_PROJECTS} `;
@@ -127,7 +127,7 @@ export class CodexTools {
     if (!known) {
       const shown = ns ? `${ns}.${name}` : name;
       return text(
-        `Threadbear has no tool called ${shown || '(unnamed)'} any more. This thread's tool list was fixed when it started; the threadbear tools it has now are: ${[...this.byName.keys()].join(', ') || 'none'}.`,
+        `Quokka Code has no tool called ${shown || '(unnamed)'} any more. This thread's tool list was fixed when it started; the quokkacode tools it has now are: ${[...this.byName.keys()].join(', ') || 'none'}.`,
         false,
       );
     }

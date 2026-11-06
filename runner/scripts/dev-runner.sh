@@ -13,7 +13,7 @@
 #                deleted on Ctrl-C or kill, and kept if the runner failed)
 #
 # It writes <home>/tb, a tb that always talks to this runner (an exported
-# THREADBEAR_HOME doesn't last past one command in an agent's shell), and
+# QUOKKACODE_HOME doesn't last past one command in an agent's shell), and
 # prints the app/Tools/dev-app.sh command for a debug app against it. On a
 # new data dir, threads default to the folder <home>/work (under $TMPDIR
 # when <home> isn't), the login claude-main (TB_E2E_ACCOUNT picks another)
@@ -30,10 +30,10 @@
 set -euo pipefail
 
 # THREADBARE_* was the old name for these variables: each stands in for its new name.
-for v in $(compgen -e | grep '^THREADBARE_' || true); do n="THREADBEAR_${v#THREADBARE_}"; [ -n "${!n+x}" ] || export "$n=${!v}"; done
+for v in $(compgen -e | grep '^THREADBARE_' || true); do n="QUOKKACODE_${v#THREADBARE_}"; [ -n "${!n+x}" ] || export "$n=${!v}"; done
 RUNNER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-NODE="${THREADBEAR_NODE:-$HOME/.nvm/versions/node/v24.22.1/bin/node}"
-DEFAULT_HOME="$HOME/Library/Application Support/Threadbear"
+NODE="${QUOKKACODE_NODE:-$HOME/.nvm/versions/node/v24.22.1/bin/node}"
+DEFAULT_HOME="$HOME/Library/Application Support/QuokkaCode"
 DATA_HOME=""
 PORT=0
 KEEP=0
@@ -50,7 +50,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ ! -x "$NODE" ]; then
-  echo "No Node binary at $NODE. Set THREADBEAR_NODE to a Node 24 binary." >&2
+  echo "No Node binary at $NODE. Set QUOKKACODE_NODE to a Node 24 binary." >&2
   exit 1
 fi
 
@@ -62,7 +62,7 @@ real_dir() {
 MADE_HOME=0
 if [ -z "$DATA_HOME" ]; then
   TMP_ROOT="${TMPDIR:-/tmp}"
-  DATA_HOME="$(mktemp -d "${TMP_ROOT%/}/threadbear-dev.XXXXXX")"
+  DATA_HOME="$(mktemp -d "${TMP_ROOT%/}/quokkacode-dev.XXXXXX")"
   MADE_HOME=1
 fi
 case "$DATA_HOME" in /*) ;; *) DATA_HOME="$PWD/$DATA_HOME" ;; esac
@@ -93,7 +93,7 @@ WORK="$DATA_HOME/work"
 TMP_REAL="$(real_dir "${TMPDIR:-/tmp}")"
 case "$(real_dir "$DATA_HOME")/" in
   "$TMP_REAL"/*) ;;
-  *) [ -e "$DATA_HOME/runner.json" ] || WORK="$(mktemp -d "${TMP_REAL%/}/threadbear-dev-work.XXXXXX")" ;;
+  *) [ -e "$DATA_HOME/runner.json" ] || WORK="$(mktemp -d "${TMP_REAL%/}/quokkacode-dev-work.XXXXXX")" ;;
 esac
 # The runner's defaults are your real folder, the last account used and
 # the account's own model (Fable with a 1M context, say); a thread
@@ -110,14 +110,14 @@ if [ ! -e "$DATA_HOME/runner.json" ]; then
     "$DATA_HOME/runner.json" "$WORK" "${TB_E2E_ACCOUNT:-claude-main}"
   IN_WORK="   (in $(printf '%q' "$WORK"), on claude-haiku-5-5)"
 fi
-# THREADBEAR_PORT and THREADBEAR_URL go too: tb then reads the port this
-# runner wrote to runner.json. THREADBEAR_TB is what tb prints in the
+# QUOKKACODE_PORT and QUOKKACODE_URL go too: tb then reads the port this
+# runner wrote to runner.json. QUOKKACODE_TB is what tb prints in the
 # commands it suggests (restart --cancel, events), so pasting one reaches
 # this runner rather than the live one a bare tb in a thread reaches.
 {
   echo '#!/bin/bash'
   echo '# tb for the dev runner in this folder (scripts/dev-runner.sh wrote it).'
-  printf 'exec env -u THREADBEAR_DATA_DIR -u THREADBEAR_URL -u THREADBEAR_PORT -u THREADBEAR_LOG THREADBEAR_HOME=%q THREADBEAR_TB=%q %q %q "$@"\n' \
+  printf 'exec env -u QUOKKACODE_DATA_DIR -u QUOKKACODE_URL -u QUOKKACODE_PORT -u QUOKKACODE_LOG QUOKKACODE_HOME=%q QUOKKACODE_TB=%q %q %q "$@"\n' \
     "$DATA_HOME" "$TB" "$NODE" "$RUNNER_DIR/bin/tb"
 } > "$TB"
 chmod +x "$TB"
@@ -164,8 +164,8 @@ trap stop INT TERM HUP
 # Inside a thread these name the live runner and that thread; the dev
 # runner sets its own for the CLIs it starts.
 while :; do
-  env -u THREADBEAR_DATA_DIR -u THREADBEAR_URL -u THREADBEAR_THREAD_ID -u THREADBEAR_RUNNER_VERSION -u THREADBEAR_RUNNER_HOME \
-    THREADBEAR_HOME="$DATA_HOME" THREADBEAR_PORT="$PORT" THREADBEAR_LOG="$LOG" THREADBEAR_LOG_STDERR=1 THREADBEAR_CLI_UPDATES=off THREADBEAR_TOKEN_TALLY=off \
+  env -u QUOKKACODE_DATA_DIR -u QUOKKACODE_URL -u QUOKKACODE_THREAD_ID -u QUOKKACODE_RUNNER_VERSION -u QUOKKACODE_RUNNER_HOME \
+    QUOKKACODE_HOME="$DATA_HOME" QUOKKACODE_PORT="$PORT" QUOKKACODE_LOG="$LOG" QUOKKACODE_LOG_STDERR=1 QUOKKACODE_CLI_UPDATES=off QUOKKACODE_TOKEN_TALLY=off \
     "$NODE" src/main.ts &
   CHILD=$!
   CODE=0

@@ -1,12 +1,12 @@
-# Agent guidance for threadbear
+# Agent guidance for quokkacode
 
 The app was called Threadbare until 27 Oct 2026. Everything was renamed then
-(repo, folders, data dir `~/Library/Application Support/Threadbear`, the
-`com.mikerosoft.threadbear.*` labels and bundle id, `THREADBEAR_*`
+(repo, folders, data dir `~/Library/Application Support/QuokkaCode`, the
+`com.lucasknight.quokkacode.*` labels and bundle id, `QUOKKACODE_*`
 variables). The old `THREADBARE_*` names still work as stand-ins for the
 new ones, and threads still get both, for skills written before.
 
-Threadbear is Mike's own agent app: a TypeScript runner daemon (`runner/`)
+Quokka Code is Mike's own agent app: a TypeScript runner daemon (`runner/`)
 that drives the official Claude Code (and later Codex) CLIs, and a native
 SwiftUI + AppKit Mac app (`app/`) that talks to it over the protocol in
 `docs/protocol.md`. Read `docs/plan.md` and `docs/protocol.md` before changing
@@ -29,11 +29,11 @@ and ask the user what they use instead, rather than trying to reach them.
   the cloud box for a `--quick` run, `checkHosts` in runner.json), not on his Mac: three threads' suites
   at once took it to a load of 75, and a test window came up over his
   browser (6 Nov). A hook blocks `npm test` and `check.sh --local` here.
-- Changing a threadbear tool's arguments: keep taking the old ones. A resumed
+- Changing a quokkacode tool's arguments: keep taking the old ones. A resumed
   Claude session keeps a tool's definition from when it first loaded it, and
   ToolSearch shows that one too, so it goes on calling the old form
   (docs/protocol.md, "One reply"; `end_turn` handles this).
-- What every agent is handed (the threadbear tools' names, descriptions
+- What every agent is handed (the quokkacode tools' names, descriptions
   and arguments, and the standing instructions) has a byte budget,
   `runner/context-budget.json`, checked by
   `test/unit/context-budget.test.ts`. A change that alters it fails until
@@ -64,9 +64,9 @@ and ask the user what they use instead, rather than trying to reach them.
   rather than on their 5-day timer (`runner/src/bring-in.ts`), and the why is
   what they read. Use it rarely, or it stops meaning anything.
 - `docs/guide.md` is the user guide, and every thread's agent is pointed at
-  it (`guideLine` in `runner/src/threadbear-mcp.ts`). Keep it true when a
+  it (`guideLine` in `runner/src/quokkacode-mcp.ts`). Keep it true when a
   change alters what someone using the app sees or does.
-- `docs/on-your-mac.md` lists everything Threadbear installs, runs in the
+- `docs/on-your-mac.md` lists everything Quokka Code installs, runs in the
   background, reads and talks to. A stranger's agent checks the code
   against it before installing (README's prompt), so anything missing
   from it looks like something hidden. Keep it true when a change adds a
@@ -77,10 +77,10 @@ and ask the user what they use instead, rather than trying to reach them.
   feature, moves one, or adds anything of Mike's to the code; anything
   of his that only his setup needs belongs in his runner.json, not in
   the code.
-  This repo's own patches (`.threadbear/patches`) show in every fork:
+  This repo's own patches (`.quokkacode/patches`) show in every fork:
   `test/unit/fork-view.test.ts` lists what a stranger's copy shows, so a
   chip for one of Mike's accounts needs a `when` that only his Mac passes.
-- The first-run tour (app/Sources/Threadbear/Views/Tour.swift), its sample
+- The first-run tour (app/Sources/QuokkaCode/Views/Tour.swift), its sample
   threads (`threads.samples`) or anything a step points at: run
   `node app/Tools/tour-e2e.mjs` before landing. It plays the whole tour
   against a real dev runner and debug app, checks each step, and saves a
@@ -115,15 +115,15 @@ and ask the user what they use instead, rather than trying to reach them.
   `.help` and `toolTip` never show in this app; TipsTests fails on them.
 - Transcript files and fixtures made from real sessions are private: keep them
   out of git (`.fixtures/` is ignored).
-- Errors go to Sentry (project `threadbear`, tag `component` mac, runner or
+- Errors go to Sentry (project `quokkacode`, tag `component` mac, runner or
   ios) only from what Mike really runs: the installed release app
-  (`app/Sources/Threadbear/CrashReporting.swift`), the installed runner's
+  (`app/Sources/QuokkaCode/CrashReporting.swift`), the installed runner's
   release on the real data dir (`runner/src/sentry.ts`) and App Store
   iPhone builds. Debug builds, dev runners, tests, sandboxes and scripted
-  runs never report; keep it that way. `THREADBEAR_SENTRY=off` turns it off.
+  runs never report; keep it that way. `QUOKKACODE_SENTRY=off` turns it off.
   Never add user text to what's sent. Convex reports through its own log
   stream, so convex/ has no Sentry.
-- The Mac app freezing: read `~/Library/Logs/Threadbear/hangs` first
+- The Mac app freezing: read `~/Library/Logs/QuokkaCode/hangs` first
   (`HangWatch.swift`). Each stall of 4 seconds or more has a `sample` of the
   stuck main thread, and one of 15 or more reaches Sentry as "Main thread
   stuck in ...". Fix the frame it names rather than guessing from logs.
@@ -131,11 +131,11 @@ and ask the user what they use instead, rather than trying to reach them.
   this repo has a worktree of its own and lands with `tb land` (below).
   Anywhere several threads share a checkout (the main one, a worktree made
   by hand), stage your own paths by name, never `git add -A`.
-- A project can give Threadbear threads panels and action chips through
-  `.threadbear/patches/*.ts` (docs/protocol.md, "Patches"). When Mike
+- A project can give Quokka Code threads panels and action chips through
+  `.quokkacode/patches/*.ts` (docs/protocol.md, "Patches"). When Mike
   asks for a button or a panel for a project, write one of those there.
   A panel with an `items` function is a native list (rows, no page to
-  serve); `.threadbear/patches/checks.ts` has one, Worktrees. Write
+  serve); `.quokkacode/patches/checks.ts` has one, Worktrees. Write
   patch files with Edit or Write, not the shell: the runner trusts what
   a Full access thread's Edit and Write calls leave in its own folder,
   and makes Mike trust anything else before it runs (docs/protocol.md,
@@ -189,14 +189,14 @@ what people have built is fine, and that's all the fork watch schedule does.
 
 ## Experiments
 
-Other people run Threadbear since the repo went public (5 Nov 2026), so a
+Other people run Quokka Code since the repo went public (5 Nov 2026), so a
 new feature Mike is still trying out lands as an experiment: off by
 default, on for him (Mike asked 6 Nov).
 
 - Add it to `EXPERIMENTS` in `runner/src/experiments.ts` (id, title,
   `added` date, `on: false`) and check `experimentOn(home, id)` where it
   starts. Put `"experiments": { "<id>": true }` in Mike's `runner.json`
-  (`~/Library/Application Support/Threadbear/runner.json`) so it's on
+  (`~/Library/Application Support/QuokkaCode/runner.json`) so it's on
   for him.
 - Book the check-in when it lands: `schedule_message` with `new_thread`
   in this repo, about four days out, telling that thread to look at how
@@ -216,12 +216,12 @@ default, on for him (Mike asked 6 Nov).
   experiment is for new behaviour that changes what threads do, what
   they cost, or what the runner does to the machine.
 
-## Working on Threadbear from inside Threadbear
+## Working on Quokka Code from inside Quokka Code
 
-Mike may be running this thread in Threadbear itself, through the installed
-runner (`com.mikerosoft.threadbear.runner`). Then you have the `threadbear`
+Mike may be running this thread in Quokka Code itself, through the installed
+runner (`com.lucasknight.quokkacode.runner`). Then you have the `quokkacode`
 MCP tools (list, read, start, message, move and delete threads), and
-`THREADBEAR_THREAD_ID` is set, so `tb self` and `tb status` show your thread
+`QUOKKACODE_THREAD_ID` is set, so `tb self` and `tb status` show your thread
 and the runner. Both are bound to this thread, and neither will delete,
 interrupt, snooze or archive it. The runner puts its own `tb` on your PATH;
 if `tb` isn't found (an older runner, or outside a thread), use
@@ -242,7 +242,7 @@ if `tb` isn't found (an older runner, or outside a thread), use
   you're done.
 - A thread started in this repo (from the app, `create_thread` or a
   schedule) gets a worktree of its own before its first turn:
-  `<parent>/threadbear-threads/slot-<n>` on the branch `thread/<id8>`,
+  `<parent>/quokkacode-threads/slot-<n>` on the branch `thread/<id8>`,
   made from main, with `node_modules` linked to the main checkout's
   (`worktree-setup.sh`). The folder is usually an earlier thread's,
   reused with its Swift build caches so the app builds warm. Your system prompt says where. Commit there. When
@@ -264,7 +264,7 @@ if `tb` isn't found (an older runner, or outside a thread), use
   prints one, detached at main and set up, with warm build caches. Don't
   `git worktree add` a fresh one: its first app build takes 5 to 10
   minutes. Commit there, then land while holding the same repo lock as
-  `tb land`: `threadbear-land.lock` in `git rev-parse --git-common-dir`.
+  `tb land`: `quokkacode-land.lock` in `git rev-parse --git-common-dir`.
   On a Mac, run a script under `/usr/bin/lockf -k <lockfile>` (Linux:
   `flock -x <lockfile>`). That script must rebase, run the required check
   on the combined revision, and fast-forward main, all while holding the
@@ -274,7 +274,7 @@ if `tb` isn't found (an older runner, or outside a thread), use
 - The live runner runs a release, a snapshot, so editing `runner/` doesn't
   change it. To try a runner change, start `runner/scripts/dev-runner.sh` in
   the background and use the `<dev home>/tb` it prints (a bare `tb` reaches
-  the live runner unless `THREADBEAR_HOME` is set in that same command).
+  the live runner unless `QUOKKACODE_HOME` is set in that same command).
   Its threads start in `<dev home>/work` on claude-main (or
   `TB_E2E_ACCOUNT`) and claude-haiku-5-5 (its `runner.json` defaults), from `tb` or a debug app's composer alike.
   Leave `--home` out, or keep it and any extra work folders under
@@ -313,9 +313,9 @@ if `tb` isn't found (an older runner, or outside a thread), use
   background jobs (tests, builds, subagents; background ones for 30
   minutes at most). `tb status` shows what it's waiting for, or the old
   runner and what it's finishing; don't try to hurry either.
-- The LaunchAgent's program is `~/Applications/Threadbear Runner.app`
+- The LaunchAgent's program is `~/Applications/QuokkaCode Runner.app`
   (`runner/launcher/`), a small app that runs `node launch.mjs` so macOS's
-  privacy prompts say "Threadbear Runner", not "node". Releases never
+  privacy prompts say "Quokka Code Runner", not "node". Releases never
   rebuild it: a change under `runner/launcher/` only ships when Mike runs
   `install-runner.sh` from a terminal. `tb status` and the app's Updates
   panel tell him once it's on main, but say so in your end_turn too.
@@ -329,11 +329,11 @@ if `tb` isn't found (an older runner, or outside a thread), use
   (below). His installed app updates itself: a few minutes after `app/`
   changes on main it builds that commit in the background
   (`app/stage-update.sh`, from its own clone under
-  `~/Library/Caches/Threadbear/update`, never the working tree) and swaps
+  `~/Library/Caches/QuokkaCode/update`, never the working tree) and swaps
   it in when he next quits or relaunches, from "Restart to Update" in the
   app menu, or by itself once nothing's typed and he isn't using the app
   (running threads don't hold it up; the runner keeps the turn). So merge an app change to main and tell him it's waiting;
-  `~/Library/Logs/threadbear-update.log` has the build output if it
+  `~/Library/Logs/quokkacode-update.log` has the build output if it
   doesn't turn up.
 - After landing a change to the iPhone app (`ios/`), install it on Mike's
   phone yourself: `taskpolicy -b ios/scripts/install-phone.sh` from the
@@ -363,7 +363,7 @@ if `tb` isn't found (an older runner, or outside a thread), use
 
 `app/Tools/dev-app.sh` runs a debug build in a temp bundle, against the
 mock runner or a dev runner, with its window kept behind Mike's. Never use
-`~/Applications/Threadbear.app` for this. Instances belong to the thread
+`~/Applications/QuokkaCode.app` for this. Instances belong to the thread
 and checkout that started them: without `--id`, a command means your
 newest one, never another thread's, and `stop --all` stops only yours.
 `start` prints the id; pass `--id` to every command once you have more

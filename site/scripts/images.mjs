@@ -53,14 +53,14 @@ for (const [name, [file, width, crop]] of Object.entries(MAC)) webp(join(mac, fi
 // The iPhone app on the FakeBackend's sample threads.
 for (const name of ["inbox", "approval", "question"]) webp(join(phone, `${name}.png`), join(screens, `phone-${name}.webp`), 600);
 
-// The mascot: the workbench picture (docs/threadbear-design/mascot-c.png, the README hero) and
+// The mascot: the workbench picture (docs/quokkacode-design/mascot-c.png, the README hero) and
 // three of the full body sprites, each used once.
-const design = join(repo, "docs/threadbear-design");
+const design = join(repo, "docs/quokkacode-design");
 webp(join(design, "mascot-c.png"), join(img, "workbench.webp"), 1200, 80);
 for (const pose of ["wave", "sleep", "dizzy"]) webp(join(design, "sprites-full", `${pose}.png`), join(img, `bear-${pose}.webp`), 280, 85);
 
-// Icons from the app icon (app/icons/threadbear.png, 1024 px).
-const icon = join(repo, "app/icons/threadbear.png");
+// Icons from the app icon (app/icons/quokkacode.png, 1024 px).
+const icon = join(repo, "app/icons/quokkacode.png");
 for (const [name, size] of [["icon-512", 512], ["icon-192", 192], ["apple-touch-icon", 180], ["favicon-32", 32]]) {
   execFileSync("sips", ["-z", String(size), String(size), icon, "--out", join(img, `${name}.png`)], { stdio: "ignore" });
   console.log(`public/img/${name}.png`);

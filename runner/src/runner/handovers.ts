@@ -136,7 +136,7 @@ export const handoversPart = {
     }
     if (rt.closing) await rt.closing;
     // An archive's worktree cleanup, started as the CLI went: its removedAt
-    // and note belong in the record saved below (THREADBEAR-16). Not for
+    // and note belong in the record saved below (QUOKKACODE-16). Not for
     // ever, as git can hang (a hook): past the limit the record goes as it
     // is, and the adopting runner settles it (settleLostCleanups).
     if (rt.cleaning) {

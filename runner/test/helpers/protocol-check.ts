@@ -179,7 +179,7 @@ export function checkSummary(t: Obj): string[] {
   if (t.asked !== undefined && (!isStr(t.asked) || !t.asked || t.asked.length > 140 || t.asked.includes('\n'))) problems.push('asked');
   if (t.title.length > 200) problems.push('title');
   for (const k of ['model', 'modelInUse', 'snoozedUntil', 'archivedAt', 'nativeSessionId']) if (t[k] !== undefined && !isStr(t[k])) problems.push(k);
-  if (t.archivedBy !== undefined && (!['mike', 'agent', 'threadbear'].includes(t.archivedBy as string) || t.archivedAt === undefined)) problems.push('archivedBy');
+  if (t.archivedBy !== undefined && (!['mike', 'agent', 'quokkacode'].includes(t.archivedBy as string) || t.archivedAt === undefined)) problems.push('archivedBy');
   if (t.archiveVerdict !== undefined && (!['worked', 'didntWork', 'notNeeded'].includes(t.archiveVerdict as string) || t.archivedAt === undefined)) problems.push('archiveVerdict');
   if (t.poolId !== undefined && (!isStr(t.poolId) || !t.poolId)) problems.push('poolId');
   if (t.waitingForRoom !== undefined) {
@@ -371,7 +371,7 @@ export function checkCliStatus(c: Obj): string[] {
   const problems: string[] = [];
   if (!PROVIDERS.includes(c.provider)) problems.push('provider');
   if (!isStr(c.path)) problems.push('path');
-  if (!['threadbear', 'cli', 'none'].includes(c.managedBy)) problems.push('managedBy');
+  if (!['quokkacode', 'cli', 'none'].includes(c.managedBy)) problems.push('managedBy');
   if (!['current', 'behind', 'held', 'unknown', 'missing'].includes(c.status)) problems.push('status');
   if (!['auto', 'notify', 'off'].includes(c.policy)) problems.push('policy');
   for (const k of ['installedVersion', 'latestVersion', 'previousVersion']) if (c[k] !== undefined && !isStr(c[k])) problems.push(k);

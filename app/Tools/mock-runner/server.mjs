@@ -38,7 +38,7 @@ if (!dataDir) {
   console.error('mock-runner: --data-dir is required (use a temp folder)');
   process.exit(2);
 }
-const realDataDir = path.join(process.env.HOME ?? '', 'Library/Application Support/Threadbear');
+const realDataDir = path.join(process.env.HOME ?? '', 'Library/Application Support/QuokkaCode');
 if (path.resolve(dataDir) === path.resolve(realDataDir)) {
   console.error('mock-runner: refusing to use the real runner data folder');
   process.exit(2);
@@ -274,7 +274,7 @@ const clis = [
     status: 'behind', policy: 'auto', inUse: [], checkedAt: minutesAgo(20),
   },
   {
-    provider: 'codex', path: '/Users/mike/Library/Application Support/Threadbear/tools/codex/current', managedBy: 'threadbear',
+    provider: 'codex', path: '/Users/mike/Library/Application Support/QuokkaCode/tools/codex/current', managedBy: 'quokkacode',
     installedVersion: '0.164.0', latestVersion: '0.165.0', status: 'held', policy: 'auto', inUse: [], previousVersion: '0.163.0',
     checkedAt: minutesAgo(20),
     hold: { version: '0.165.0', reason: 'the app-server protocol changed', missing: ['thread/backgroundTerminals/list'] },
@@ -332,9 +332,9 @@ const BRUCE = 'runner_bruce';
 // /bruce/rpc (docs/protocol.md, "Other runners' threads"): the picture is a
 // real PNG, the rest text. None of these paths exist on this Mac.
 const BRUCE_FILES = {
-  picture: '/Users/bruce/Library/Application Support/Threadbear/media/backblaze.png',
+  picture: '/Users/bruce/Library/Application Support/QuokkaCode/media/backblaze.png',
   list: '/Volumes/CannMedia/duplicates.txt',
-  blob: '/Users/bruce/Library/Application Support/Threadbear/threads/bruce_media/blobs/bruce_media_c0_0.txt',
+  blob: '/Users/bruce/Library/Application Support/QuokkaCode/threads/bruce_media/blobs/bruce_media_c0_0.txt',
 };
 const bruceModifiedAt = new Date(Date.now() - 3600_000).toISOString();
 addRemoteDemo();
@@ -556,9 +556,9 @@ async function dispatch(client, method, p) {
       return { clis };
     }
     case 'threads.list': {
-      // THREADBEAR_MOCK_LIST_DELAY_MS: answer late, to see the sidebar's
+      // QUOKKACODE_MOCK_LIST_DELAY_MS: answer late, to see the sidebar's
       // loading rows.
-      const listDelay = Number(process.env.THREADBEAR_MOCK_LIST_DELAY_MS ?? 0);
+      const listDelay = Number(process.env.QUOKKACODE_MOCK_LIST_DELAY_MS ?? 0);
       if (listDelay > 0) await new Promise((r) => setTimeout(r, listDelay));
       const include = new Set(p.include ?? ['inbox']);
       const now = Date.now();
@@ -595,7 +595,7 @@ async function dispatch(client, method, p) {
           model: defaults.models[provider], permissionMode: 'full', status: 'idle', live: false, needsYou: false, sample: true,
           createdAt: now, updatedAt: now, lastActivityAt: now, preview: '', lastSeq: 0, lastSeenSeq: 0,
           actions: [{ id: 'welcome.roll-a-die', title: 'Roll a die', kind: 'command', command: 'echo "You rolled a $(( RANDOM % 6 + 1 ))."', patch: 'welcome', icon: 'dice' }],
-          patches: [{ id: 'welcome', source: 'project', file: path.join(p.cwd, '.threadbear/patches/welcome.ts'), icon: 'dice' }],
+          patches: [{ id: 'welcome', source: 'project', file: path.join(p.cwd, '.quokkacode/patches/welcome.ts'), icon: 'dice' }],
         };
         threads.set(threadId, { summary, events: [], inProgress: new Map(), timers: [] });
         const turnId = 'turn_' + crypto.randomBytes(4).toString('hex');
@@ -990,20 +990,20 @@ async function dispatch(client, method, p) {
       return { answer: `**${sel}** is what the agent called this step. It means the smallest piece to move first, so the rest can follow.\n\n- It's in \`runner/src/explain.ts\`\n- Nothing here goes into the thread`, model: 'mock' };
     }
     case 'threads.commands': {
-      // The palette's list (docs/protocol.md, "Slash commands"): Threadbear's
+      // The palette's list (docs/protocol.md, "Slash commands"): Quokka Code's
       // own, the CLI's, then skills, as a real Claude thread lists them.
       const t = need(p.threadId);
       const codex = t.summary.provider === 'codex';
       const own = [
-        { name: 'model', description: "Switch this thread's model", argumentHint: '[model]', source: 'threadbear' },
-        { name: 'effort', description: "Set this thread's effort level", argumentHint: '[low|medium|high|xhigh|max]', source: 'threadbear' },
+        { name: 'model', description: "Switch this thread's model", argumentHint: '[model]', source: 'quokkacode' },
+        { name: 'effort', description: "Set this thread's effort level", argumentHint: '[low|medium|high|xhigh|max]', source: 'quokkacode' },
       ];
       const cli = codex
         ? [
             { name: 'compact', description: 'Summarise the conversation so far to free up context', source: 'cli' },
             { name: 'review', description: 'Review the uncommitted changes, or what you describe', argumentHint: '[instructions]', source: 'cli' },
-            { name: 'clear', description: 'Start a fresh session in this thread (the transcript stays)', source: 'threadbear' },
-            { name: 'status', description: "The model, effort, context used and the login's limits", source: 'threadbear' },
+            { name: 'clear', description: 'Start a fresh session in this thread (the transcript stays)', source: 'quokkacode' },
+            { name: 'status', description: "The model, effort, context used and the login's limits", source: 'quokkacode' },
           ]
         : [
             { name: 'clear', description: 'Clear conversation history and free up context', source: 'cli' },
@@ -2490,15 +2490,15 @@ function addDemoProjects() {
   const ago = (minutes) => new Date(now - minutes * 60_000).toISOString();
   const soon = (seconds) => new Date(now + seconds * 1000).toISOString();
   const tb = {
-    id: 'p_3b1d9e20', title: 'Threadbear', folders: ['/Users/mike/dev/me/threadbear'],
+    id: 'p_3b1d9e20', title: 'QuokkaCode', folders: ['/Users/mike/dev/me/quokkacode'],
     goals: 'Mike\'s own agent app: a runner that drives the Claude and Codex CLIs, and a native Mac app over it. Done is when it replaces T3 Code for everyday work.',
     state: 'Projects and the librarian are next: protocol written, runner and app being built in parallel. Settings tabs renamed; release notes for 0.4 drafted.',
     notes: '**Checks**: `./check.sh` runs everything, `--quick` for the runner only.\n\nNever restart the live runner from a thread; merge to main and it follows.\n\nThe protocol is the contract: change `docs/protocol.md` first.',
-    links: [{ title: 'Website', url: 'https://threadbear.example.app/' }],
+    links: [{ title: 'Website', url: 'https://quokkacode.example.app/' }],
     createdBy: 'librarian', createdByThread: 'demo_release_notes', createdAt: ago(60 * 24 * 9), updatedAt: ago(3), stateUpdatedAt: ago(41),
     // The three kinds of icon: a picture (the app's own), a symbol, and
     // Walkies with none yet, which shows its letter.
-    icon: { image: { path: fileURLToPath(new URL('../../icons/threadbear.png', import.meta.url)), mediaType: 'image/png' }, from: '/Users/mike/dev/me/threadbear/app/icons/threadbear.png', by: 'librarian', updatedAt: ago(60) },
+    icon: { image: { path: fileURLToPath(new URL('../../icons/quokkacode.png', import.meta.url)), mediaType: 'image/png' }, from: '/Users/mike/dev/me/quokkacode/app/icons/quokkacode.png', by: 'librarian', updatedAt: ago(60) },
   };
   const photo = {
     id: 'p_7a2c41f0', title: 'Photo sync', folders: ['/Users/mike/dev/photo-sync'],
@@ -2550,9 +2550,9 @@ function addDemoProjects() {
         folder: '/Users/mike/dev/walkies-backend', projectId: walkies.id },
     ];
     dark.summary.patches = [
-      { id: 'tools', source: 'project', file: '/Users/mike/dev/me/misc/.threadbear/patches/tools.ts', folder: '/Users/mike/dev/me/misc' },
+      { id: 'tools', source: 'project', file: '/Users/mike/dev/me/misc/.quokkacode/patches/tools.ts', folder: '/Users/mike/dev/me/misc' },
       { id: 'convex', source: 'builtin', folder: '/Users/mike/dev/walkies-backend', projectId: walkies.id },
-      { id: 'walkies', source: 'project', file: '/Users/mike/dev/walkies-backend/.threadbear/patches/walkies.ts', folder: '/Users/mike/dev/walkies-backend', projectId: walkies.id },
+      { id: 'walkies', source: 'project', file: '/Users/mike/dev/walkies-backend/.quokkacode/patches/walkies.ts', folder: '/Users/mike/dev/walkies-backend', projectId: walkies.id },
     ];
   }
 
@@ -2561,7 +2561,7 @@ function addDemoProjects() {
   if (tabs) {
     const seq = ++tabs.summary.lastSeq;
     tabs.summary.lastSeenSeq = seq;
-    tabs.events.push({ seq, ts: ago(3), threadId: tabs.summary.id, type: 'system.note', text: 'Put in Threadbear' });
+    tabs.events.push({ seq, ts: ago(3), threadId: tabs.summary.id, type: 'system.note', text: 'Put in QuokkaCode' });
   }
 
   const title = (id) => threads.get(id)?.summary.title ?? id;
@@ -2574,13 +2574,13 @@ function addDemoProjects() {
       { threadId: 'demo_upload_resume', threadTitle: title('demo_upload_resume'), reason: 'catch-up', why: '2 turns since the last look', dueAt: soon(52 * 60) },
     ],
     recent: [
-      { id: 'l8', at: ago(3), threadId: 'demo_settings_tabs', threadTitle: title('demo_settings_tabs'), reason: 'first-turn', outcome: 'joined', text: 'Put it in Threadbear', projectIds: [tb.id], costUsd: 0.0021 },
+      { id: 'l8', at: ago(3), threadId: 'demo_settings_tabs', threadTitle: title('demo_settings_tabs'), reason: 'first-turn', outcome: 'joined', text: 'Put it in QuokkaCode', projectIds: [tb.id], costUsd: 0.0021 },
       { id: 'l7', at: ago(18), threadId: 'demo_button_colour', threadTitle: title('demo_button_colour'), reason: 'new-folder', outcome: 'joined', text: 'Put it in Walkies', projectIds: [walkies.id], costUsd: 0.0024 },
       { id: 'l6', at: ago(41), threadId: 'demo_ci_slow', threadTitle: title('demo_ci_slow'), reason: 'catch-up', outcome: 'updated', text: 'Photo sync\'s state', projectIds: [photo.id], costUsd: 0.0031 },
       { id: 'l5', at: ago(70), threadId: 'demo_invoice_export', threadTitle: title('demo_invoice_export'), reason: 'first-turn', outcome: 'nothing', text: 'Left it out: a one-off errand', costUsd: 0.0017 },
-      { id: 'l4', at: ago(60 * 2), threadId: 'demo_ci_slow', threadTitle: title('demo_ci_slow'), reason: 'new-folder', outcome: 'joined', text: 'Put it in Threadbear too', projectIds: [tb.id], costUsd: 0.0026 },
+      { id: 'l4', at: ago(60 * 2), threadId: 'demo_ci_slow', threadTitle: title('demo_ci_slow'), reason: 'new-folder', outcome: 'joined', text: 'Put it in Quokka Code too', projectIds: [tb.id], costUsd: 0.0026 },
       { id: 'l3', at: ago(60 * 3), threadId: 'demo_tunnel', threadTitle: title('demo_tunnel'), reason: 'asked', outcome: 'skipped', text: 'Archived before its first look' },
-      { id: 'l2', at: ago(60 * 4), threadId: 'demo_sqlite_vs_files', threadTitle: title('demo_sqlite_vs_files'), reason: 'catch-up', outcome: 'updated', text: 'Threadbear\'s state', projectIds: [tb.id], costUsd: 0.0029 },
+      { id: 'l2', at: ago(60 * 4), threadId: 'demo_sqlite_vs_files', threadTitle: title('demo_sqlite_vs_files'), reason: 'catch-up', outcome: 'updated', text: 'QuokkaCode\'s state', projectIds: [tb.id], costUsd: 0.0029 },
       { id: 'l1', at: ago(60 * 5), threadId: 'demo_landing_pages', threadTitle: title('demo_landing_pages'), reason: 'first-turn', outcome: 'failed', text: 'Claude took too long to answer' },
     ],
     looksToday: 14, spentTodayUsd: 0, skippedToday: 3, tokensToday: 52_400, notionalTodayUsd: 0.011,
@@ -2726,7 +2726,7 @@ ${process.env.MOCK_SCRIPTED_TURNS ? '' : "<p>The mock runner's stand-in for the 
       id: 'convex.dashboard', title: 'Convex', kind: 'url', patch: 'convex',
       url: 'data:text/html;charset=utf-8,' + encodeURIComponent(page), note: 'happy-otter-123 (dev)',
     }];
-    // As a project's .threadbear/patches/tools.ts would give it.
+    // As a project's .quokkacode/patches/tools.ts would give it.
     convex.summary.actions = [
       { id: 'tools.typecheck', title: 'Typecheck', kind: 'command', command: 'npx tsc --noEmit', patch: 'tools' },
       { id: 'tools.open-logs', title: 'Open logs', kind: 'prompt', prompt: 'Tail the Convex logs and tell me about any errors.', patch: 'tools' },
@@ -2735,7 +2735,7 @@ ${process.env.MOCK_SCRIPTED_TURNS ? '' : "<p>The mock runner's stand-in for the 
     ];
     convex.summary.patches = [
       { id: 'convex', source: 'builtin' },
-      { id: 'tools', source: 'project', file: '/Users/mike/dev/me/misc/.threadbear/patches/tools.ts' },
+      { id: 'tools', source: 'project', file: '/Users/mike/dev/me/misc/.quokkacode/patches/tools.ts' },
     ];
   }
   const hooked = threads.get('demo_build_scripts');
@@ -2753,10 +2753,10 @@ ${process.env.MOCK_SCRIPTED_TURNS ? '' : "<p>The mock runner's stand-in for the 
     ios.summary.patches = [
       { id: 'xcode', source: 'builtin' },
       { id: 'convex', source: 'builtin' },
-      { id: 'release', source: 'project', file: '/Users/mike/dev/walkies/.threadbear/patches/release.ts', folder: '/Users/mike/dev/walkies',
+      { id: 'release', source: 'project', file: '/Users/mike/dev/walkies/.quokkacode/patches/release.ts', folder: '/Users/mike/dev/walkies',
         untrusted: 'new', hash: 'a'.repeat(64) },
     ];
-    waitingPatchGives.set('/Users/mike/dev/walkies/.threadbear/patches/release.ts', [
+    waitingPatchGives.set('/Users/mike/dev/walkies/.quokkacode/patches/release.ts', [
       { id: 'release.upload-build', title: 'Upload build', kind: 'command', command: './scripts/upload.sh', patch: 'release' },
     ]);
     ios.summary.panels = [
@@ -2835,7 +2835,7 @@ The new hero is shorter, and every page now leads with what the app does.
         { title: 'Production', detail: 'main, deployed 2 days ago', url: 'https://example.com', icon: 'globe', section: 'Elsewhere', trailing: '2d' },
       ],
     }];
-    site.summary.patches = [{ id: 'deploys', source: 'project', file: path.join(root, '.threadbear/patches/deploys.ts') }];
+    site.summary.patches = [{ id: 'deploys', source: 'project', file: path.join(root, '.quokkacode/patches/deploys.ts') }];
   }
   // The thread with open asks: Highlights lists them under Needs you.
   const beta = threads.get('demo_testflight_beta');
@@ -2888,7 +2888,7 @@ header p{color:var(--muted);margin:0 0 18px;max-width:30em}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}.card h3{margin:0 0 4px;font-size:14px}
 .card p{margin:0;color:var(--muted);font-size:13px}
 </style>
-<nav><b>Threadbear</b><span>${page === 'Home' ? 'Pricing' : 'Home'}</span><span>Docs</span></nav>
+<nav><b>Quokka Code</b><span>${page === 'Home' ? 'Pricing' : 'Home'}</span><span>Docs</span></nav>
 <header><h1>Your agents, on a desk you can see.</h1>
 <p>Every thread, what it made and what it needs from you, in one quiet window.</p><span class="cta">Download for Mac</span></header>
 <section class="cards">

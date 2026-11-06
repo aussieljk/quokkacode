@@ -100,7 +100,7 @@ test('tb activity prints the timeline with thread titles from the runner', async
     const at = new Date(Date.now() - 60_000);
     const day = `${at.getFullYear()}-${String(at.getMonth() + 1).padStart(2, '0')}-${String(at.getDate()).padStart(2, '0')}`;
     fs.writeFileSync(path.join(dir, `${day}.jsonl`), JSON.stringify({ at: at.toISOString(), kind: 'view', thread: thread.id }) + '\n');
-    const env = { THREADBEAR_HOME: h.home, THREADBEAR_URL: `ws://127.0.0.1:${port}/rpc` };
+    const env = { QUOKKACODE_HOME: h.home, QUOKKACODE_URL: `ws://127.0.0.1:${port}/rpc` };
     const r = await run(['activity'], env);
     assert.equal(r.code, 0, r.err);
     assert.match(r.out, new RegExp(`view {4}${thread.id.slice(0, 8)} ${thread.title}`));
@@ -117,7 +117,7 @@ test('tb activity prints the timeline with thread titles from the runner', async
 
 test('tb activity says how to turn it on when there is no log', async () => {
   const home = tmpDir('tb-activity-');
-  const r = await run(['activity'], { THREADBEAR_HOME: home, THREADBEAR_PORT: '1' });
+  const r = await run(['activity'], { QUOKKACODE_HOME: home, QUOKKACODE_PORT: '1' });
   assert.equal(r.code, 1);
   assert.match(r.err, /Settings > General/);
 });

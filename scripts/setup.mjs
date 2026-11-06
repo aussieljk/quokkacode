@@ -1,9 +1,9 @@
-// `threadbear setup`: sets Threadbear up on this Mac from a clone of the repo
+// `quokkacode setup`: sets Quokka Code up on this Mac from a clone of the repo
 // (docs/setup-and-updates.md section 2.2). Every step looks at what's already
 // there first, so running it again only does what's missing, and --dry-run
 // says what it would do without doing any of it.
 //
-//   ./threadbear setup [--dry-run] [--yes] [--team SLUG] [--project NAME]
+//   ./quokkacode setup [--dry-run] [--yes] [--team SLUG] [--project NAME]
 //                      [--region REGION] [--cwd DIR] [--name NAME]
 //                      [--home DIR] [--skip-install] [--existing]
 //
@@ -17,15 +17,15 @@
 //      deployment (a new one, or the one this clone already uses)
 //   5. its keys: a deploy key the runner uses to deploy the backend when it
 //      updates, and the main key, set as RUNNER_KEY
-//   With --existing (a second Mac joining a Threadbear another Mac set up),
+//   With --existing (a second Mac joining a Quokka Code another Mac set up),
 //   and on a Mac that already has a runner key, steps 4, 5 and 7 are
 //   skipped: no Convex login, deploy key or backend deploy here, since each
 //   can do anything to the deployment. Its key comes from the first Mac:
 //   tb runner add <name> --ssh <this Mac> (docs/protocol.md, "Runner keys").
 //   6. runner.json: where the runner mirrors to, and the default folder for
-//      new threads (~/ThreadbearThreads, made here, unless --cwd; Settings changes it)
+//      new threads (~/QuokkaCodeThreads, made here, unless --cwd; Settings changes it)
 //   7. the backend and the website, deployed
-//   8. the runner (its LaunchAgent, with Threadbear Runner.app as the
+//   8. the runner (its LaunchAgent, with QuokkaCode Runner.app as the
 //      program, so macOS's privacy prompts name it) and the Mac app, built
 //      and installed
 //   9. where to pair your iPhone and sign a browser in (the app's Settings)
@@ -41,8 +41,8 @@ import { isJoining, runnerKeyPlan } from './runner-key-plan.mjs';
 
 const repo = path.resolve(import.meta.dirname, '..');
 // Where new threads start: a folder of their own, not the home folder, and
-// not ~/Threadbear, which on macOS is the same folder as a ~/threadbear clone.
-const THREADS_FOLDER = '~/ThreadbearThreads';
+// not ~/QuokkaCode, which on macOS is the same folder as a ~/quokkacode clone.
+const THREADS_FOLDER = '~/QuokkaCodeThreads';
 
 // Whether a folder is this repo or inside it, as macOS sees it: names
 // compared without case, through links where the folder exists.
@@ -53,14 +53,14 @@ function insideRepo(folder) {
   const r = real(repo).toLowerCase();
   return a === r || a.startsWith(r + path.sep);
 }
-const DEFAULT_HOME = path.join(os.homedir(), 'Library', 'Application Support', 'Threadbear');
+const DEFAULT_HOME = path.join(os.homedir(), 'Library', 'Application Support', 'QuokkaCode');
 
 const { values: v } = parseArgs({
   options: {
     'dry-run': { type: 'boolean' },
     yes: { type: 'boolean', short: 'y' },
     team: { type: 'string' },
-    project: { type: 'string', default: 'threadbear' },
+    project: { type: 'string', default: 'quokkacode' },
     region: { type: 'string' },
     cwd: { type: 'string' },
     name: { type: 'string' },
@@ -77,7 +77,7 @@ if (v.help) {
 }
 
 const dry = Boolean(v['dry-run']);
-const home = path.resolve((v.home ?? process.env.THREADBEAR_HOME ?? DEFAULT_HOME).replace(/^~(?=$|\/)/, os.homedir()));
+const home = path.resolve((v.home ?? process.env.QUOKKACODE_HOME ?? DEFAULT_HOME).replace(/^~(?=$|\/)/, os.homedir()));
 const secrets = path.join(home, 'secrets');
 const runnerJsonPath = path.join(home, 'runner.json');
 const deployKeyFile = path.join(secrets, 'convex-deploy.env');
@@ -90,7 +90,7 @@ const localKey = (() => {
     return '';
   }
 })();
-// A Mac joining another's Threadbear, by the flag or by the runner key it
+// A Mac joining another's Quokka Code, by the flag or by the runner key it
 // already has (setup run again there without the flag).
 const joining = isJoining({ existing: v.existing, local: localKey });
 const npm = path.join(path.dirname(process.execPath), 'npm');
@@ -151,7 +151,7 @@ function withKey(key) {
 
 function checkMac() {
   say('1. This Mac');
-  if (process.platform !== 'darwin') throw new Fail('Threadbear runs on macOS.');
+  if (process.platform !== 'darwin') throw new Fail('Quokka Code runs on macOS.');
   // os.release() is the Darwin version (25.x on macOS 26), so ask sw_vers for the one people know.
   const macos = run('sw_vers', ['-productVersion']).stdout?.trim() || `Darwin ${os.release()}`;
   ok(`macOS ${macos} on ${os.arch()}`);
@@ -160,7 +160,7 @@ function checkMac() {
   if (!has('git')) throw new Fail('git is missing.');
   ok('git');
   const major = Number(process.versions.node.split('.')[0]);
-  if (major < 24) throw new Fail(`Node ${process.versions.node} is too old; Threadbear needs 24 or newer.`);
+  if (major < 24) throw new Fail(`Node ${process.versions.node} is too old; Quokka Code needs 24 or newer.`);
   ok(`Node ${process.versions.node} (${process.execPath})`);
   const claude = fs.existsSync(path.join(os.homedir(), '.local', 'bin', 'claude')) || has('claude');
   const codex = has('codex');
@@ -172,7 +172,7 @@ function checkMac() {
   if (desktopSession()) ok('logged in to the desktop');
   else note("Nobody is logged in to this Mac's desktop. Everything up to installing the runner works, then setup stops: log in (in person or with Screen Sharing) and run it again.");
   if (fs.existsSync('/Applications/Tailscale.app') || has('tailscale')) ok('Tailscale');
-  else note("Tailscale isn't installed. Threadbear works without it; with it, a second Mac can run threads too (https://tailscale.com/download).");
+  else note("Tailscale isn't installed. Quokka Code works without it; with it, a second Mac can run threads too (https://tailscale.com/download).");
 }
 
 function desktopSession() {
@@ -301,7 +301,7 @@ async function keys(urlFromProject) {
     if (dry) todo(`a deploy key in ${deployKeyFile}`);
     else {
       fs.mkdirSync(secrets, { recursive: true, mode: 0o700 });
-      const keyName = `threadbear-runner-${os.hostname().split('.')[0].toLowerCase()}`;
+      const keyName = `quokkacode-runner-${os.hostname().split('.')[0].toLowerCase()}`;
       runOrFail('Making a deploy key', npx, ['convex', 'deployment', 'token', 'create', keyName, '--prod', '--save-env', deployKeyFile]);
       fs.chmodSync(deployKeyFile, 0o600);
       // By name, so tb runner rotate-owner knows this one is this Mac's own.
@@ -399,8 +399,8 @@ async function runnerJson(url) {
   // (Mike's first thread on Tinker Desk, 28 Oct).
   let cwd = v.cwd ?? json.defaults?.cwd ?? THREADS_FOLDER;
   // Not inside this repo: a thread there gets the repo's patches and a
-  // worktree each. macOS ignores case, so the ~/Threadbear this used to
-  // make was the ~/threadbear clone itself (Tinker Desk, 30 Oct). One
+  // worktree each. macOS ignores case, so the ~/QuokkaCode this used to
+  // make was the ~/quokkacode clone itself (Tinker Desk, 30 Oct). One
   // saved by an older setup moves; one given with --cwd is said.
   if (insideRepo(cwd)) {
     if (v.cwd) note(`${cwd} is inside this repo, so threads there get its patches and a worktree each.`);
@@ -426,13 +426,13 @@ function install() {
   if (v['skip-install']) return note('skipped (--skip-install)');
   if (dry) return todo('runner/scripts/install-runner.sh, then app/install.sh');
   if (!desktopSession()) throw new Fail("Nobody is logged in to this Mac's desktop, and macOS only starts the runner (a login agent) for someone who is. Log in, in person or with Screen Sharing, then run setup again.");
-  const env = { ...process.env, THREADBEAR_NODE: process.execPath };
+  const env = { ...process.env, QUOKKACODE_NODE: process.execPath };
   const homeArgs = path.resolve(home) === DEFAULT_HOME ? [] : ['--home', home];
   runOrFail('Installing the runner', 'bash', [path.join(repo, 'runner', 'scripts', 'install-runner.sh'), ...homeArgs], { env });
   runOrFail('Installing the Mac app', 'bash', [path.join(repo, 'app', 'install.sh')], { env });
-  // A Mac joining a Threadbear you already use: you know your way round,
+  // A Mac joining a Quokka Code you already use: you know your way round,
   // so the app's first-run tour stays away (Help > Take the Tour still has it).
-  if (joining) run('defaults', ['write', 'com.mikerosoft.threadbear', 'tourSeen', '-bool', 'YES']);
+  if (joining) run('defaults', ['write', 'com.lucasknight.quokkacode', 'tourSeen', '-bool', 'YES']);
   ok('runner and app installed');
 }
 
@@ -446,7 +446,7 @@ function joined() {
 
 function finish(url) {
   say('9. Finish setting up');
-  note('Open Threadbear for a short tour that ends with your first thread. While it runs, Finish setting up has the rest: pair your iPhone and open your website, to check on your threads from anywhere.');
+  note('Open Quokka Code for a short tour that ends with your first thread. While it runs, Finish setting up has the rest: pair your iPhone and open your website, to check on your threads from anywhere.');
   note('Pairing and the website are in Settings (⌘,) › Phone & browser too.');
   // The terminal scripts still work, for a Mac with no app window to hand.
   const at = url ?? '<your deployment URL>';
@@ -456,7 +456,7 @@ function finish(url) {
 }
 
 try {
-  say(dry ? 'Threadbear setup (dry run: nothing changes)\n' : 'Threadbear setup\n');
+  say(dry ? 'Quokka Code setup (dry run: nothing changes)\n' : 'Quokka Code setup\n');
   checkMac();
   say();
   yourCopy();
@@ -465,7 +465,7 @@ try {
   say();
   let url = readJson(runnerJsonPath).sync?.url;
   if (joining) {
-    say('4. Convex: skipped (this Mac joins a Threadbear another Mac set up)');
+    say('4. Convex: skipped (this Mac joins a Quokka Code another Mac set up)');
     note('No Convex login and no deploy key here: either can do anything to the deployment. The first Mac deploys the backend, and gives this one its own key.');
     say();
     say('5. Keys: skipped (its key comes from the first Mac)');
@@ -485,7 +485,7 @@ try {
   say();
   if (joining) joined();
   else finish(url);
-  say(dry ? '\nDry run done.' : '\nThreadbear is set up.');
+  say(dry ? '\nDry run done.' : '\nQuokkaCode is set up.');
 } catch (e) {
   if (!(e instanceof Fail)) throw e;
   console.error(`\n✗ ${e.message}\nFix that and run setup again; it carries on from where it stopped.`);

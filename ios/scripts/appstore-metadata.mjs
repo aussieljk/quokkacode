@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Sets Threadbear's App Store listing through the App Store Connect API, from
+// Sets Quokka Code's App Store listing through the App Store Connect API, from
 // ios/appstore/metadata.json. Copied from Walkies (~/dev/me/walkies/scripts/appstore-metadata.mjs).
 //
 //   node ios/scripts/appstore-metadata.mjs --check     check the copy (lengths, no em dashes) and

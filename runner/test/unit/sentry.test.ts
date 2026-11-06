@@ -15,7 +15,7 @@ test("a release of Mike's repo on the real data dir reports", () => {
 });
 
 test("someone's fork, or a copy with no origin, never reports to Mike's Sentry", () => {
-  assert.equal(sentryWanted(defaultHome(), {}, RELEASE_ID, 'https://github.com/someone/threadbear.git'), false);
+  assert.equal(sentryWanted(defaultHome(), {}, RELEASE_ID, 'https://github.com/someone/quokkacode.git'), false);
   assert.equal(sentryWanted(defaultHome(), {}, RELEASE_ID, undefined), false);
 });
 
@@ -27,8 +27,8 @@ test('a release on another data dir (a sandbox install, a test) never reports', 
   assert.equal(sentryWanted(tmpDir(), {}, RELEASE_ID, MIKES), false);
 });
 
-test('THREADBEAR_SENTRY=off and NODE_ENV=test turn it off', () => {
-  assert.equal(sentryWanted(defaultHome(), { THREADBEAR_SENTRY: 'off' }, RELEASE_ID, MIKES), false);
+test('QUOKKACODE_SENTRY=off and NODE_ENV=test turn it off', () => {
+  assert.equal(sentryWanted(defaultHome(), { QUOKKACODE_SENTRY: 'off' }, RELEASE_ID, MIKES), false);
   assert.equal(sentryWanted(defaultHome(), { NODE_ENV: 'test' }, RELEASE_ID, MIKES), false);
 });
 

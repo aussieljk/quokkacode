@@ -1,11 +1,11 @@
 // Patches: what a thread's folder gives the app beyond the transcript
-// (docs/threadbear-design/README.md): panels beside it and actions above
+// (docs/quokkacode-design/README.md): panels beside it and actions above
 // the composer. Two kinds:
 //
 // - Built in, worked out from the folder alone: a `convex/` folder gives
 //   the dashboard, an Xcode project the Simulator.
-// - Patch files, `.threadbear/patches/*.ts` (or .js, .mjs) in the project
-//   and in `~/.threadbear/patches/` for every project. Each is a module
+// - Patch files, `.quokkacode/patches/*.ts` (or .js, .mjs) in the project
+//   and in `~/.quokkacode/patches/` for every project. Each is a module
 //   whose default export says what it adds:
 //
 //     export default {
@@ -66,7 +66,7 @@ export const CONVEX_DASHBOARD = 'https://dashboard.convex.dev';
 // `npx convex dev` on an anonymous (no account) deployment serves the
 // dashboard itself, from this port unless it's taken.
 export const CONVEX_LOCAL_DASHBOARD = 'http://127.0.0.1:6790';
-export const PATCH_DIR = path.join('.threadbear', 'patches');
+export const PATCH_DIR = path.join('.quokkacode', 'patches');
 export const PATCH_EXTENSIONS = ['.ts', '.js', '.mjs'];
 
 // Everything the folder's patches give a thread.
@@ -153,7 +153,7 @@ export async function loadPatchSet(
 
 // Reads, off the event loop, what loadPatchSet's walk will ask dirs for:
 // each folder from the thread's own (and its projects') up to home, the
-// tool patches' project folders, their .threadbear/patches, the patch
+// tool patches' project folders, their .quokkacode/patches, the patch
 // files' times and the Convex projects' .env files.
 async function warmPatchReads(dirs: FolderCache, cwd: string, home: string, roots: ProjectFolder[], toolFolders: string[]): Promise<void> {
   const chain = new Set<string>([path.resolve(home)]);
@@ -425,12 +425,12 @@ export function automaticTrust(run: string): { file: string; hash: string } | un
 }
 
 // What a trusted-by-hash patch's live functions' `sh` commands are held to
-// (liveCommandProblem), by patch file: the folder holding `.threadbear/`
+// (liveCommandProblem), by patch file: the folder holding `.quokkacode/`
 // (where its commands were followed from for the hash, and where they
 // run, except a tool patch's, which runs in the folder it applies in),
 // the files the hash covered, the scripts it can't follow, and the hash,
 // checked again before they run. A patch trusted whatever it holds (home's,
-// Threadbear's own) has none.
+// Quokka Code's own) has none.
 type LiveBinding = { folder: string; files: string[]; blocked?: Record<string, string>; hash: string; tool: boolean };
 const liveBindings = new Map<string, LiveBinding>();
 
@@ -457,7 +457,7 @@ function bindAutomatic(loaded: LoadedPatch, file: string, files: string[], block
     if ('problem' in bound) return refuse(`hook "${hook.title}"`, bound.problem);
     hooks.push({ ...hook, exec: note(bound.run) });
   }
-  // Actions run from the folder holding .threadbear/, where their commands
+  // Actions run from the folder holding .quokkacode/, where their commands
   // were followed for the hash from, and one worked out in code mustn't
   // reach a file the hash didn't cover.
   const actions: Action[] = [];
@@ -639,8 +639,8 @@ export function webPage(value: unknown): string | null {
 
 // The patch that gives a thread in `cwd` its own worktree: the first patch
 // file with a `worktree`, from `cwd` up (the nearest folder first). Home's
-// ~/.threadbear/patches never counts, and nor do project folders:
-// worktrees are a repo's own choice. `folder` holds the `.threadbear/`.
+// ~/.quokkacode/patches never counts, and nor do project folders:
+// worktrees are a repo's own choice. `folder` holds the `.quokkacode/`.
 export type WorktreePatch = WorktreeConfig & { patch: string; file: string; folder: string };
 
 export async function findWorktreePatch(
@@ -915,7 +915,7 @@ export type LiveContext = {
 type LiveSh = { dir: string; key: string; run: (command: string) => Promise<CommandOutcome>; close: () => void };
 
 // How a patch's live function runs a command. A trusted-by-hash patch's
-// (liveBindings) run from the folder holding its `.threadbear/` (a tool
+// (liveBindings) run from the folder holding its `.quokkacode/` (a tool
 // patch's from the folder it applies in), only while the patch still
 // hashes to the trusted version, checked afresh before each command (a
 // function can wait between two), only what liveCommandProblem allows,
@@ -966,7 +966,7 @@ function callThenClose(call: () => unknown, shIn: LiveSh): unknown {
 
 // What a list panel's `items` gets: where it applies, and `sh` to run a
 // command there (resolves with what it printed, rejects on failure); for
-// a patch trusted by its hash, from the folder holding its `.threadbear/`
+// a patch trusted by its hash, from the folder holding its `.quokkacode/`
 // and only what trusting it covers (liveSh).
 // `matched` is what made a tool patch apply: the paths its appliesTo
 // found (two .tandem files in a folder are two), and empty otherwise.

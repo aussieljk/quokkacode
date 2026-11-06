@@ -219,7 +219,7 @@ function unreadable(src: string): string | undefined {
   } catch (e) {
     const code = (e as NodeJS.ErrnoException).code;
     if (code === 'ENOENT') return `The file went away before it could be added: ${name}`;
-    if (code === 'EACCES' || code === 'EPERM') return `Threadbear isn't allowed to read ${name}`;
+    if (code === 'EACCES' || code === 'EPERM') return `Quokka Code isn't allowed to read ${name}`;
     return `Couldn't read ${name}${code ? ` (${code})` : ''}`;
   } finally {
     if (fd !== null) fs.closeSync(fd);

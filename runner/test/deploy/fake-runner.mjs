@@ -30,7 +30,7 @@ import { authProof, isNonce, newNonce } from './rpc-auth.ts';
 
 const here = import.meta.dirname;
 const mode = JSON.parse(fs.readFileSync(path.join(here, 'mode.json'), 'utf8'));
-const home = process.env.THREADBEAR_HOME;
+const home = process.env.QUOKKACODE_HOME;
 const release = (() => {
   try {
     return JSON.parse(fs.readFileSync(path.join(here, '..', 'release.json'), 'utf8')).id;
@@ -39,7 +39,7 @@ const release = (() => {
   }
 })();
 const version = `9.9.9+${release ?? 'source'}`;
-// The contract with launch.mjs: state.json lives in <THREADBEAR_HOME>/runner,
+// The contract with launch.mjs: state.json lives in <QUOKKACODE_HOME>/runner,
 // which only exists for an installed runner, never in the smoke test.
 const stateFile = path.join(home, 'runner', 'state.json');
 const launched = fs.existsSync(stateFile);
@@ -112,7 +112,7 @@ function handle(method, params) {
       pending = { when: params.when ?? 'idle', requestedAt: new Date().toISOString(), release: params.release, resumeThreadId: params.resume?.threadId };
       // As the real one does, it still shows the restart as pending until it
       // lets go of the port.
-      if (mode.handover && waitingFor.length && process.env.THREADBEAR_SUPERVISED === '1' && process.send) {
+      if (mode.handover && waitingFor.length && process.env.QUOKKACODE_SUPERVISED === '1' && process.send) {
         handOver();
         return { scheduled: true, waitingFor: [], handover: { keeps: waitingFor } };
       }
@@ -237,11 +237,11 @@ server.on('upgrade', (req, socket) => {
   });
 });
 
-server.listen(Number(process.env.THREADBEAR_PORT ?? 0), '127.0.0.1', () => {
+server.listen(Number(process.env.QUOKKACODE_PORT ?? 0), '127.0.0.1', () => {
   const { port } = server.address();
   writeJsonAtomic(path.join(home, 'runner.json'), { port });
-  console.log(`threadbear-runner listening on ${port}`);
-  globalThis.threadbearLaunch?.listening?.();
+  console.log(`quokkacode-runner listening on ${port}`);
+  globalThis.quokkacodeLaunch?.listening?.();
   if (launched && typeof mode.crashAfterMs === 'number') {
     setTimeout(() => {
       console.log('fake runner: dying after it started, on purpose');

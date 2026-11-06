@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { firstName, USER_NAME, userLine } from '../../src/user-name.ts';
-import { buildThreadbearTools, FILING_PROJECTS, patchesLine, SHOWING_THE_USER } from '../../src/threadbear-mcp.ts';
+import { buildQuokkaCodeTools, FILING_PROJECTS, patchesLine, SHOWING_THE_USER } from '../../src/quokkacode-mcp.ts';
 import { ALREADY_ENDED, ARCHIVE_ADDED, SNOOZE_ADDED, CODEX_END_TURN_DESCRIPTION, END_TURN_DESCRIPTION, endTurnDescription, NARRATION_ONLY, NO_REPLY, tryFirstNudge } from '../../src/needs.ts';
 import { dynamicToolSpecs, NAMESPACE_DESCRIPTION, TOOL_GUIDANCE } from '../../src/adapters/codex/tools.ts';
 import { SYSTEM } from '../../src/librarian.ts';
@@ -17,7 +17,7 @@ test('the user line is the first word of the account name, or nothing', () => {
   assert.equal(userLine(''), '');
 });
 
-// Threadbear runs on other people's Macs too, so what an agent or a
+// Quokka Code runs on other people's Macs too, so what an agent or a
 // background model reads says "the user", and only userLine names them.
 // This caught the 56 "Mike"s that were there until 30 Oct.
 test('nothing an agent reads names Mike, apart from the user line', () => {
@@ -26,8 +26,8 @@ test('nothing an agent reads names Mike, apart from the user line', () => {
   const h = makeHarness();
   // Codex's, as only those have a schema to write out (Claude's end_turn is
   // listed by its MCP server); Claude's own descriptions are checked below.
-  const tools = buildThreadbearTools(h.runner, 'self', Date.now, undefined, undefined, undefined, { provider: 'codex' });
-  const claude = [false, true].flatMap((oneReply) => buildThreadbearTools(h.runner, 'self', Date.now, undefined, undefined, undefined, { oneReply: () => oneReply }).map((t) => t.description));
+  const tools = buildQuokkaCodeTools(h.runner, 'self', Date.now, undefined, undefined, undefined, { provider: 'codex' });
+  const claude = [false, true].flatMap((oneReply) => buildQuokkaCodeTools(h.runner, 'self', Date.now, undefined, undefined, undefined, { oneReply: () => oneReply }).map((t) => t.description));
   const texts: [string, string][] = [
     ['SHOWING_THE_USER', SHOWING_THE_USER],
     ['FILING_PROJECTS', FILING_PROJECTS],

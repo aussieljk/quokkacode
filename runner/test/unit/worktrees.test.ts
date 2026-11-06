@@ -53,7 +53,7 @@ function makeRepo(patch = PATCH(`{ setup: "echo setting up in $PWD; touch .setup
     '.gitignore': 'node_modules\n.setup-ran\n.build\n',
     'README.md': 'one\ntwo\nthree\n',
     'runner/a.ts': 'export const a = 1;\n',
-    ...(patch ? { '.threadbear/patches/checks.ts': patch } : {}),
+    ...(patch ? { '.quokkacode/patches/checks.ts': patch } : {}),
   });
   sh(main, 'git add -A && git commit -qm init');
   return { root, main };
@@ -118,15 +118,15 @@ test('a patch can carry worktree with setup and check; anything malformed is the
 test('the nearest patch with a worktree wins; home\'s patches and broken files never count', async () => {
   const home = fs.realpathSync(tmpDir());
   write(home, {
-    '.threadbear/patches/everywhere.ts': PATCH(`{ setup: "from home" }`),
-    'dev/repo/.threadbear/patches/a-actions.ts': `export default { actions: [{ title: "Hi", run: "echo hi" }] };`,
-    'dev/repo/.threadbear/patches/b-broken.ts': `export default { worktree: { setup: 4 } };`,
-    'dev/repo/.threadbear/patches/c-wt.ts': PATCH(`{ setup: "outer", check: "outer check" }`),
-    'dev/repo/pkg/.threadbear/patches/inner.ts': PATCH(`{ check: "inner check" }`),
+    '.quokkacode/patches/everywhere.ts': PATCH(`{ setup: "from home" }`),
+    'dev/repo/.quokkacode/patches/a-actions.ts': `export default { actions: [{ title: "Hi", run: "echo hi" }] };`,
+    'dev/repo/.quokkacode/patches/b-broken.ts': `export default { worktree: { setup: 4 } };`,
+    'dev/repo/.quokkacode/patches/c-wt.ts': PATCH(`{ setup: "outer", check: "outer check" }`),
+    'dev/repo/pkg/.quokkacode/patches/inner.ts': PATCH(`{ check: "inner check" }`),
     'dev/plain/x.txt': '',
   });
   const inner = await findWorktreePatch(path.join(home, 'dev/repo/pkg'), home);
-  assert.deepEqual(inner, { check: 'inner check', patch: 'inner', file: path.join(home, 'dev/repo/pkg/.threadbear/patches/inner.ts'), folder: path.join(home, 'dev/repo/pkg') });
+  assert.deepEqual(inner, { check: 'inner check', patch: 'inner', file: path.join(home, 'dev/repo/pkg/.quokkacode/patches/inner.ts'), folder: path.join(home, 'dev/repo/pkg') });
   const outer = await findWorktreePatch(path.join(home, 'dev/repo'), home);
   assert.equal(outer?.patch, 'c-wt');
   assert.equal(outer?.setup, 'outer');
@@ -216,7 +216,7 @@ test('a leftover folder or branch of the same name is never reused', async () =>
   assert.equal(sh(main, 'git worktree list').split('\n').length, 1);
 
   const notRepo = path.join(fs.realpathSync(tmpDir()), 'plain');
-  write(notRepo, { '.threadbear/patches/w.ts': PATCH('{}') });
+  write(notRepo, { '.quokkacode/patches/w.ts': PATCH('{}') });
   const p2 = (await findWorktreePatch(notRepo, path.dirname(notRepo)))!;
   const r = await makeWorktree({ cwd: notRepo, threadId: id, patch: p2 });
   assert.deepEqual(r, { ok: false, reason: `the w patch asks for one, but ${notRepo} isn't in a git repo` });
@@ -240,7 +240,7 @@ test('a failing setup is shown and the turn starts anyway', async () => {
 // the scripts it names there, that must be trusted (Daybreak, 5 Nov).
 test("setup runs only when the worktree's own copy of the patch is trusted, and it's that copy's setup", async () => {
   const opts = { actionShell: ['/bin/sh', '-c'], actionTimeoutMs: 10_000 };
-  const file = (main: string) => path.join(main, '.threadbear/patches/checks.ts');
+  const file = (main: string) => path.join(main, '.quokkacode/patches/checks.ts');
 
   // Committed: a setup script that does harm. In the main checkout, not
   // committed: a harmless one, and that's what was trusted.
@@ -289,7 +289,7 @@ test("setup runs only when the worktree's own copy of the patch is trusted, and 
 // scripts/setup.sh changed, as the hash only saw ./setup.sh.
 test('changing only the setup script needs trusting again before a thread runs it; a setup that cds first never runs', async () => {
   const opts = { actionShell: ['/bin/sh', '-c'], actionTimeoutMs: 10_000 };
-  const file = (main: string) => path.join(main, '.threadbear/patches/checks.ts');
+  const file = (main: string) => path.join(main, '.quokkacode/patches/checks.ts');
 
   const cd = makeRepo(PATCH(`{ setup: "cd scripts && ./setup.sh" }`));
   commit(cd.main, { 'scripts/setup.sh': 'touch ../.setup-ran\n' }, 'setup');
@@ -341,7 +341,7 @@ test('changing only the setup script needs trusting again before a thread runs i
 // changed helper ran before the first turn. Now the helper is in the hash.
 test("a worktree whose setup script is unchanged but whose helper changed doesn't run the setup; trusting that version does", async () => {
   const opts = { actionShell: ['/bin/sh', '-c'], actionTimeoutMs: 10_000 };
-  const file = (main: string) => path.join(main, '.threadbear/patches/checks.ts');
+  const file = (main: string) => path.join(main, '.quokkacode/patches/checks.ts');
   const r = makeRepo(PATCH(`{ setup: "./setup.sh" }`));
   // Committed: an unchanged setup.sh that runs a harmful helper. In the main
   // checkout, not committed: a harmless helper, and that's what was trusted.
@@ -414,9 +414,9 @@ if test -f second.txt; then test -f first.txt && test "$1" = --latest; fi
   sh(main, 'chmod +x check.sh && git add check.sh && git commit -qm executable');
   const a = makeBranch(main, 'first');
   const b = makeBranch(main, 'second');
-  commit(a.path, { 'first.txt': 'first\n', '.threadbear/patches/checks.ts': PATCH(`{ check: "./check.sh --latest" }`) }, 'First');
+  commit(a.path, { 'first.txt': 'first\n', '.quokkacode/patches/checks.ts': PATCH(`{ check: "./check.sh --latest" }`) }, 'First');
   commit(b.path, { 'second.txt': 'second\n' }, 'Second');
-  const env = { THREADBEAR_HOME: path.join(root, 'no-runner'), THREADBEAR_THREAD_ID: undefined };
+  const env = { QUOKKACODE_HOME: path.join(root, 'no-runner'), QUOKKACODE_THREAD_ID: undefined };
   const first = runTb(['land'], a.path, env);
   await until(() => fs.existsSync(path.join(root, 'checking')), 'first check');
   const second = startTb(['land'], b.path, env);
@@ -450,7 +450,7 @@ test('land releases its lock when a CLI is killed during the check', async () =>
   const { root, main } = makeRepo(PATCH(`{ check: "touch ../checking; while ! test -f ../release; do sleep 0.05; done" }`));
   const t = makeBranch(main);
   commit(t.path, { 'first.txt': 'first\n' }, 'First');
-  const env = { THREADBEAR_HOME: path.join(root, 'no-runner'), THREADBEAR_THREAD_ID: undefined };
+  const env = { QUOKKACODE_HOME: path.join(root, 'no-runner'), QUOKKACODE_THREAD_ID: undefined };
   const first = startTb(['land'], t.path, env);
   try {
     await until(() => fs.existsSync(path.join(t.path, '../checking')), 'CLI checking');
@@ -491,9 +491,9 @@ test('tb land refuses a check patch that cannot load after rebasing', async () =
   const { root, main } = makeRepo(PATCH(`{ check: "true" }`));
   const t = makeBranch(main);
   commit(t.path, { 'first.txt': 'first\n' }, 'First');
-  commit(main, { '.threadbear/patches/checks.ts': 'export default { worktree: { check: ' }, 'Broken check');
+  commit(main, { '.quokkacode/patches/checks.ts': 'export default { worktree: { check: ' }, 'Broken check');
   const before = sh(main, 'git rev-parse main');
-  const result = await runTb(['land'], t.path, { THREADBEAR_HOME: path.join(root, 'no-runner'), THREADBEAR_THREAD_ID: undefined });
+  const result = await runTb(['land'], t.path, { QUOKKACODE_HOME: path.join(root, 'no-runner'), QUOKKACODE_THREAD_ID: undefined });
   assert.equal(result.code, 1, result.out);
   assert.match(result.out, /Couldn't read the repo's patches for its check/);
   assert.equal(sh(main, 'git rev-parse main'), before);
@@ -672,7 +672,7 @@ test('tb land outside a thread goes by git: the thread/ branch, main\'s checkout
   const { main } = makeRepo(PATCH(`{ check: "echo checking in $PWD" }`));
   const t = makeBranch(main);
   commit(t.path, { 'runner/b.ts': '2\n' }, 'Add b');
-  const env = { THREADBEAR_THREAD_ID: undefined, THREADBEAR_HOME: fs.realpathSync(tmpDir()), THREADBEAR_URL: 'ws://127.0.0.1:9/rpc' };
+  const env = { QUOKKACODE_THREAD_ID: undefined, QUOKKACODE_HOME: fs.realpathSync(tmpDir()), QUOKKACODE_URL: 'ws://127.0.0.1:9/rpc' };
   const dry = await runTb(['land', '--dry-run'], path.join(t.path, 'runner'), env);
   assert.equal(dry.code, 0, dry.out);
   assert.match(dry.out, /^Running the check: echo checking in \$PWD\nThe check passed/);
@@ -697,7 +697,7 @@ test('tb land inside a thread asks the runner where its worktree is, wherever it
     await until(() => h.adapter.sessions.length === 1, 'the CLI to start');
     const wt = h.runner.get(thread.id).worktree!.path;
     commit(wt, { 'runner/b.ts': '2\n' }, 'Thread work');
-    const r = await runTb(['land'], fs.realpathSync(tmpDir()), { THREADBEAR_THREAD_ID: thread.id, THREADBEAR_HOME: h.home, THREADBEAR_URL: `ws://127.0.0.1:${port}/rpc` });
+    const r = await runTb(['land'], fs.realpathSync(tmpDir()), { QUOKKACODE_THREAD_ID: thread.id, QUOKKACODE_HOME: h.home, QUOKKACODE_URL: `ws://127.0.0.1:${port}/rpc` });
     assert.equal(r.code, 0, r.out);
     assert.match(r.out, new RegExp(`Landed on main in ${main}:\n[0-9a-f]+ Thread work\n$`));
     assert.equal(sh(main, 'git log -1 --format=%s'), 'Thread work');
@@ -748,7 +748,7 @@ test('archiving a thread whose branch is all on main removes its worktree and br
   assert.ok(notes(h, id).includes(`This thread's worktree was removed when it was archived, so it carries on in the main checkout, ${path.join(main, 'runner')}.`));
   const sent = h.adapter.last.sent.at(-1)!.text;
   // After the handoff note (the test harness can't carry the transcript).
-  assert.match(sent, new RegExp(`\n\n\\[Threadbear\\] Your worktree at ${w.path} was removed after its work landed on main\\. You're now in the main checkout`));
+  assert.match(sent, new RegExp(`\n\n\\[QuokkaCode\\] Your worktree at ${w.path} was removed after its work landed on main\\. You're now in the main checkout`));
   assert.match(sent, /More please$/);
   assert.doesNotMatch(h.adapter.last.opts.instructions ?? '', /own git worktree/, 'a fresh session is no longer told about it');
 });
@@ -804,7 +804,7 @@ test('deleting a thread removes a landed worktree; an unlanded one stays, with a
 
 const KEEP = PATCH(`{ setup: "touch .setup-ran", keep: ["app/.build"] }`);
 
-const isLocked = (main: string, wt: string) => sh(main, 'git worktree list --porcelain').split('\n\n').some((b) => b.includes(`worktree ${wt}\n`) && b.includes('locked threadbear spare'));
+const isLocked = (main: string, wt: string) => sh(main, 'git worktree list --porcelain').split('\n\n').some((b) => b.includes(`worktree ${wt}\n`) && b.includes('locked quokkacode spare'));
 
 test('with keep, an archived landed worktree is kept as a spare, and the next thread takes it, build cache and all', async () => {
   const { root, main } = makeRepo(KEEP);
@@ -879,7 +879,7 @@ test(`with keep, past ${MAX_SPARES} spares an archived worktree is removed as be
 
 // ------------------------------------------------- handovers and stale records
 
-// THREADBEAR-16 (6 Nov): a thread archived as a handover began. The cleanup
+// QUOKKACODE-16 (6 Nov): a thread archived as a handover began. The cleanup
 // was still running git when the draining runner saved the record and let
 // the thread go, so its result (removedAt and the note) was lost, and the
 // note's emit threw on the let-go thread.
@@ -928,7 +928,7 @@ test('a thread brought back whose worktree folder is now another\'s carries on i
   const { main } = makeRepo();
   const h = harness();
   const { id, w } = await threadWithWorktree(h, main);
-  // As THREADBEAR-16 left it: worktree and branch gone, record not told,
+  // As QUOKKACODE-16 left it: worktree and branch gone, record not told,
   // and then another thread took the folder.
   sh(main, `git worktree remove --force ${w.path} && git branch -D ${w.branch}`);
   sh(main, `git worktree add -q -b thread/zzzz0000 ${w.path} main`);

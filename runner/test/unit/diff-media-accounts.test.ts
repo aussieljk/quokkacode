@@ -190,22 +190,22 @@ test('CLI env: CLAUDE_CONFIG_DIR per account, parent session vars dropped', () =
   assert.equal(three.CLAUDE_CONFIG_DIR, '/acct/claude-3');
 });
 
-test('config honours THREADBEAR_HOME, THREADBEAR_PORT and runner.json', () => {
+test('config honours QUOKKACODE_HOME, QUOKKACODE_PORT and runner.json', () => {
   const home = tmpDir();
   fs.writeFileSync(path.join(home, 'runner.json'), JSON.stringify({ port: 9999, defaults: { cwd: '/tmp' }, idleMinutes: 5 }));
-  const a = loadConfig({ THREADBEAR_HOME: home });
+  const a = loadConfig({ QUOKKACODE_HOME: home });
   assert.equal(a.home, home);
   assert.equal(a.port, 9999);
   assert.equal(a.idleMs, 5 * 60_000);
   assert.equal(a.defaults.cwd, '/tmp');
-  const b = loadConfig({ THREADBEAR_HOME: home, THREADBEAR_PORT: '18888', THREADBEAR_IDLE_MS: '1000' });
+  const b = loadConfig({ QUOKKACODE_HOME: home, QUOKKACODE_PORT: '18888', QUOKKACODE_IDLE_MS: '1000' });
   assert.equal(b.port, 18888);
   assert.equal(b.idleMs, 1000);
   // The app's name for the same override.
-  assert.equal(loadConfig({ THREADBEAR_DATA_DIR: home }).home, home);
+  assert.equal(loadConfig({ QUOKKACODE_DATA_DIR: home }).home, home);
   assert.equal(a.defaults.model, undefined, 'no default model: the account decides');
   fs.writeFileSync(path.join(home, 'runner.json'), JSON.stringify({ defaults: { cwd: '/tmp', model: ' claude-haiku-5-5 ' } }));
-  assert.equal(loadConfig({ THREADBEAR_HOME: home }).defaults.model, 'claude-haiku-5-5');
+  assert.equal(loadConfig({ QUOKKACODE_HOME: home }).defaults.model, 'claude-haiku-5-5');
 });
 
 test('runner.json records the port the runner listens on and keeps other settings', () => {

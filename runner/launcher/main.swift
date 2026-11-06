@@ -1,4 +1,4 @@
-// Threadbear Runner: the executable inside "Threadbear Runner.app", which
+// QuokkaCode Runner: the executable inside "QuokkaCode Runner.app", which
 // the runner's LaunchAgent runs (scripts/install-runner.sh writes the
 // plist, launcher/build-launcher.sh builds the app). It starts the command
 // it is given, `node <home>/runner/launch.mjs`, as a child, forwards the
@@ -10,7 +10,7 @@
 // inherits it. When the plist ran node straight, every prompt an agent's
 // shell caused said "node", and the grant went to that Node binary, so it
 // was lost when Node updated. With this app as the program the prompts say
-// "Threadbear Runner" and the grant stays with the app, which is rebuilt
+// "QuokkaCode Runner" and the grant stays with the app, which is rebuilt
 // only when these sources change and is always signed the same way
 // (build-launcher.sh), so it survives runner releases and Node updates.
 //
@@ -36,7 +36,7 @@ func log(_ level: String, _ message: String) {
 
 let arguments = CommandLine.arguments
 if arguments.count < 2 {
-  log("ERROR", "nothing to run. Threadbear Runner is started by launchd (com.mikerosoft.threadbear.runner) with the runner's command as its arguments; install it with runner/scripts/install-runner.sh rather than opening it.")
+  log("ERROR", "nothing to run. QuokkaCode Runner is started by launchd (com.lucasknight.quokkacode.runner) with the runner's command as its arguments; install it with runner/scripts/install-runner.sh rather than opening it.")
   exit(64)
 }
 let command = Array(arguments.dropFirst())

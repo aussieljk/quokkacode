@@ -1,6 +1,6 @@
-// The real npm path for Threadbear's own Codex copies (src/updates/): two
+// The real npm path for Quokka Code's own Codex copies (src/updates/): two
 // real versions installed from the registry with `npm install --prefix`
-// into a temp THREADBEAR_HOME, an app-server started on the first with a
+// into a temp QUOKKACODE_HOME, an app-server started on the first with a
 // temp CODEX_HOME, the second activated under it, and the running process
 // checked to carry on. It needs the network (about 2 x 340 MB) and sends no
 // prompts. Nothing touches a real install: not the nvm global prefix,
@@ -121,7 +121,7 @@ test('codex copies: install two real versions; a running app-server keeps workin
     assert.ok(fs.realpathSync(oldBinary.command).startsWith(fs.realpathSync(path.join(tools, OLD))));
 
     server = new AppServer(oldBinary.command, env);
-    const init = await server.request(1, 'initialize', { clientInfo: { name: 'threadbear-e2e', title: 'Threadbear e2e', version: '0.0.0' }, capabilities: { experimentalApi: true } });
+    const init = await server.request(1, 'initialize', { clientInfo: { name: 'quokkacode-e2e', title: 'Quokka Code e2e', version: '0.0.0' }, capabilities: { experimentalApi: true } });
     assert.match(String(init.result?.userAgent), new RegExp(`/${OLD.replaceAll('.', '\\.')} `));
     server.send({ method: 'initialized' });
 
@@ -142,7 +142,7 @@ test('codex copies: install two real versions; a running app-server keeps workin
 
     // A new one starts the new version.
     const fresh = new AppServer(resolveNative(u.codexBinary()).command, env);
-    const init2 = await fresh.request(1, 'initialize', { clientInfo: { name: 'threadbear-e2e', title: 'Threadbear e2e', version: '0.0.0' }, capabilities: { experimentalApi: true } });
+    const init2 = await fresh.request(1, 'initialize', { clientInfo: { name: 'quokkacode-e2e', title: 'Quokka Code e2e', version: '0.0.0' }, capabilities: { experimentalApi: true } });
     assert.match(String(init2.result?.userAgent), new RegExp(`/${NEW.replaceAll('.', '\\.')} `));
     await fresh.close();
   } finally {

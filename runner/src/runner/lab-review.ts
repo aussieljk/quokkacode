@@ -55,7 +55,7 @@ export const labReviewPart = {
     if (!change || change.codeLines < LAB_REVIEW_MIN_LINES) return undefined;
     // A runner handing over to a new release, restarting or stopping
     // makes no threads (new-threads.ts), and the turn that just ended is
-    // often the one that landed the release (THREADBEAR-14, 6 Nov 2026).
+    // often the one that landed the release (QUOKKACODE-14, 6 Nov 2026).
     // The review is owed instead, and the runner that has the thread next
     // starts it (startOwedReview). The caller doesn't mark it finished
     // meanwhile.

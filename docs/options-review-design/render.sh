@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Same headless Chromium approach as docs/threadbear-design/render.sh.
+# Same headless Chromium approach as docs/quokkacode-design/render.sh.
 # Renders concept HTML, without installing packages or opening an app window.
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"

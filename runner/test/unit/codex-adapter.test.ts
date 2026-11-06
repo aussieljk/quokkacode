@@ -1,6 +1,6 @@
 // The Codex session against a fake app-server (test/helpers/fake-app-server.ts)
 // and a stub normaliser: the state machine, steering, interrupts, resume,
-// child threads, the short-lived processes and the threadbear tools.
+// child threads, the short-lived processes and the quokkacode tools.
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -147,7 +147,7 @@ async function open(o: Partial<StartSessionOptions> & { deps?: Partial<CodexAdap
     mediaDir: path.join(home, 'media'),
     blobsDir: path.join(home, 'blobs'),
     tmpDir: home,
-    env: { THREADBEAR_THREAD_ID: 'tb-1' },
+    env: { QUOKKACODE_THREAD_ID: 'tb-1' },
     ...rest,
   };
   const session = adapter.start(opts, rec.sink) as CodexSession;
@@ -210,14 +210,14 @@ test('a new thread: thread/start with the policy, config and tools; then session
   assert.equal(p.approvalsReviewer, 'user');
   // With tools, the guidance on using them goes in as developer instructions.
   assert.deepEqual(p.config, {
-    'shell_environment_policy.set.THREADBEAR_THREAD_ID': 'tb-1',
+    'shell_environment_policy.set.QUOKKACODE_THREAD_ID': 'tb-1',
     'tools.update_plan.enabled': true,
     mcp_optional_startup_grace_ms: 10000,
     suppress_unstable_features_warning: true,
     developer_instructions: TOOL_GUIDANCE,
   });
   assert.equal(p.dynamicTools[0].type, 'namespace');
-  assert.equal(p.dynamicTools[0].name, 'threadbear');
+  assert.equal(p.dynamicTools[0].name, 'quokkacode');
   assert.equal(p.dynamicTools[0].tools[0].name, 'echo');
   assert.deepEqual(p.dynamicTools[0].tools[0].inputSchema.properties, { text: { type: 'string' } });
   h.conn.respond(req.id, threadResult('th-new'));
@@ -256,7 +256,7 @@ test('resume: thread/resume without tools; the running version wins over the thr
   assert.equal(req.params.threadId, 'th-old');
   assert.equal(req.params.excludeTurns, true);
   assert.equal(req.params.dynamicTools, undefined);
-  assert.equal((req.params.config as Record<string, unknown>)['shell_environment_policy.set.THREADBEAR_THREAD_ID'], 'tb-1');
+  assert.equal((req.params.config as Record<string, unknown>)['shell_environment_policy.set.QUOKKACODE_THREAD_ID'], 'tb-1');
   // Made by an older Codex; this process runs 0.164.0.
   h.conn.respond(req.id, threadResult('th-old', { thread: { ...threadResult('th-old').thread, cliVersion: '0.150.0' } }));
   await waitFor(() => h.rec.kinds().includes('cliVersion'));
@@ -691,19 +691,19 @@ test('subagents: traffic is marked with the child id, approvals reach this sink 
   await h.session.end();
 });
 
-test("a file change that renames a file into .threadbear/patches asks, past the thread's file-change rule, with no Always allow", async () => {
+test("a file change that renames a file into .quokkacode/patches asks, past the thread's file-change rule, with no Always allow", async () => {
   const h = await open({ permissionMode: 'ask', allowRules: [FILE_CHANGE_RULE] });
   await started(h);
   h.session.send({ id: 'm1', text: 'tidy up', images: [] });
   await turnStarts(h, 'u1');
   const cwd = h.opts.cwd;
-  const change = { path: path.join(cwd, 'notes.ts'), kind: { type: 'update', move_path: path.join(cwd, '.threadbear', 'patches', 'notes.ts') }, diff: '' };
+  const change = { path: path.join(cwd, 'notes.ts'), kind: { type: 'update', move_path: path.join(cwd, '.quokkacode', 'patches', 'notes.ts') }, diff: '' };
   h.conn.notify('item/started', { threadId: 'th-1', turnId: 'u1', item: { type: 'fileChange', id: 'fc-m', changes: [change], status: 'inProgress' } });
   await sleep(30);
   const asked = h.conn.serverRequest('item/fileChange/requestApproval', { threadId: 'th-1', turnId: 'u1', itemId: 'fc-m', reason: null, grantRoot: null });
   await waitFor(() => h.rec.approvals.length === 1);
   assert.equal(h.rec.approvals[0].canAlwaysAllow, false);
-  assert.match(h.rec.approvals[0].title, /Threadbear runs this file as code/);
+  assert.match(h.rec.approvals[0].title, /Quokka Code runs this file as code/);
   await asked;
   await h.session.end();
 });
@@ -842,7 +842,7 @@ test('Plan first: plan mode goes on turn/start as the plan collaboration mode, a
 
 // ---- Tools
 
-test('threadbear tools: a known one runs, an unknown one says so, delete_thread asks first', async () => {
+test('quokkacode tools: a known one runs, an unknown one says so, delete_thread asks first', async () => {
   const calls: string[] = [];
   const list = tool('list_threads', 'List threads.', { query: z.string().optional() }, async ({ query }) => {
     calls.push(`list ${query ?? ''}`);
@@ -856,21 +856,21 @@ test('threadbear tools: a known one runs, an unknown one says so, delete_thread 
   await started(h);
   h.session.send({ id: 'm1', text: 'x', images: [] });
   await turnStarts(h, 'u1');
-  const ok = await h.conn.serverRequest('item/tool/call', { threadId: 'th-1', turnId: 'u1', callId: 'exec-1', namespace: 'threadbear', tool: 'list_threads', arguments: { query: 'fix' } });
+  const ok = await h.conn.serverRequest('item/tool/call', { threadId: 'th-1', turnId: 'u1', callId: 'exec-1', namespace: 'quokkacode', tool: 'list_threads', arguments: { query: 'fix' } });
   assert.deepEqual(ok.result, { contentItems: [{ type: 'inputText', text: 'thread a\nthread b' }], success: true });
-  const gone = await h.conn.serverRequest('item/tool/call', { threadId: 'th-1', turnId: 'u1', callId: 'exec-2', namespace: 'threadbear', tool: 'old_tool', arguments: {} });
+  const gone = await h.conn.serverRequest('item/tool/call', { threadId: 'th-1', turnId: 'u1', callId: 'exec-2', namespace: 'quokkacode', tool: 'old_tool', arguments: {} });
   assert.equal((gone.result as { success: boolean }).success, false);
-  assert.match((gone.result as { contentItems: { text: string }[] }).contentItems[0].text, /no tool called threadbear\.old_tool/);
-  const badArgs = await h.conn.serverRequest('item/tool/call', { threadId: 'th-1', turnId: 'u1', callId: 'exec-3', namespace: 'threadbear', tool: 'delete_thread', arguments: {} });
+  assert.match((gone.result as { contentItems: { text: string }[] }).contentItems[0].text, /no tool called quokkacode\.old_tool/);
+  const badArgs = await h.conn.serverRequest('item/tool/call', { threadId: 'th-1', turnId: 'u1', callId: 'exec-3', namespace: 'quokkacode', tool: 'delete_thread', arguments: {} });
   assert.equal((badArgs.result as { success: boolean }).success, false);
   h.rec.state.approve = async () => ({ decision: 'deny' });
-  const denied = await h.conn.serverRequest('item/tool/call', { threadId: 'th-1', turnId: 'u1', callId: 'exec-4', namespace: 'threadbear', tool: 'delete_thread', arguments: { threadId: 'abc' } });
+  const denied = await h.conn.serverRequest('item/tool/call', { threadId: 'th-1', turnId: 'u1', callId: 'exec-4', namespace: 'quokkacode', tool: 'delete_thread', arguments: { threadId: 'abc' } });
   assert.equal((denied.result as { success: boolean }).success, false);
-  assert.equal(h.rec.approvals.at(-1)!.name, 'mcp__threadbear__delete_thread');
+  assert.equal(h.rec.approvals.at(-1)!.name, 'mcp__quokkacode__delete_thread');
   assert.equal(h.rec.approvals.at(-1)!.canAlwaysAllow, false);
   assert.equal(h.rec.approvals.at(-1)!.toolUseId, 'exec-4');
   h.rec.state.approve = async () => ({ decision: 'allow' });
-  const allowed = await h.conn.serverRequest('item/tool/call', { threadId: 'th-1', turnId: 'u1', callId: 'exec-5', namespace: 'threadbear', tool: 'delete_thread', arguments: { threadId: 'abc' } });
+  const allowed = await h.conn.serverRequest('item/tool/call', { threadId: 'th-1', turnId: 'u1', callId: 'exec-5', namespace: 'quokkacode', tool: 'delete_thread', arguments: { threadId: 'abc' } });
   assert.equal((allowed.result as { success: boolean }).success, true);
   assert.deepEqual(calls, ['list fix', 'delete abc']);
   // Anything Codex asks that we don't handle gets -32601 straight away.
@@ -960,7 +960,7 @@ test('built as the runner builds it (no normaliser given), a turn runs on sectio
   await h.session.end();
 });
 
-test('in ask mode every threadbear tool that changes something asks first; read-only ones run', async () => {
+test('in ask mode every quokkacode tool that changes something asks first; read-only ones run', async () => {
   const ran: string[] = [];
   const mk = (name: string, readOnly = false) =>
     tool(name, `${name}.`, { threadId: z.string().optional(), permissionMode: z.string().optional() }, async () => {
@@ -973,7 +973,7 @@ test('in ask mode every threadbear tool that changes something asks first; read-
   h.session.send({ id: 'm1', text: 'x', images: [] });
   await turnStarts(h, 'u1');
   const call = (tool: string, args: Record<string, unknown> = {}, id = tool) =>
-    h.conn.serverRequest('item/tool/call', { threadId: 'th-1', turnId: 'u1', callId: `exec-${id}`, namespace: 'threadbear', tool, arguments: args });
+    h.conn.serverRequest('item/tool/call', { threadId: 'th-1', turnId: 'u1', callId: `exec-${id}`, namespace: 'quokkacode', tool, arguments: args });
   const ok = (r: Record<string, unknown>) => (r.result as { success: boolean }).success;
   // Read-only: no card.
   assert.equal(ok(await call('list_threads')), true);
@@ -982,17 +982,17 @@ test('in ask mode every threadbear tool that changes something asks first; read-
   // An ask-mode thread can't give itself full access without Mike.
   h.rec.state.approve = async () => ({ decision: 'deny' });
   assert.equal(ok(await call('update_thread', { permissionMode: 'full' })), false);
-  assert.equal(h.rec.approvals.at(-1)!.name, 'mcp__threadbear__update_thread');
+  assert.equal(h.rec.approvals.at(-1)!.name, 'mcp__quokkacode__update_thread');
   assert.equal(h.rec.approvals.at(-1)!.canAlwaysAllow, true);
   for (const t of ['create_thread', 'send_message', 'move_thread', 'schedule_message', 'update_schedule', 'interrupt_thread']) {
     assert.equal(ok(await call(t)), false, t);
-    assert.equal(h.rec.approvals.at(-1)!.name, `mcp__threadbear__${t}`);
+    assert.equal(h.rec.approvals.at(-1)!.name, `mcp__quokkacode__${t}`);
   }
   assert.deepEqual(ran, ['list_threads', 'read_thread'], 'nothing that changes something ran');
   // "Always allow" for one tool keeps a rule, and it isn't asked again.
   h.rec.state.approve = async () => ({ decision: 'allowAlways' });
   assert.equal(ok(await call('send_message', {}, 'a')), true);
-  assert.ok(h.rec.outputs.some((o) => o.kind === 'allowRules' && o.rules.includes('mcp__threadbear__send_message')));
+  assert.ok(h.rec.outputs.some((o) => o.kind === 'allowRules' && o.rules.includes('mcp__quokkacode__send_message')));
   const asked = h.rec.approvals.length;
   assert.equal(ok(await call('send_message', {}, 'b')), true);
   assert.equal(h.rec.approvals.length, asked);

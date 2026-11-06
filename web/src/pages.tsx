@@ -153,7 +153,7 @@ const ThreadRows = ({ rows }: { rows: Row[] }) => (
 
 // ------------------------------------------------------------ scheduled
 
-const FOLDED_DONE = 'threadbear.scheduledDoneOpen';
+const FOLDED_DONE = 'quokkacode.scheduledDoneOpen';
 
 export function ScheduledList({ token, selected }: { token: string; selected?: string }) {
   const rows = useLiveQuery(api.phone.schedules, { token }) as Schedule[] | undefined;

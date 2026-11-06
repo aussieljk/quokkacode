@@ -422,44 +422,44 @@ test('launchAgentBehind: launch.mjs, a plist that runs node, and an app built fr
   fs.writeFileSync(path.join(main, 'launch.mjs'), 'launch');
   fs.mkdirSync(path.join(home, 'runner'));
   fs.writeFileSync(path.join(home, 'runner', 'launch.mjs'), 'launch');
-  const app = path.join(home, 'Threadbear Runner.app');
+  const app = path.join(home, 'QuokkaCode Runner.app');
   fs.mkdirSync(path.join(app, 'Contents', 'Resources'), { recursive: true });
   const built = (sources: string) => fs.writeFileSync(path.join(app, 'Contents', 'Resources', 'build.json'), JSON.stringify({ sources }));
   built(launcherSourcesHash(path.join(main, 'launcher'))!);
-  const sup = { THREADBEAR_SUPERVISED: '1', THREADBEAR_RUNNER_APP: app };
+  const sup = { QUOKKACODE_SUPERVISED: '1', QUOKKACODE_RUNNER_APP: app };
 
   const noApp = () => undefined;
   assert.equal(launchAgentBehind(main, home, sup, noApp, 'darwin'), undefined, 'up to date');
   // Not under launch.mjs (a dev runner, a checkout): nothing to say about the app.
   assert.equal(launchAgentBehind(main, home, {}, noApp, 'darwin'), undefined);
   // Installed before the app: the plist runs node.
-  assert.match(launchAgentBehind(main, home, { THREADBEAR_SUPERVISED: '1' }, noApp, 'darwin')!, /^The LaunchAgent still runs node, not Threadbear Runner\.app/);
+  assert.match(launchAgentBehind(main, home, { QUOKKACODE_SUPERVISED: '1' }, noApp, 'darwin')!, /^The LaunchAgent still runs node, not QuokkaCode Runner\.app/);
   // On Linux systemd runs node and there's no app to be behind.
-  assert.equal(launchAgentBehind(main, home, { THREADBEAR_SUPERVISED: '1' }, noApp, 'linux'), undefined);
-  // A plist from before THREADBEAR_RUNNER_APP: the app is found above launch.mjs.
-  assert.equal(launchAgentBehind(main, home, { THREADBEAR_SUPERVISED: '1' }, () => app, 'darwin'), undefined);
+  assert.equal(launchAgentBehind(main, home, { QUOKKACODE_SUPERVISED: '1' }, noApp, 'linux'), undefined);
+  // A plist from before QUOKKACODE_RUNNER_APP: the app is found above launch.mjs.
+  assert.equal(launchAgentBehind(main, home, { QUOKKACODE_SUPERVISED: '1' }, () => app, 'darwin'), undefined);
   // The app is from older launcher sources, or its build.json is gone.
   built('old');
-  assert.equal(launchAgentBehind(main, home, sup, undefined, 'darwin'), "Threadbear Runner.app was built from older launcher sources than main's.");
+  assert.equal(launchAgentBehind(main, home, sup, undefined, 'darwin'), "QuokkaCode Runner.app was built from older launcher sources than main's.");
   fs.rmSync(path.join(app, 'Contents', 'Resources', 'build.json'));
   assert.match(launchAgentBehind(main, home, sup, undefined, 'darwin')!, /older launcher sources/);
   // Both at once, a sentence each.
   fs.writeFileSync(path.join(main, 'launch.mjs'), 'launch 2');
-  assert.equal(launchAgentBehind(main, home, sup, undefined, 'darwin'), "launch.mjs has changed on main. Threadbear Runner.app was built from older launcher sources than main's.");
+  assert.equal(launchAgentBehind(main, home, sup, undefined, 'darwin'), "launch.mjs has changed on main. QuokkaCode Runner.app was built from older launcher sources than main's.");
   // A main from before the launcher says nothing about it.
   fs.rmSync(path.join(main, 'launcher'), { recursive: true });
-  assert.equal(launchAgentBehind(main, home, { THREADBEAR_SUPERVISED: '1' }, () => app, 'darwin'), 'launch.mjs has changed on main.');
+  assert.equal(launchAgentBehind(main, home, { QUOKKACODE_SUPERVISED: '1' }, () => app, 'darwin'), 'launch.mjs has changed on main.');
 });
 
 test('appOfExecutable: only the launcher app\'s executable', () => {
-  assert.equal(appOfExecutable('/Users/m/Applications/Threadbear Runner.app/Contents/MacOS/Threadbear Runner'), '/Users/m/Applications/Threadbear Runner.app');
+  assert.equal(appOfExecutable('/Users/m/Applications/QuokkaCode Runner.app/Contents/MacOS/QuokkaCode Runner'), '/Users/m/Applications/QuokkaCode Runner.app');
   assert.equal(appOfExecutable('/Users/m/.nvm/versions/node/v24.22.1/bin/node'), undefined);
-  assert.equal(appOfExecutable('/Applications/Threadbear.app/Contents/MacOS/Threadbear'), undefined);
+  assert.equal(appOfExecutable('/Applications/QuokkaCode.app/Contents/MacOS/QuokkaCode'), undefined);
   assert.equal(appOfExecutable(''), undefined);
 });
 
 test('a check says when the LaunchAgent is behind main, for tb status and the Updates panel', async () => {
-  const h = harness({}, { env: { THREADBEAR_SUPERVISED: '1' }, findLauncherApp: () => undefined, platform: 'darwin' });
+  const h = harness({}, { env: { QUOKKACODE_SUPERVISED: '1' }, findLauncherApp: () => undefined, platform: 'darwin' });
   // main's runner/ as the updater's clone holds it.
   const launcher = path.join(updateDir(h.home), 'src', 'runner', 'launcher');
   fs.mkdirSync(launcher, { recursive: true });

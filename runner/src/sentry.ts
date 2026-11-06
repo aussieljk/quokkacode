@@ -1,10 +1,10 @@
-// Error reporting to Sentry (project `threadbear`, tag component: runner),
+// Error reporting to Sentry (project `quokkacode`, tag component: runner),
 // for the installed runner only. Agents start dev runners, tests and
 // sandbox installs all day, and an agent watcher opens a thread for what
 // reaches Sentry, so only a release snapshot (release.json beside src/)
 // running on the real data dir reports. Anything run from a checkout
 // (scripts/dev-runner.sh, `npm start`, the tests) has no release.json, and
-// a sandbox install has another home. THREADBEAR_SENTRY=off turns it off.
+// a sandbox install has another home. QUOKKACODE_SENTRY=off turns it off.
 // And only Mike's own copies (origin is mikecann/threadbear): someone's
 // fork never reports to Mike's Sentry, nor opens threads in his watcher
 // (docs/on-your-mac.md).
@@ -55,7 +55,7 @@ function releaseOrigin(): string | undefined {
 // data dir, not switched off. Pure but for the default origin, for the tests.
 export function sentryWanted(home: string, env: NodeJS.ProcessEnv = process.env, release: string | undefined = RELEASE.release, origin: string | undefined = release ? releaseOrigin() : undefined): boolean {
   if (!release) return false;
-  if (env.THREADBEAR_SENTRY === 'off' || env.NODE_ENV === 'test') return false;
+  if (env.QUOKKACODE_SENTRY === 'off' || env.NODE_ENV === 'test') return false;
   if (!origin || repoKey(origin) !== MIKES_REPO) return false;
   return realPath(home) === realPath(defaultHome());
 }
@@ -69,9 +69,9 @@ export async function startSentry(home: string): Promise<boolean> {
     S.init({
       dsn: DSN,
       environment: 'production',
-      release: `threadbear-runner@${RELEASE.version}`,
+      release: `quokkacode-runner@${RELEASE.version}`,
       // Not the Mac's own name, which the SDK sends by default.
-      serverName: 'threadbear-runner',
+      serverName: 'quokkacode-runner',
       // v11's replacement for sendDefaultPii: false. Its defaults collect
       // all of these, local variables included (a thread's text, a token).
       dataCollection: {
@@ -126,7 +126,7 @@ const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
 
 export type LogLevel = 'error' | 'warning';
 
-// Log lines that aren't Threadbear bugs, so they never become issues: a
+// Log lines that aren't Quokka Code bugs, so they never become issues: a
 // model call failing is a login's limit or a provider being down, and
 // Convex sync retries its network blips by itself.
 function notOurBug(msg: string, extra: Record<string, unknown> | undefined): boolean {

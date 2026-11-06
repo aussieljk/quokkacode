@@ -5,7 +5,7 @@
 #
 #   ./check.sh [--quick | --app] [--all] [--e2e] [--shots DIR] [--local]
 #
-# With a check host set (THREADBEAR_CHECK_HOST, or "checkHost" in the
+# With a check host set (QUOKKACODE_CHECK_HOST, or "checkHost" in the
 # runner's runner.json, an ssh host such as "tinker-desk"; or "checkHosts",
 # a list of them, the first free one that can run it taking each run, which
 # wins over checkHost so a copy older than the list still finds one), the checks run
@@ -29,7 +29,7 @@
 # The deploy tests (a few minutes) only run when something they cover
 # changed from main: runner/scripts/, launch.mjs, the launcher or the tests
 # themselves. BearDock's tests only run when dock/ changed (the app's own
-# build and tests cover how it uses it). The iPhone app's ThreadbearKit
+# build and tests cover how it uses it). The iPhone app's QuokkaCodeKit
 # tests run with any of the options when ios/ changed, --quick included, so
 # `tb land` runs them (MicTapTests guards a crash the phone hit twice). On
 # main itself, with nothing changed, everything runs.
@@ -48,7 +48,7 @@
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-NODE="${THREADBEAR_NODE:-$HOME/.nvm/versions/node/v24.22.1/bin/node}"
+NODE="${QUOKKACODE_NODE:-$HOME/.nvm/versions/node/v24.22.1/bin/node}"
 QUICK=0
 APP_ONLY=0
 ALL=0
@@ -79,13 +79,13 @@ if [ "$QUICK" = 1 ] && [ "$APP_ONLY" = 1 ]; then
   exit 2
 fi
 
-# The check host: THREADBEAR_CHECK_HOST (set and empty means none), or
-# runner.json's checkHost. Read before the THREADBEAR_* names go below.
+# The check host: QUOKKACODE_CHECK_HOST (set and empty means none), or
+# runner.json's checkHost. Read before the QUOKKACODE_* names go below.
 if [ "$LOCAL" = 0 ] && [ "$E2E" = 0 ]; then
-  if [ -n "${THREADBEAR_CHECK_HOST+set}" ]; then
-    CHECK_HOST="$THREADBEAR_CHECK_HOST"
+  if [ -n "${QUOKKACODE_CHECK_HOST+set}" ]; then
+    CHECK_HOST="$QUOKKACODE_CHECK_HOST"
   else
-    RUNNER_JSON="${THREADBEAR_HOME:-$HOME/Library/Application Support/Threadbear}/runner.json"
+    RUNNER_JSON="${QUOKKACODE_HOME:-$HOME/Library/Application Support/QuokkaCode}/runner.json"
     CHECK_HOST="$( [ -x "$NODE" ] && [ -f "$RUNNER_JSON" ] && "$NODE" -e '
       try { const j = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")); const h = Array.isArray(j.checkHosts) ? j.checkHosts : j.checkHost; const l = (Array.isArray(h) ? h : [h]).filter((x) => typeof x === "string" && /^[A-Za-z0-9][A-Za-z0-9._@-]*$/.test(x)); if (l.length) console.log(l.join(",")) } catch {}' "$RUNNER_JSON")"
   fi
@@ -101,29 +101,29 @@ elif [ "$E2E" = 1 ] && [ "$LOCAL" = 0 ]; then
 fi
 
 if [ ! -x "$NODE" ]; then
-  echo "No Node binary at $NODE. Set THREADBEAR_NODE to a Node 24 binary." >&2
+  echo "No Node binary at $NODE. Set QUOKKACODE_NODE to a Node 24 binary." >&2
   exit 1
 fi
 export PATH="$(dirname "$NODE"):$PATH"
-export THREADBEAR_NODE="$NODE"
-# Inside a Threadbear thread these name the live runner and the thread.
+export QUOKKACODE_NODE="$NODE"
+# Inside a Quokka Code thread these name the live runner and the thread.
 # Every test makes its own temp data dir; none may find the real one.
-unset THREADBEAR_HOME THREADBEAR_DATA_DIR THREADBEAR_PORT THREADBEAR_URL THREADBEAR_LOG \
-  THREADBEAR_THREAD_ID THREADBEAR_RUNNER_VERSION THREADBEAR_RUNNER_HOME
+unset QUOKKACODE_HOME QUOKKACODE_DATA_DIR QUOKKACODE_PORT QUOKKACODE_URL QUOKKACODE_LOG \
+  QUOKKACODE_THREAD_ID QUOKKACODE_RUNNER_VERSION QUOKKACODE_RUNNER_HOME
 # And their old names, which the runner and tb would otherwise take for these.
 for v in $(compgen -e | grep '^THREADBARE_' || true); do unset "$v"; done
 # No runner a check starts may install or update a CLI.
-export THREADBEAR_CLI_UPDATES=off
+export QUOKKACODE_CLI_UPDATES=off
 # Nor write to the real Convex project (the sync e2e points its own runner
-# at a local deployment with THREADBEAR_SYNC_URL).
-export THREADBEAR_SYNC=off
+# at a local deployment with QUOKKACODE_SYNC_URL).
+export QUOKKACODE_SYNC=off
 
 # What this checkout changes from main: committed since they parted, plus
 # anything uncommitted or untracked. Empty on main itself.
-if [ -n "${THREADBEAR_CHECK_CHANGED_FILE:-}" ]; then
+if [ -n "${QUOKKACODE_CHECK_CHANGED_FILE:-}" ]; then
   # On a check host: worked out on the Mac that sent the copy, which has
   # no .git (scripts/check-remote.sh).
-  CHANGED="$(cat "$THREADBEAR_CHECK_CHANGED_FILE")"
+  CHANGED="$(cat "$QUOKKACODE_CHECK_CHANGED_FILE")"
 else
 CHANGED="$( {
   base="$(git -C "$ROOT" merge-base HEAD main 2>/dev/null)" && git -C "$ROOT" diff --name-only "$base"
@@ -141,7 +141,7 @@ skip() {
 }
 
 TMP_ROOT="${TMPDIR:-/tmp}"
-LOGS="$(mktemp -d "${TMP_ROOT%/}/threadbear-check.XXXXXX")"
+LOGS="$(mktemp -d "${TMP_ROOT%/}/quokkacode-check.XXXXXX")"
 FAILED=""
 
 # step <name> <dir> <command...>: runs it with its output in a log file.
@@ -233,7 +233,7 @@ if [ "$QUICK" = 0 ]; then
     step "mock runner packages" "$ROOT/app/Tools/mock-runner" npm ci --no-audit --no-fund
   fi
   step "app build" "$ROOT/app" swift build
-  step "app tests" "$ROOT/app" env THREADBEAR_REQUIRE_MOCK=1 swift test
+  step "app tests" "$ROOT/app" env QUOKKACODE_REQUIRE_MOCK=1 swift test
   # BearDock, the window's docking panels: its layout tests.
   if needed '^dock/'; then
     step "dock tests" "$ROOT/dock" swift test
@@ -241,10 +241,10 @@ if [ "$QUICK" = 0 ]; then
     skip "dock tests" "nothing in dock/ changed"
   fi
 fi
-# The iPhone app's logic and source checks (ios/ThreadbearKit), on the Mac.
+# The iPhone app's logic and source checks (ios/QuokkaCodeKit), on the Mac.
 # The app itself only builds with Xcode; ios/scripts/sim-shots.sh does that.
 if needed '^ios/'; then
-  step "iphone kit tests" "$ROOT/ios/ThreadbearKit" swift test
+  step "iphone kit tests" "$ROOT/ios/QuokkaCodeKit" swift test
 else
   skip "iphone kit tests" "nothing in ios/ changed"
 fi

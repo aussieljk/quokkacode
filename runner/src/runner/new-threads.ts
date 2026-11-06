@@ -95,7 +95,7 @@ export const newThreadsPart = {
 
   // The tour's sample threads (docs/protocol.md, threads.samples; samples.ts):
   // made up exchanges written as finished turns, like a quick ask, in the
-  // folder the app gives (~/ThreadbearThreads/Welcome, where its example patch
+  // folder the app gives (~/QuokkaCodeThreads/Welcome, where its example patch
   // is), so someone new has threads to hibernate, archive and look round.
   // Asking again makes them afresh; remove deletes them all, archived and
   // hibernating ones too.
@@ -108,7 +108,7 @@ export const newThreadsPart = {
     // The folder and its example patch, written here and trusted as written:
     // one changed since is someone's code, and waits like any other.
     const cwd = path.resolve(expandHome(params.cwd));
-    const patchFile = path.join(cwd, '.threadbear', 'patches', 'welcome.ts');
+    const patchFile = path.join(cwd, '.quokkacode', 'patches', 'welcome.ts');
     fs.mkdirSync(path.dirname(patchFile), { recursive: true });
     if (!fs.existsSync(patchFile)) fs.writeFileSync(patchFile, WELCOME_PATCH);
     if (fs.readFileSync(patchFile, 'utf8') === WELCOME_PATCH) this.trustAgentPatches([{ path: patchFile, sha256: crypto.createHash('sha256').update(WELCOME_PATCH).digest('hex'), base: null }], cwd);

@@ -1,6 +1,6 @@
 # A worktree per thread
 
-Mike, 2026-10-27: several threads work on Threadbear at once, all in the
+Mike, 2026-10-27: several threads work on Quokka Code at once, all in the
 same checkout. One thread's `git add -A` has swept another's half-done work
 into a commit, merges and test runs collide, and every agent has to
 remember to make its own worktree. Instead, a repo can ask for each new
@@ -26,7 +26,7 @@ export default {
 ```
 
 The first patch in the thread's folder chain with a `worktree` wins (home's
-`~/.threadbear/patches/` never counts: worktrees are a repo's choice). The
+`~/.quokkacode/patches/` never counts: worktrees are a repo's choice). The
 repo is the git toplevel of the folder the patch is in, and its main
 checkout is the one with `main` checked out.
 
@@ -46,8 +46,8 @@ for a folder inside an opted-in repo:
    shown in the thread, and the thread starts in the main checkout as
    before.
 2. The thread's `cwd` is the same subfolder of the worktree as the folder
-   asked for (asking for `~/dev/me/threadbear/runner` gives
-   `.../threadbear-threads/<id8>/runner`).
+   asked for (asking for `~/dev/me/quokkacode/runner` gives
+   `.../quokkacode-threads/<id8>/runner`).
 3. `setup` runs in the worktree's root before the first turn starts. Its
    output goes in the transcript as an `action.run` event (`trigger:
    "worktree.setup"`). A failure is shown and the turn starts anyway.
@@ -72,7 +72,7 @@ checked, `tb land` puts it on main.
 chip, which is a command action every opted-in thread gets):
 
 It first takes an OS lock in the repo's common git directory
-(`threadbear-land.lock`), held through the check and fast-forward. Other
+(`quokkacode-land.lock`), held through the check and fast-forward. Other
 landings wait before rebasing, so each checks against the main left by the
 previous landing. The lock releases when the command exits, even on a
 crash; the empty lock file stays. Separate repos do not block one another.
@@ -115,7 +115,7 @@ its next turn in the main checkout, with a note.
 
 The folder is only removed while it's still a checkout of the thread's own
 branch: slot folders are reused, and a record can miss hearing its worktree
-went (THREADBEAR-16, 6 Nov: a handover saved it while the cleanup ran; a
+went (QUOKKACODE-16, 6 Nov: a handover saved it while the cleanup ran; a
 handover now keeps that thread until the cleanup is done, for up to ten
 minutes, while the rest move across). A folder that's
 another checkout's now is left alone and the thread treats it as a spare's.
@@ -143,7 +143,7 @@ With `keep`:
 - New worktrees are `<repo>-threads/slot-<n>`, not `<id8>`, as the folder
   outlives the thread.
 - Cleaning up a landed one detaches it, deletes its branch and locks it
-  (`git worktree lock --reason "threadbear spare"`): a spare. Past six
+  (`git worktree lock --reason "quokkacode spare"`): a spare. Past six
   spares (`MAX_SPARES`), it's removed as before.
 - A new thread takes a spare if there is one: unlocking is the claim, so
   two threads (or a thread and `borrow-worktree.sh`) never get the same
@@ -161,7 +161,7 @@ A hand-merge from a borrowed worktree holds the same landing lock. From
 that worktree, on a Mac:
 
 ```sh
-/usr/bin/lockf -k "$(git rev-parse --git-common-dir)/threadbear-land.lock" /bin/sh /path/to/landing-script
+/usr/bin/lockf -k "$(git rev-parse --git-common-dir)/quokkacode-land.lock" /bin/sh /path/to/landing-script
 ```
 
 On Linux use `flock -x` in place of `/usr/bin/lockf -k`. The script must
