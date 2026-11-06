@@ -340,7 +340,7 @@ unit() {
 # Quokka Code runner, written by runner/scripts/install-runner.sh. Reinstall
 # rather than edit: the next install writes it again.
 [Unit]
-Description=QuokkaCode runner ($LABEL)
+Description=Quokka Code runner ($LABEL)
 After=network-online.target
 Wants=network-online.target
 

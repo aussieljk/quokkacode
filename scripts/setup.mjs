@@ -485,7 +485,7 @@ try {
   say();
   if (joining) joined();
   else finish(url);
-  say(dry ? '\nDry run done.' : '\nQuokkaCode is set up.');
+  say(dry ? '\nDry run done.' : '\nQuokka Code is set up.');
 } catch (e) {
   if (!(e instanceof Fail)) throw e;
   console.error(`\n✗ ${e.message}\nFix that and run setup again; it carries on from where it stopped.`);
