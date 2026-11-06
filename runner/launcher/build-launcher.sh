@@ -89,6 +89,19 @@ COMMIT="$(git -C "$HERE" rev-parse HEAD 2>/dev/null || true)"
 printf '{\n  "sources": "%s",\n  "commit": "%s",\n  "builtAt": "%s"\n}\n' \
   "$(sources_hash)" "$COMMIT" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$STAGE_DIR/Contents/Resources/build.json"
 
+# A local signing keychain (no password, made on this Mac) wins when it's
+# there: the login keychain can be locked to codesign run from a background
+# job (errSecInternalComponent), and this one never needs a prompt.
+SIGN_KEYCHAIN_ARGS=()
+LOCAL_SIGN_KEYCHAIN="$HOME/Library/Keychains/quokkacode-signing.keychain-db"
+if [ -z "${THREADBEAR_SIGN_IDENTITY:-}" ] && [ -f "$LOCAL_SIGN_KEYCHAIN" ]; then
+  security unlock-keychain -p "" "$LOCAL_SIGN_KEYCHAIN" 2>/dev/null || true
+  LOCAL_SIGN_HASH="$(security find-certificate -c "Quokka Code Local Signing" -Z "$LOCAL_SIGN_KEYCHAIN" 2>/dev/null | sed -n 's/^SHA-1 hash: //p' | head -n 1)"
+  if [ -n "$LOCAL_SIGN_HASH" ]; then
+    THREADBEAR_SIGN_IDENTITY="$LOCAL_SIGN_HASH"
+    SIGN_KEYCHAIN_ARGS=(--keychain "$LOCAL_SIGN_KEYCHAIN")
+  fi
+fi
 SIGN_IDENTITY="${THREADBEAR_SIGN_IDENTITY:-$({
   security find-identity -v -p codesigning 2>/dev/null \
     | sed -n 's/.*"\(Apple Development:[^"]*\)".*/\1/p' \
@@ -102,7 +115,7 @@ fi
 # swiftc signs the binary ad hoc as it builds; taking that off first keeps
 # codesign from saying "replacing existing signature" on every build.
 codesign --remove-signature "$STAGE_DIR/Contents/MacOS/$APP_NAME" 2>/dev/null || true
-codesign --force --timestamp=none --sign "$SIGN_IDENTITY" \
+codesign --force --timestamp=none ${SIGN_KEYCHAIN_ARGS[@]+"${SIGN_KEYCHAIN_ARGS[@]}"} --sign "$SIGN_IDENTITY" \
   ${SIGNING_REQUIREMENTS[@]+"${SIGNING_REQUIREMENTS[@]}"} "$STAGE_DIR" >/dev/null
 
 # Two renames: the old app is gone for an instant, never half there. A
